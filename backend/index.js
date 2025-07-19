@@ -136,15 +136,9 @@ app.use(express.json());
 // Rutas de autenticación
 app.use('/api/auth', authRoutes);
 
-// RUTA CATCH-ALL PARA CUALQUIER RUTA QUE NO SEA /api/* - SIEMPRE SERVIR HTML
-app.get('*', (req, res, next) => {
-  // Si la ruta empieza con /api/, continuar con las siguientes rutas
-  if (req.path.startsWith('/api/')) {
-    return next();
-  }
-  
-  // Para cualquier otra ruta, servir HTML
-  console.log('🎯 Sirviendo HTML desde catch-all para:', req.path);
+// RUTA PRINCIPAL ÚNICA - ANTES DE TODO LO DEMÁS
+app.get('/', (req, res) => {
+  console.log('🎯 Sirviendo HTML desde ruta principal única');
   res.setHeader('Content-Type', 'text/html');
   res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
   res.setHeader('Pragma', 'no-cache');
@@ -273,7 +267,7 @@ app.get('*', (req, res, next) => {
 <body>
     <div class="container">
         <h1>🏥 Sistema de Tableros de Control</h1>
-        <div class="status">✅ Sistema funcionando correctamente - CATCH-ALL</div>
+        <div class="status">✅ Sistema funcionando correctamente - GLOBAL</div>
         
         <div class="menu">
             <a href="/api/produccion-internacion" class="menu-item">
