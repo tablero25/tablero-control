@@ -133,6 +133,9 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Servir archivos estáticos del frontend construido
+app.use(express.static(path.join(__dirname, '../frontend/build')));
+
 // Rutas de autenticación
 app.use('/api/auth', authRoutes);
 
@@ -1666,6 +1669,11 @@ app.get('/guardia/descargar/:establecimiento/:anio/:mes', (req, res) => {
   const archivo = archivos[0];
   const ruta = path.join(dir, archivo);
   res.download(ruta, archivo);
+});
+
+// Servir el frontend React para cualquier ruta que no sea una API
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/build', 'index.html'));
 });
 
 const PORT = process.env.PORT || 5001;
