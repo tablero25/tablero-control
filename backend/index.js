@@ -1671,7 +1671,7 @@ app.get('/guardia/descargar/:establecimiento/:anio/:mes', (req, res) => {
 // Servir archivos estáticos
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Ruta principal - SIEMPRE servir HTML (FORZADO)
+// Ruta principal - SIEMPRE SERVIR HTML (ANTES DE TODO)
 app.get('/', (req, res) => {
   console.log('🎯 Sirviendo HTML desde ruta principal');
   res.setHeader('Content-Type', 'text/html');
@@ -1802,7 +1802,7 @@ app.get('/', (req, res) => {
 <body>
     <div class="container">
         <h1>🏥 Sistema de Tableros de Control</h1>
-        <div class="status">✅ Sistema funcionando correctamente - ACTUALIZADO</div>
+        <div class="status">✅ Sistema funcionando correctamente - GLOBAL</div>
         
         <div class="menu">
             <a href="/api/produccion-internacion" class="menu-item">
@@ -1868,6 +1868,7 @@ app.get('/', (req, res) => {
     </script>
 </body>
 </html>`;
+  
   res.send(html);
 });
 
