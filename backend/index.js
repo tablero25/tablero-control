@@ -149,7 +149,7 @@ app.get('/', (req, res) => {
 <body>
     <div class="container">
         <h1>🏥 Sistema de Tableros de Control</h1>
-        <div class="status">✅ Sistema funcionando correctamente - APIS RESTAURADAS</div>
+        <div class="status">✅ Sistema funcionando correctamente - APIS COMPLETAS</div>
         
         <div class="menu">
             <a href="/api/produccion-internacion" class="menu-item">
