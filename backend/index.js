@@ -136,9 +136,9 @@ app.use(express.json());
 // Rutas de autenticación
 app.use('/api/auth', authRoutes);
 
-// RUTA PRINCIPAL ÚNICA - ANTES DE TODO LO DEMÁS
+// RUTA PRINCIPAL ABSOLUTA - ANTES DE CUALQUIER COSA
 app.get('/', (req, res) => {
-  console.log('🎯 Sirviendo HTML desde ruta principal única');
+  console.log('🎯 Sirviendo HTML desde ruta principal absoluta');
   res.setHeader('Content-Type', 'text/html');
   res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
   res.setHeader('Pragma', 'no-cache');
@@ -267,7 +267,7 @@ app.get('/', (req, res) => {
 <body>
     <div class="container">
         <h1>🏥 Sistema de Tableros de Control</h1>
-        <div class="status">✅ Sistema funcionando correctamente - GLOBAL</div>
+        <div class="status">✅ Sistema funcionando correctamente - ABSOLUTO</div>
         
         <div class="menu">
             <a href="/api/produccion-internacion" class="menu-item">
