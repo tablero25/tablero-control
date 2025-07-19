@@ -10,6 +10,7 @@ import ChangePassword from './ChangePassword';
 import Configuracion from './Configuracion';
 import RolesPage from './RolesPage';
 import ConfirmUser from './ConfirmUser';
+import TestConfig from './TestConfig';
 import API_BASE_URL from './config';
 
 // Suprimir warnings de ResizeObserver en desarrollo
@@ -2102,6 +2103,22 @@ function App() {
                 <button className="logout-btn" onClick={handleLogout}>Cerrar sesión</button>
               </div>
               <RolesPage />
+            </div>
+          ) : (
+            <Login />
+          )
+        } />
+        <Route path="/test-config" element={
+          user && user.role === 'ADMIN' ? (
+            <div>
+              <div className="logout-bar">
+                <span className="user-name">{user?.nombre} {user?.apellido}</span>
+                <button className="config-btn" onClick={() => window.location.href = '/configuracion'}>
+                  Volver a Configuración
+                </button>
+                <button className="logout-btn" onClick={handleLogout}>Cerrar sesión</button>
+              </div>
+              <TestConfig />
             </div>
           ) : (
             <Login />
