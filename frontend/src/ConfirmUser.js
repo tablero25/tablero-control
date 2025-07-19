@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate, useParams } from 'react-router-dom';
 import './ConfirmUser.css';
+import API_BASE_URL from './config';
 
 const ConfirmUser = () => {
   const [searchParams] = useSearchParams();
@@ -22,7 +23,7 @@ const ConfirmUser = () => {
       }
 
       try {
-        const response = await fetch(`http://localhost:5001/api/auth/confirm/${token}`, {
+        const response = await fetch(`${API_BASE_URL}/api/auth/confirm/${token}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -60,7 +61,7 @@ const ConfirmUser = () => {
     }
 
     try {
-      const response = await fetch('http://localhost:5001/api/auth/resend-confirmation', {
+      const response = await fetch(`${API_BASE_URL}/api/auth/resend-confirmation`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

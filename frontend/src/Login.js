@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import logoSDO from './logoo.png';
+import API_BASE_URL from './config';
 
 function Login({ onLogin, onShowRegister }) {
   const [username, setUsername] = useState('');
@@ -10,7 +11,7 @@ function Login({ onLogin, onShowRegister }) {
     e.preventDefault();
     setError('');
     try {
-      const res = await fetch('http://localhost:5001/api/auth/login', {
+      const res = await fetch(`${API_BASE_URL}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password }),

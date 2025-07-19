@@ -10,6 +10,7 @@ import ChangePassword from './ChangePassword';
 import Configuracion from './Configuracion';
 import RolesPage from './RolesPage';
 import ConfirmUser from './ConfirmUser';
+import API_BASE_URL from './config';
 
 // Suprimir warnings de ResizeObserver en desarrollo
 if (process.env.NODE_ENV === 'development') {
@@ -224,14 +225,14 @@ function IndicadoresCamasEstablecimiento() {
 
   // Cargar lista de archivos/años al entrar
   useEffect(() => {
-            fetchWithAuth(`http://localhost:5001/archivos/${encodeURIComponent(nombreEstablecimiento)}`)
+            fetchWithAuth(`${API_BASE_URL}/archivos/${encodeURIComponent(nombreEstablecimiento)}`)
       .then(res => res.json())
       .then(data => setArchivos((data.archivos || []).map(a => typeof a === 'string' ? { archivo: a } : a)));
   }, [nombreEstablecimiento, guardado]);
 
   // Cargar archivos específicos del año seleccionado
   useEffect(() => {
-            fetchWithAuth(`http://localhost:5001/archivos/${encodeURIComponent(nombreEstablecimiento)}/${anio}`)
+            fetchWithAuth(`${API_BASE_URL}/archivos/${encodeURIComponent(nombreEstablecimiento)}/${anio}`)
       .then(res => res.json())
       .then(data => {
         const archivosAdaptados = (data.archivos || []).map(a => typeof a === 'string' ? { archivo: a } : a);
@@ -249,7 +250,7 @@ function IndicadoresCamasEstablecimiento() {
   useEffect(() => {
     if (archivoSeleccionado) {
       // Cargar datos del archivo guardado
-              fetchWithAuth(`http://localhost:5001/leer/${encodeURIComponent(nombreEstablecimiento)}/${anio}/${archivoSeleccionado}`)
+              fetchWithAuth(`${API_BASE_URL}/leer/${encodeURIComponent(nombreEstablecimiento)}/${anio}/${archivoSeleccionado}`)
         .then(res => res.json())
         .then(data => {
           if (data.success) {
@@ -394,7 +395,7 @@ function IndicadoresCamasEstablecimiento() {
   };
 
   const actualizarArchivos = (establecimiento, anio) => {
-            fetchWithAuth(`http://localhost:5001/archivos/${encodeURIComponent(establecimiento)}/${anio}`)
+            fetchWithAuth(`${API_BASE_URL}/archivos/${encodeURIComponent(establecimiento)}/${anio}`)
       .then(res => res.json())
       .then(data => setArchivos(data.archivos || []));
   };
@@ -418,7 +419,7 @@ function IndicadoresCamasEstablecimiento() {
     console.log('FormData creado con archivo:', archivo.name);
     
     try {
-      const url = `http://localhost:5001/guardar/${encodeURIComponent(nombreEstablecimiento)}/${anio}`;
+      const url = `${API_BASE_URL}/guardar/${encodeURIComponent(nombreEstablecimiento)}/${anio}`;
       console.log('Enviando a URL:', url);
       
       const response = await fetchWithAuth(url, {
@@ -763,7 +764,7 @@ function AtencionMedicaEstablecimiento() {
         for (const mes of mesesSeleccionados) {
           const formData = new FormData();
           formData.append('file', archivo);
-          const url = `http://localhost:5001/atencion-profesional/guardar/${encodeURIComponent(nombreEstablecimiento)}/${anio}/${encodeURIComponent(mes)}`;
+          const url = `${API_BASE_URL}/atencion-profesional/guardar/${encodeURIComponent(nombreEstablecimiento)}/${anio}/${encodeURIComponent(mes)}`;
           const response = await fetchWithAuth(url, {
             method: 'POST',
             body: formData
@@ -782,7 +783,7 @@ function AtencionMedicaEstablecimiento() {
         for (const mes of mesesSeleccionados) {
           const formData = new FormData();
           formData.append('file', archivoGuardia);
-          const url = `http://localhost:5001/guardia/guardar/${encodeURIComponent(nombreEstablecimiento)}/${anio}/${encodeURIComponent(mes)}`;
+          const url = `${API_BASE_URL}/guardia/guardar/${encodeURIComponent(nombreEstablecimiento)}/${anio}/${encodeURIComponent(mes)}`;
           const response = await fetchWithAuth(url, {
             method: 'POST',
             body: formData
@@ -852,7 +853,7 @@ function AtencionMedicaEstablecimiento() {
       // Procesar cada mes seleccionado
       for (const mes of meses) {
         // Extraer total de atención profesional para este mes
-        const urlProfesional = `http://localhost:5001/atencion-profesional/descargar/${encodeURIComponent(nombreEstablecimiento)}/${anio}/${encodeURIComponent(mes)}`;
+        const urlProfesional = `${API_BASE_URL}/atencion-profesional/descargar/${encodeURIComponent(nombreEstablecimiento)}/${anio}/${encodeURIComponent(mes)}`;
         const responseProfesional = await fetchWithAuth(urlProfesional);
         if (responseProfesional.ok) {
           const blobProfesional = await responseProfesional.blob();
@@ -862,7 +863,7 @@ function AtencionMedicaEstablecimiento() {
         }
 
         // Extraer total de guardia para este mes
-        const urlGuardia = `http://localhost:5001/guardia/descargar/${encodeURIComponent(nombreEstablecimiento)}/${anio}/${encodeURIComponent(mes)}`;
+        const urlGuardia = `${API_BASE_URL}/guardia/descargar/${encodeURIComponent(nombreEstablecimiento)}/${anio}/${encodeURIComponent(mes)}`;
         const responseGuardia = await fetchWithAuth(urlGuardia);
         if (responseGuardia.ok) {
           const blobGuardia = await responseGuardia.blob();
@@ -1484,7 +1485,7 @@ function RankingDiagnosticoCategoria() {
 
     try {
       // Llamar al backend para analizar archivos por meses
-      const response = await fetchWithAuth(`http://localhost:5001/ranking/analizar/${encodeURIComponent(nombreEstablecimiento)}/${encodeURIComponent(categoriaSeleccionada)}/${anio}`, {
+      const response = await fetchWithAuth(`${API_BASE_URL}/ranking/analizar/${encodeURIComponent(nombreEstablecimiento)}/${encodeURIComponent(categoriaSeleccionada)}/${anio}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -1550,7 +1551,7 @@ function RankingDiagnosticoCategoria() {
         try {
           // Usar el año detectado si ya tenemos uno, sino usar un año temporal
           const anioAUsar = añoDetectado || anio || new Date().getFullYear();
-          const url = `http://localhost:5001/ranking/guardar/${encodeURIComponent(nombreEstablecimiento)}/${encodeURIComponent(categoriaSeleccionada)}/${anioAUsar}`;
+          const url = `${API_BASE_URL}/ranking/guardar/${encodeURIComponent(nombreEstablecimiento)}/${encodeURIComponent(categoriaSeleccionada)}/${anioAUsar}`;
           console.log('URL de guardado:', url);
           
           const response = await fetchWithAuth(url, {
@@ -1849,7 +1850,7 @@ function App() {
     const token = localStorage.getItem('token');
     if (token) {
       // Verificar si el token es válido
-      fetch('http://localhost:5001/api/auth/verify', {
+      fetch(`${API_BASE_URL}/api/auth/verify`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }

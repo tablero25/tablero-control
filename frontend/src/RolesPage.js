@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import logoSDO from './logoo.png';
+import API_BASE_URL from './config';
 
 // Utilidad para fetch con token
 function fetchWithAuth(url, options = {}) {
@@ -28,7 +29,7 @@ function RolesPage() {
     setLoading(true);
     setError('');
     try {
-      const response = await fetchWithAuth('http://localhost:5001/api/auth/users');
+      const response = await fetchWithAuth(`${API_BASE_URL}/api/auth/users`);
       const data = await response.json();
       
       if (data.success) {
@@ -90,7 +91,7 @@ function RolesPage() {
     }
 
     try {
-      const response = await fetchWithAuth(`http://localhost:5001/api/auth/users/${selectedUser.id}/update-role`, {
+      const response = await fetchWithAuth(`${API_BASE_URL}/api/auth/users/${selectedUser.id}/update-role`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json'
