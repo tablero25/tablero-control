@@ -1671,8 +1671,14 @@ app.get('/guardia/descargar/:establecimiento/:anio/:mes', (req, res) => {
 // Servir archivos estáticos
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Ruta principal - SIEMPRE servir HTML
+// Ruta principal - SIEMPRE servir HTML (FORZADO)
 app.get('/', (req, res) => {
+  console.log('🎯 Sirviendo HTML desde ruta principal');
+  res.setHeader('Content-Type', 'text/html');
+  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+  
   const html = `
 <!DOCTYPE html>
 <html lang="es">
@@ -1784,12 +1790,18 @@ app.get('/', (req, res) => {
         .login-btn:hover {
             background: #c0392b;
         }
+        .timestamp {
+            text-align: center;
+            color: #7f8c8d;
+            font-size: 0.9em;
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>🏥 Sistema de Tableros de Control</h1>
-        <div class="status">✅ Sistema funcionando correctamente</div>
+        <div class="status">✅ Sistema funcionando correctamente - ACTUALIZADO</div>
         
         <div class="menu">
             <a href="/api/produccion-internacion" class="menu-item">
@@ -1835,6 +1847,10 @@ app.get('/', (req, res) => {
             <button class="login-btn" onclick="alert('Sistema funcionando correctamente. Las APIs están disponibles en /api/*')">
                 Verificar Estado
             </button>
+        </div>
+        
+        <div class="timestamp">
+            Última actualización: ${new Date().toLocaleString('es-ES')}
         </div>
     </div>
 
