@@ -222,6 +222,42 @@ app.get('/', (req, res) => {
 // Rutas de autenticación
 app.use('/api/auth', authRoutes);
 
+// Rutas de autenticación directas (backup)
+app.post('/api/auth/login-direct', async (req, res) => {
+  try {
+    const { username, password } = req.body;
+    
+    console.log('🔍 Login directo - Datos recibidos:', { username, password });
+    
+    if (!username || !password) {
+      return res.status(400).json({ error: 'Usuario y contraseña requeridos' });
+    }
+
+    // Respuesta de prueba
+    res.json({
+      success: true,
+      message: 'Login directo funcionando',
+      timestamp: new Date().toISOString(),
+      user: {
+        username: username,
+        role: 'admin',
+        first_login: false
+      }
+    });
+
+  } catch (error) {
+    console.error('Error en login directo:', error);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
+});
+
+app.get('/api/auth/test-direct', (req, res) => {
+  res.json({ 
+    message: 'API de autenticación directa funcionando correctamente',
+    timestamp: new Date().toISOString()
+  });
+});
+
 // Ruta de prueba simple
 app.get('/api/test', (req, res) => {
   res.json({
