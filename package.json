@@ -2,9 +2,9 @@
   "name": "tablero-root",
   "version": "1.0.0",
   "description": "Sistema de Tableros de Control - Full Stack",
-  "main": "backend/index.js",
+  "main": "backend/server.js",
   "scripts": {
-    "start": "node backend/index.js",
+    "start": "node backend/server.js",
     "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
     "dev:backend": "cd backend && npm run dev",
     "dev:frontend": "cd frontend && npm start",
