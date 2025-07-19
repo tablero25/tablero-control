@@ -15,6 +15,9 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Servir archivos estáticos desde la carpeta public
+app.use(express.static(path.join(__dirname, '../public')));
+
 // RUTA PRINCIPAL ABSOLUTA - PRIMERA Y ÚNICA
 app.get('/', (req, res) => {
   console.log('🎯 Sirviendo HTML desde ruta principal ABSOLUTA');
@@ -146,7 +149,7 @@ app.get('/', (req, res) => {
 <body>
     <div class="container">
         <h1>🏥 Sistema de Tableros de Control</h1>
-        <div class="status">✅ Sistema funcionando correctamente - NUEVO ARCHIVO</div>
+        <div class="status">✅ Sistema funcionando correctamente - APIS RESTAURADAS</div>
         
         <div class="menu">
             <a href="/api/produccion-internacion" class="menu-item">
@@ -215,9 +218,6 @@ app.get('/', (req, res) => {
   
   res.send(html);
 });
-
-// Servir archivos estáticos desde la carpeta public
-app.use(express.static(path.join(__dirname, '../public')));
 
 // Rutas de autenticación
 app.use('/api/auth', authRoutes);
