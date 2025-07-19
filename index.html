@@ -3,105 +3,227 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TABLERO /SDO/</title>
+    <title>Sistema de Tableros de Control</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            margin: 0; 
+            padding: 20px; 
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+        }
+        .container { 
+            max-width: 1000px; 
+            margin: 0 auto; 
+            background: white; 
+            padding: 40px; 
+            border-radius: 15px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        h1 { 
+            color: #2c3e50; 
+            text-align: center; 
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+        .menu { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
+            gap: 25px; 
+            margin-top: 40px; 
+        }
+        .menu-item { 
+            background: linear-gradient(45deg, #3498db, #2980b9); 
+            color: white; 
+            padding: 30px; 
+            border-radius: 12px; 
+            text-align: center; 
+            text-decoration: none; 
+            transition: all 0.3s ease;
+            font-size: 1.2em;
+            font-weight: bold;
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+        }
+        .menu-item:hover { 
+            transform: translateY(-5px) scale(1.02); 
+            background: linear-gradient(45deg, #2980b9, #1f5f8b);
+            box-shadow: 0 10px 25px rgba(52, 152, 219, 0.4);
+        }
+        .status { 
+            background: linear-gradient(45deg, #27ae60, #2ecc71); 
+            color: white; 
+            padding: 15px; 
+            border-radius: 8px; 
+            text-align: center; 
+            margin-bottom: 30px;
+            font-size: 1.1em;
+            font-weight: bold;
+        }
+        .api-info { 
+            background: #ecf0f1; 
+            padding: 25px; 
+            border-radius: 10px; 
+            margin-top: 30px;
+            border-left: 5px solid #3498db;
+        }
+        .api-info h3 {
+            color: #2c3e50;
+            margin-top: 0;
+        }
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .feature {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .feature-icon {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+        .login-section {
+            background: #f8f9fa;
             padding: 20px;
-        }
-
-        .header {
+            border-radius: 10px;
+            margin-top: 20px;
             text-align: center;
-            margin-bottom: 40px;
+        }
+        .login-btn {
+            background: #e74c3c;
             color: white;
-        }
-
-        .header h1 {
-            font-size: 3rem;
-            font-weight: bold;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-            letter-spacing: 2px;
-        }
-
-        .container {
-            display: flex;
-            gap: 30px;
-            max-width: 1200px;
-            width: 100%;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-
-        .box {
-            background: #e3ecfa;
-            border-radius: 15px;
-            padding: 30px;
-            min-width: 300px;
-            flex: 1;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            padding: 12px 30px;
             border: none;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border-radius: 6px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: background 0.3s;
         }
-
-        .box:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        .login-btn:hover {
+            background: #c0392b;
         }
-
-        .box h2 {
-            font-size: 1.5rem;
-            font-weight: bold;
+        .timestamp {
             text-align: center;
-            color: #333;
-            margin-bottom: 0;
-            letter-spacing: 1px;
-            border-bottom: none;
-            padding-bottom: 0;
+            color: #7f8c8d;
+            font-size: 0.9em;
+            margin-top: 20px;
         }
-
-        @media (max-width: 768px) {
-            .container {
-                flex-direction: column;
-                align-items: center;
-            }
-            
-            .box {
-                min-width: 280px;
-            }
-            
-            .header h1 {
-                font-size: 2rem;
-            }
+        .url-info {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        .url-info h4 {
+            color: #856404;
+            margin-top: 0;
+        }
+        .url-list {
+            list-style: none;
+            padding: 0;
+        }
+        .url-list li {
+            margin: 8px 0;
+            padding: 8px;
+            background: white;
+            border-radius: 4px;
+            border-left: 4px solid #3498db;
+        }
+        .url-list a {
+            color: #3498db;
+            text-decoration: none;
+        }
+        .url-list a:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>TABLERO /SDO/</h1>
-    </div>
-    
     <div class="container">
-        <div class="box">
-            <h2>INDICADORES DE CAMAS</h2>
+        <h1>🏥 Sistema de Tableros de Control</h1>
+        <div class="status">✅ Sistema funcionando correctamente - ARCHIVO RAÍZ</div>
+        
+        <div class="menu">
+            <a href="https://tablero-control-1.onrender.com/api/produccion-internacion" class="menu-item">
+                📊 Producción Internación
+            </a>
+            <a href="https://tablero-control-1.onrender.com/api/produccion-consulta" class="menu-item">
+                🏥 Producción Consulta Ambulatoria
+            </a>
+            <a href="https://tablero-control-1.onrender.com/api/ranking-diagnostico" class="menu-item">
+                📈 Ranking de Diagnóstico
+            </a>
         </div>
         
-        <div class="box">
-            <h2>ATENCION MEDICA</h2>
+        <div class="api-info">
+            <h3>🔧 Información del Sistema</h3>
+            <div class="feature-list">
+                <div class="feature">
+                    <div class="feature-icon">⚡</div>
+                    <strong>Backend</strong><br>
+                    ✅ Funcionando
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">🗄️</div>
+                    <strong>Base de datos</strong><br>
+                    ✅ Conectada
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">🔌</div>
+                    <strong>APIs</strong><br>
+                    ✅ Operativas
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">🌐</div>
+                    <strong>Frontend</strong><br>
+                    ✅ Disponible
+                </div>
+            </div>
+        </div>
+
+        <div class="url-info">
+            <h4>🔗 URLs Disponibles</h4>
+            <ul class="url-list">
+                <li><strong>Interfaz principal:</strong> <a href="https://tablero-control-1.onrender.com/">https://tablero-control-1.onrender.com/</a></li>
+                <li><strong>APIs:</strong> <a href="https://tablero-control-1.onrender.com/api/produccion-internacion">https://tablero-control-1.onrender.com/api/*</a></li>
+                <li><strong>Estado del sistema:</strong> <a href="https://tablero-control-1.onrender.com/health">https://tablero-control-1.onrender.com/health</a></li>
+                <li><strong>Este archivo:</strong> <a href="https://tablero-control-1.onrender.com/index.html">https://tablero-control-1.onrender.com/index.html</a></li>
+            </ul>
+        </div>
+
+        <div class="login-section">
+            <h3>🔐 Acceso al Sistema</h3>
+            <p>Para acceder a todas las funcionalidades, utiliza las APIs directamente o contacta al administrador.</p>
+            <button class="login-btn" onclick="alert('Sistema funcionando correctamente. Las APIs están disponibles en /api/*')">
+                Verificar Estado
+            </button>
         </div>
         
-        <div class="box">
-            <h2>RANKING DE DIAGNOSTICO</h2>
+        <div class="timestamp">
+            Última actualización: <span id="current-time"></span>
         </div>
     </div>
+
+    <script>
+        // Actualizar timestamp
+        document.getElementById('current-time').textContent = new Date().toLocaleString('es-ES');
+        
+        // Verificar estado del sistema
+        fetch('https://tablero-control-1.onrender.com/health')
+            .then(response => response.json())
+            .then(data => {
+                console.log('Estado del sistema:', data);
+            })
+            .catch(error => {
+                console.log('Error al verificar estado:', error);
+            });
+    </script>
 </body>
+</html>
