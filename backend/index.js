@@ -1673,13 +1673,13 @@ app.get('/', (req, res) => {
   res.json({
     message: 'Sistema de Tableros de Control - Backend funcionando correctamente',
     status: 'OK',
-    timestamp: new Date().toISOString(),
-    endpoints: {
-      auth: '/api/auth',
-      establecimientos: '/establecimientos',
-      upload: '/guardar/:establecimiento/:anio'
-    }
+    timestamp: new Date().toISOString()
   });
+});
+
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.json({ status: 'OK', timestamp: new Date().toISOString() });
 });
 
 const PORT = process.env.PORT || 5001;
