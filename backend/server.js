@@ -52,18 +52,6 @@ app.get('/dashboard', (req, res) => {
   res.sendFile(path.join(__dirname, '../frontend/build/index.html'));
 });
 
-// Catch-all para todas las demás rutas del frontend
-app.get('*', (req, res, next) => {
-  // Si la ruta empieza con /api, continuar con las rutas de API
-  if (req.path.startsWith('/api/')) {
-    return next();
-  }
-  
-  // Para todas las demás rutas, servir el frontend React
-  console.log(`🌐 Sirviendo frontend React para ruta: ${req.path}`);
-  res.sendFile(path.join(__dirname, '../frontend/build/index.html'));
-});
-
 // Rutas de autenticación directas
 app.post('/api/auth/login', async (req, res) => {
   try {
@@ -120,14 +108,16 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// Ruta de salud simple
-app.get('/health', (req, res) => {
-  res.json({
-    status: 'OK',
-    message: 'Sistema funcionando correctamente',
-    timestamp: new Date().toISOString(),
-    version: '1.0.0'
-  });
+// Catch-all para todas las demás rutas del frontend (DEBE IR AL FINAL)
+app.get('*', (req, res, next) => {
+  // Si la ruta empieza con /api, continuar con las rutas de API
+  if (req.path.startsWith('/api/')) {
+    return next();
+  }
+  
+  // Para todas las demás rutas, servir el frontend React
+  console.log(`🌐 Sirviendo frontend React para ruta: ${req.path}`);
+  res.sendFile(path.join(__dirname, '../frontend/build/index.html'));
 });
 
 // Puerto del servidor
