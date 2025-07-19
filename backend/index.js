@@ -242,30 +242,6 @@ app.get('/health', (req, res) => {
   });
 });
 
-// RUTA CATCH-ALL PARA CUALQUIER OTRA RUTA QUE NO SEA API
-app.get('*', (req, res, next) => {
-  if (req.path.startsWith('/api/')) {
-    return next();
-  }
-  
-  // Para cualquier otra ruta, redirigir a la principal
-  console.log('🎯 Redirigiendo a ruta principal desde catch-all:', req.path);
-  res.redirect('/');
-});
-
-// Rutas de autenticación
-app.use('/api/auth', authRoutes);
-
-// Ruta de salud del sistema
-app.get('/api/health', (req, res) => {
-  res.json({
-    status: 'OK',
-    message: 'Sistema funcionando correctamente',
-    timestamp: new Date().toISOString(),
-    version: '1.0.0'
-  });
-});
-
 // Puerto del servidor
 const PORT = process.env.PORT || 5001;
 
