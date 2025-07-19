@@ -1668,8 +1668,10 @@ app.get('/guardia/descargar/:establecimiento/:anio/:mes', (req, res) => {
   res.download(ruta, archivo);
 });
 
-app.listen(5001, async () => {
-  console.log('Backend Excel server running on http://localhost:5001');
+const PORT = process.env.PORT || 5001;
+
+app.listen(PORT, async () => {
+  console.log(`Backend Excel server running on port ${PORT}`);
   
   // Inicializar base de datos automáticamente al arrancar
   try {
