@@ -1680,7 +1680,16 @@ app.get('/', (req, res) => {
   res.setHeader('Expires', '0');
   res.setHeader('X-Render-Cache-Bypass', 'true');
   
-  const html = `
+  // Servir el mismo HTML que está en index.html
+  const htmlPath = path.join(__dirname, '..', 'index.html');
+  if (fs.existsSync(htmlPath)) {
+    console.log('📄 Sirviendo index.html desde archivo');
+    const htmlContent = fs.readFileSync(htmlPath, 'utf8');
+    res.send(htmlContent);
+  } else {
+    console.log('📄 Sirviendo HTML inline (fallback)');
+    
+    const html = `
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -2075,6 +2084,84 @@ app.get('/html', (req, res) => {
 </body>
 </html>`;
   res.send(html);
+});
+
+// Ruta específica para index.html
+app.get('/index.html', (req, res) => {
+  console.log('🎯 Sirviendo index.html específico');
+  res.setHeader('Content-Type', 'text/html');
+  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+  res.setHeader('X-Render-Cache-Bypass', 'true');
+  
+  const htmlPath = path.join(__dirname, '..', 'index.html');
+  if (fs.existsSync(htmlPath)) {
+    console.log('📄 Sirviendo index.html desde archivo');
+    const htmlContent = fs.readFileSync(htmlPath, 'utf8');
+    res.send(htmlContent);
+  } else {
+    console.log('📄 Sirviendo HTML inline (fallback)');
+    res.send(`
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Tableros de Control</title>
+    <style>
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            margin: 0; 
+            padding: 20px; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container { 
+            max-width: 1000px; 
+            margin: 0 auto; 
+            background: white; 
+            padding: 40px; 
+            border-radius: 15px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        h1 { 
+            color: #2c3e50; 
+            text-align: center; 
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+        .status { 
+            background: linear-gradient(45deg, #27ae60, #2ecc71); 
+            color: white; 
+            padding: 15px; 
+            border-radius: 8px; 
+            text-align: center; 
+            margin-bottom: 30px;
+            font-size: 1.1em;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏥 Sistema de Tableros de Control</h1>
+        <div class="status">✅ Sistema funcionando correctamente - INDEX.HTML</div>
+        <p style="text-align: center; font-size: 1.2em;">El sistema está funcionando correctamente desde cualquier lugar del mundo.</p>
+        <div style="text-align: center; margin-top: 30px;">
+            <a href="/api/produccion-internacion" style="background: #3498db; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; margin: 10px;">📊 Producción Internación</a>
+            <a href="/api/produccion-consulta" style="background: #e74c3c; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; margin: 10px;">🏥 Producción Consulta</a>
+            <a href="/api/ranking-diagnostico" style="background: #27ae60; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; margin: 10px;">📈 Ranking Diagnóstico</a>
+        </div>
+        <div style="text-align: center; margin-top: 30px; color: #7f8c8d;">
+            Última actualización: ${new Date().toLocaleString('es-ES')}
+        </div>
+    </div>
+</body>
+</html>
+    `);
+  }
 });
 
 // Health check endpoint
