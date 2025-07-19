@@ -12,8 +12,8 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Servir archivos estáticos del frontend React
-app.use(express.static(path.join(__dirname, '../frontend/build')));
+// Servir archivos estáticos del frontend React (copiado por render-build.sh)
+app.use(express.static(path.join(__dirname, 'build')));
 
 // Ruta de health check
 app.get('/health', (req, res) => {
@@ -28,28 +28,28 @@ app.get('/health', (req, res) => {
 // RUTA PRINCIPAL - Sirve el frontend React
 app.get('/', (req, res) => {
   console.log('🎯 Sirviendo frontend React desde ruta principal');
-  res.sendFile(path.join(__dirname, '../frontend/build/index.html'));
+  res.sendFile(path.join(__dirname, 'build/index.html'));
 });
 
 // RUTAS DEL FRONTEND - Todas las rutas que no sean /api/* van al frontend React
 app.get('/login', (req, res) => {
   console.log('🔐 Sirviendo página de login');
-  res.sendFile(path.join(__dirname, '../frontend/build/index.html'));
+  res.sendFile(path.join(__dirname, 'build/index.html'));
 });
 
 app.get('/register', (req, res) => {
   console.log('📝 Sirviendo página de registro');
-  res.sendFile(path.join(__dirname, '../frontend/build/index.html'));
+  res.sendFile(path.join(__dirname, 'build/index.html'));
 });
 
 app.get('/confirm', (req, res) => {
   console.log('✅ Sirviendo página de confirmación');
-  res.sendFile(path.join(__dirname, '../frontend/build/index.html'));
+  res.sendFile(path.join(__dirname, 'build/index.html'));
 });
 
 app.get('/dashboard', (req, res) => {
   console.log('📊 Sirviendo dashboard');
-  res.sendFile(path.join(__dirname, '../frontend/build/index.html'));
+  res.sendFile(path.join(__dirname, 'build/index.html'));
 });
 
 // Rutas de autenticación directas
@@ -117,7 +117,7 @@ app.get('*', (req, res, next) => {
   
   // Para todas las demás rutas, servir el frontend React
   console.log(`🌐 Sirviendo frontend React para ruta: ${req.path}`);
-  res.sendFile(path.join(__dirname, '../frontend/build/index.html'));
+  res.sendFile(path.join(__dirname, 'build/index.html'));
 });
 
 // Puerto del servidor
