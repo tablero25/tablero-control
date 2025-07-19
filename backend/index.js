@@ -1680,16 +1680,7 @@ app.get('/', (req, res) => {
   res.setHeader('Expires', '0');
   res.setHeader('X-Render-Cache-Bypass', 'true');
   
-  // Servir el mismo HTML que está en index.html
-  const htmlPath = path.join(__dirname, '..', 'index.html');
-  if (fs.existsSync(htmlPath)) {
-    console.log('📄 Sirviendo index.html desde archivo');
-    const htmlContent = fs.readFileSync(htmlPath, 'utf8');
-    res.send(htmlContent);
-  } else {
-    console.log('📄 Sirviendo HTML inline (fallback)');
-    
-    const html = `
+  const html = `
 <!DOCTYPE html>
 <html lang="es">
 <head>
