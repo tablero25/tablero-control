@@ -8,6 +8,9 @@ const XLSX = require('xlsx');
 // Importar rutas de autenticación
 const authRoutes = require('./authRoutes');
 
+// Importar inicialización automática de base de datos
+const { checkAndInitializeDatabase } = require('./autoInitDb');
+
 // Formatos de Excel soportados por la librería xlsx
 const EXCEL_FORMATS = [
   '.xlsx',  // Excel Open XML Workbook
@@ -1665,6 +1668,15 @@ app.get('/guardia/descargar/:establecimiento/:anio/:mes', (req, res) => {
   res.download(ruta, archivo);
 });
 
-app.listen(5001, () => {
+app.listen(5001, async () => {
   console.log('Backend Excel server running on http://localhost:5001');
+  
+  // Inicializar base de datos automáticamente al arrancar
+  try {
+    await checkAndInitializeDatabase();
+    console.log('✅ Inicialización de base de datos completada');
+  } catch (error) {
+    console.error('❌ Error en inicialización automática:', error);
+    // Continuar ejecutando la aplicación aunque falle la inicialización
+  }
 }); 
