@@ -222,6 +222,16 @@ app.get('/', (req, res) => {
 // Rutas de autenticación
 app.use('/api/auth', authRoutes);
 
+// Ruta de prueba simple
+app.get('/api/test', (req, res) => {
+  res.json({
+    status: 'OK',
+    message: 'API de prueba funcionando correctamente',
+    timestamp: new Date().toISOString(),
+    version: '1.0.0'
+  });
+});
+
 // Ruta de salud del sistema
 app.get('/api/health', (req, res) => {
   res.json({
