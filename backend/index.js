@@ -133,9 +133,6 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Servir archivos estáticos del frontend construido
-app.use(express.static(path.join(__dirname, '../frontend/build')));
-
 // Rutas de autenticación
 app.use('/api/auth', authRoutes);
 
@@ -1671,9 +1668,18 @@ app.get('/guardia/descargar/:establecimiento/:anio/:mes', (req, res) => {
   res.download(ruta, archivo);
 });
 
-// Servir el frontend React para cualquier ruta que no sea una API
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../frontend/build', 'index.html'));
+// Ruta de prueba para verificar que el backend funciona
+app.get('/', (req, res) => {
+  res.json({
+    message: 'Sistema de Tableros de Control - Backend funcionando correctamente',
+    status: 'OK',
+    timestamp: new Date().toISOString(),
+    endpoints: {
+      auth: '/api/auth',
+      establecimientos: '/establecimientos',
+      upload: '/guardar/:establecimiento/:anio'
+    }
+  });
 });
 
 const PORT = process.env.PORT || 5001;
