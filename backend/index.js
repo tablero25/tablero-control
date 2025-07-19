@@ -216,6 +216,32 @@ app.get('/', (req, res) => {
   res.send(html);
 });
 
+// Servir archivos estáticos desde la carpeta public
+app.use(express.static(path.join(__dirname, '../public')));
+
+// Rutas de autenticación
+app.use('/api/auth', authRoutes);
+
+// Ruta de salud del sistema
+app.get('/api/health', (req, res) => {
+  res.json({
+    status: 'OK',
+    message: 'Sistema funcionando correctamente',
+    timestamp: new Date().toISOString(),
+    version: '1.0.0'
+  });
+});
+
+// Ruta de salud simple
+app.get('/health', (req, res) => {
+  res.json({
+    status: 'OK',
+    message: 'Sistema funcionando correctamente',
+    timestamp: new Date().toISOString(),
+    version: '1.0.0'
+  });
+});
+
 // RUTA CATCH-ALL PARA CUALQUIER OTRA RUTA QUE NO SEA API
 app.get('*', (req, res, next) => {
   if (req.path.startsWith('/api/')) {
