@@ -1699,10 +1699,16 @@ if (fs.existsSync(frontendPath)) {
 
 // Health check endpoint
 app.get('/health', (req, res) => {
+  const frontendExists = fs.existsSync(frontendPath);
+  const buildContents = frontendExists ? fs.readdirSync(frontendPath) : [];
+  
   res.json({ 
     status: 'OK', 
     timestamp: new Date().toISOString(),
-    frontend: fs.existsSync(frontendPath) ? 'available' : 'not available'
+    frontend: frontendExists ? 'available' : 'not available',
+    frontendPath: frontendPath,
+    buildContents: buildContents,
+    hasIndexHtml: frontendExists && fs.existsSync(path.join(frontendPath, 'index.html'))
   });
 });
 
