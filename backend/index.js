@@ -133,7 +133,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// RUTA CATCH-ALL ABSOLUTA - CAPTURA TODO
+// RUTA ÚNICA QUE CAPTURA TODO - ANTES DE CUALQUIER COSA
 app.get('*', (req, res, next) => {
   // Si la ruta empieza con /api/, continuar con las siguientes rutas
   if (req.path.startsWith('/api/')) {
@@ -141,7 +141,7 @@ app.get('*', (req, res, next) => {
   }
   
   // Para cualquier otra ruta, servir HTML
-  console.log('🎯 Sirviendo HTML desde catch-all absoluto para:', req.path);
+  console.log('🎯 Sirviendo HTML desde ruta única para:', req.path);
   res.setHeader('Content-Type', 'text/html');
   res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
   res.setHeader('Pragma', 'no-cache');
@@ -270,7 +270,7 @@ app.get('*', (req, res, next) => {
 <body>
     <div class="container">
         <h1>🏥 Sistema de Tableros de Control</h1>
-        <div class="status">✅ Sistema funcionando correctamente - CATCH-ALL ABSOLUTO</div>
+        <div class="status">✅ Sistema funcionando correctamente - RUTA ÚNICA</div>
         
         <div class="menu">
             <a href="/api/produccion-internacion" class="menu-item">
