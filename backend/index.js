@@ -1668,18 +1668,42 @@ app.get('/guardia/descargar/:establecimiento/:anio/:mes', (req, res) => {
   res.download(ruta, archivo);
 });
 
-// Ruta de prueba para verificar que el backend funciona
-app.get('/', (req, res) => {
-  res.json({
-    message: 'Sistema de Tableros de Control - Backend funcionando correctamente',
-    status: 'OK',
-    timestamp: new Date().toISOString()
+// Servir archivos estáticos del frontend (si existe)
+const frontendPath = path.join(__dirname, 'build');
+if (fs.existsSync(frontendPath)) {
+  console.log('📁 Sirviendo frontend desde:', frontendPath);
+  app.use(express.static(frontendPath));
+  
+  // Ruta principal - servir el frontend
+  app.get('/', (req, res) => {
+    res.sendFile(path.join(frontendPath, 'index.html'));
   });
-});
+  
+  // Catch-all route para React Router
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(frontendPath, 'index.html'));
+  });
+} else {
+  console.log('⚠️ Frontend build no encontrado, sirviendo solo API');
+  
+  // Ruta de prueba para verificar que el backend funciona
+  app.get('/', (req, res) => {
+    res.json({
+      message: 'Sistema de Tableros de Control - Backend funcionando correctamente',
+      status: 'OK',
+      timestamp: new Date().toISOString(),
+      note: 'Frontend no disponible - solo API'
+    });
+  });
+}
 
 // Health check endpoint
 app.get('/health', (req, res) => {
-  res.json({ status: 'OK', timestamp: new Date().toISOString() });
+  res.json({ 
+    status: 'OK', 
+    timestamp: new Date().toISOString(),
+    frontend: fs.existsSync(frontendPath) ? 'available' : 'not available'
+  });
 });
 
 const PORT = process.env.PORT || 5001;
