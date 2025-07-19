@@ -1,0 +1,7 @@
+ID,Usuario,Email,DNI,Nombre,Apellido,Función,Rol,Estado,Primer Login,Establecimientos,Fecha Creación
+13,"35477889","35477889@sdo.gob.ar","35477889","Lucio Marcelino","Tapia","Administrador General","ADMIN",Activo,No,0,17/7/2025, 15:44:11
+12,"12345","12345@sdo.gob.ar","12345","prue","prue","prue","ESTABLECIMIENTO",Activo,No,0,17/7/2025, 15:39:51
+11,"123456","123456@sdo.gob.ar","123456","prueba","prueba","prueba","ESTABLECIMIENTO",Activo,No,0,17/7/2025, 15:31:17
+2,"supervisor1","supervisor1@sdo.gob.ar","87654321","Supervisor","Uno","Supervisor de Zona","SUPERVISOR",Activo,No,1,17/7/2025, 14:29:52
+1,"admin","juan.perez@test.com","12345678","Juan","Pérez","Médico","ADMIN",Activo,Sí,0,17/7/2025, 14:29:52
+3,"establecimiento1","est1@sdo.gob.ar","11223344","Establecimiento","Uno","Jefe de Establecimiento","ESTABLECIMIENTO",Activo,No,1,17/7/2025, 14:29:52

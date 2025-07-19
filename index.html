@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TABLERO /SDO/</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            letter-spacing: 2px;
+        }
+
+        .container {
+            display: flex;
+            gap: 30px;
+            max-width: 1200px;
+            width: 100%;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .box {
+            background: #e3ecfa;
+            border-radius: 15px;
+            padding: 30px;
+            min-width: 300px;
+            flex: 1;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            border: none;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .box:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+
+        .box h2 {
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-align: center;
+            color: #333;
+            margin-bottom: 0;
+            letter-spacing: 1px;
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .box {
+                min-width: 280px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>TABLERO /SDO/</h1>
+    </div>
+    
+    <div class="container">
+        <div class="box">
+            <h2>INDICADORES DE CAMAS</h2>
+        </div>
+        
+        <div class="box">
+            <h2>ATENCION MEDICA</h2>
+        </div>
+        
+        <div class="box">
+            <h2>RANKING DE DIAGNOSTICO</h2>
+        </div>
+    </div>
+</body>

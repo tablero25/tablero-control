@@ -1,0 +1,235 @@
+.confirm-user-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 20px;
+}
+
+.confirm-user-card {
+  background: white;
+  border-radius: 15px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  padding: 40px;
+  max-width: 500px;
+  width: 100%;
+  text-align: center;
+}
+
+.confirm-header {
+  margin-bottom: 30px;
+}
+
+.confirm-header .logo {
+  width: 120px;
+  height: auto;
+  margin-bottom: 20px;
+}
+
+.confirm-header h1 {
+  color: #333;
+  margin: 0 0 10px 0;
+  font-size: 28px;
+  font-weight: 600;
+}
+
+.confirm-header p {
+  color: #666;
+  margin: 0;
+  font-size: 16px;
+}
+
+.confirm-content {
+  min-height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Estados de confirmación */
+.confirm-loading,
+.confirm-success,
+.confirm-expired,
+.confirm-error {
+  width: 100%;
+}
+
+/* Loading */
+.confirm-loading .spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #667eea;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 20px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.confirm-loading p {
+  color: #666;
+  font-size: 16px;
+  margin: 0;
+}
+
+/* Success */
+.confirm-success .success-icon {
+  width: 80px;
+  height: 80px;
+  background: #28a745;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40px;
+  margin: 0 auto 20px;
+}
+
+.confirm-success h2 {
+  color: #28a745;
+  margin: 0 0 15px 0;
+  font-size: 24px;
+}
+
+.confirm-success p {
+  color: #666;
+  margin: 0 0 20px 0;
+  font-size: 16px;
+}
+
+.user-info {
+  background: #f8f9fa;
+  padding: 15px;
+  border-radius: 8px;
+  margin: 20px 0;
+  text-align: left;
+}
+
+.user-info p {
+  margin: 5px 0;
+  color: #333;
+}
+
+/* Expired */
+.confirm-expired .expired-icon {
+  width: 80px;
+  height: 80px;
+  background: #ffc107;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40px;
+  margin: 0 auto 20px;
+}
+
+.confirm-expired h2 {
+  color: #856404;
+  margin: 0 0 15px 0;
+  font-size: 24px;
+}
+
+.confirm-expired p {
+  color: #666;
+  margin: 0 0 20px 0;
+  font-size: 16px;
+}
+
+/* Error */
+.confirm-error .error-icon {
+  width: 80px;
+  height: 80px;
+  background: #dc3545;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40px;
+  margin: 0 auto 20px;
+}
+
+.confirm-error h2 {
+  color: #dc3545;
+  margin: 0 0 15px 0;
+  font-size: 24px;
+}
+
+.confirm-error p {
+  color: #666;
+  margin: 0 0 20px 0;
+  font-size: 16px;
+}
+
+/* Botones */
+.button-group {
+  margin-top: 30px;
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.btn-primary,
+.btn-secondary {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: inline-block;
+  min-width: 140px;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+}
+
+.btn-secondary {
+  background: #6c757d;
+  color: white;
+}
+
+.btn-secondary:hover {
+  background: #5a6268;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(108, 117, 125, 0.4);
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .confirm-user-card {
+    padding: 30px 20px;
+  }
+  
+  .confirm-header h1 {
+    font-size: 24px;
+  }
+  
+  .button-group {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .btn-primary,
+  .btn-secondary {
+    width: 100%;
+    max-width: 250px;
+  }
+} 
