@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 5001;
@@ -8,13 +9,13 @@ const PORT = process.env.PORT || 5001;
 app.use(cors());
 app.use(express.json());
 
-// 🔧 PÁGINA PRINCIPAL ULTRA-SIMPLE
-app.get('/', (req, res) => {
+// 🔧 SISTEMA SIMPLE EN RUTA ESPECÍFICA
+app.get('/simple', (req, res) => {
   res.send(`
     <!DOCTYPE html>
     <html>
     <head>
-      <title>Sistema de Control</title>
+      <title>Sistema de Control - Versión Simple</title>
       <style>
         body { font-family: Arial; text-align: center; padding: 50px; background: #f0f0f0; }
         .container { background: white; padding: 30px; border-radius: 10px; max-width: 500px; margin: 0 auto; }
@@ -27,7 +28,7 @@ app.get('/', (req, res) => {
     <body>
       <div class="container">
         <h1>🏥 Sistema de Control</h1>
-        <h2>Login</h2>
+        <h2>Login - Versión Simple</h2>
         <input type="text" id="user" placeholder="Usuario" value="admin">
         <br>
         <input type="password" id="pass" placeholder="Contraseña" value="admin123">
@@ -43,7 +44,7 @@ app.get('/', (req, res) => {
           const result = document.getElementById('result');
           
           try {
-            const response = await fetch('/login', {
+            const response = await fetch('/api/simple/login', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ username: user, password: pass })
@@ -54,7 +55,7 @@ app.get('/', (req, res) => {
             if (data.success) {
               result.innerHTML = '<div class="success">✅ Login exitoso! Redirigiendo...</div>';
               setTimeout(() => {
-                window.location.href = '/dashboard';
+                window.location.href = '/simple/dashboard';
               }, 1000);
             } else {
               result.innerHTML = '<div class="error">❌ ' + data.message + '</div>';
@@ -70,7 +71,7 @@ app.get('/', (req, res) => {
 });
 
 // 🔧 LOGIN SIMPLE
-app.post('/login', (req, res) => {
+app.post('/api/simple/login', (req, res) => {
   const { username, password } = req.body;
   
   if (username === 'admin' && password === 'admin123') {
@@ -81,12 +82,12 @@ app.post('/login', (req, res) => {
 });
 
 // 🔧 DASHBOARD SIMPLE
-app.get('/dashboard', (req, res) => {
+app.get('/simple/dashboard', (req, res) => {
   res.send(`
     <!DOCTYPE html>
     <html>
     <head>
-      <title>Dashboard</title>
+      <title>Dashboard - Sistema Simple</title>
       <style>
         body { font-family: Arial; margin: 0; padding: 20px; background: #f0f0f0; }
         .header { background: #007bff; color: white; padding: 20px; text-align: center; }
@@ -136,7 +137,7 @@ app.get('/dashboard', (req, res) => {
       
       <script>
         function logout() {
-          window.location.href = '/';
+          window.location.href = '/simple';
         }
       </script>
     </body>
@@ -145,13 +146,21 @@ app.get('/dashboard', (req, res) => {
 });
 
 // 🔧 RUTA DE PRUEBA
-app.get('/test', (req, res) => {
-  res.json({ message: 'Sistema funcionando', timestamp: new Date().toISOString() });
+app.get('/api/simple/test', (req, res) => {
+  res.json({ message: 'Sistema simple funcionando', timestamp: new Date().toISOString() });
 });
 
 // 🔧 RUTA DE SALUD
 app.get('/health', (req, res) => {
   res.json({ status: 'OK', message: 'Sistema funcionando' });
+});
+
+// Servir archivos estáticos de React (si existen)
+app.use(express.static(path.join(__dirname, '../frontend/build')));
+
+// Ruta catch-all para React
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/build', 'index.html'));
 });
 
 app.listen(PORT, () => {
