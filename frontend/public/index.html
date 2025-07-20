@@ -75,6 +75,15 @@
         localStorage.clear();
         sessionStorage.clear();
         
+        // Forzar nueva compilación del JavaScript
+        const timestamp = Date.now();
+        const mainScript = document.querySelector('script[src*="main."]');
+        if (mainScript) {
+          const newSrc = mainScript.src + '?v=' + timestamp;
+          mainScript.src = newSrc;
+          console.log('🔄 Forzando nueva compilación del JavaScript:', newSrc);
+        }
+        
       })();
     </script>
     
