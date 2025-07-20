@@ -235,6 +235,92 @@ app.get('/emergency', (req, res) => {
   `);
 });
 
+// Ruta de emergencia - redirige directo al login
+app.get('/emergency', (req, res) => {
+  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate, private');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+  
+  const html = `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EMERGENCIA - Login Directo</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            background: linear-gradient(45deg, #ff0000, #ff6600);
+            color: white;
+            text-align: center;
+            padding: 50px;
+            margin: 0;
+        }
+        .container { 
+            background: rgba(0,0,0,0.8); 
+            padding: 30px; 
+            border-radius: 15px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .button {
+            background: #00ff00;
+            color: black;
+            border: none;
+            padding: 20px 40px;
+            font-size: 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 10px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚨 EMERGENCIA 🚨</h1>
+        <p>Redirigiendo directamente al login...</p>
+        <p>Esta página saltará todo el cache y te llevará al login</p>
+        
+        <button class="button" onclick="irLogin()">IR AL LOGIN AHORA</button>
+    </div>
+
+    <script>
+        // Limpiar todo inmediatamente
+        try {
+            localStorage.clear();
+            sessionStorage.clear();
+            if ('caches' in window) {
+                caches.keys().then(names => {
+                    names.forEach(name => caches.delete(name));
+                });
+            }
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.getRegistrations().then(registrations => {
+                    registrations.forEach(registration => registration.unregister());
+                });
+            }
+        } catch(e) {
+            console.log('Error limpiando cache:', e);
+        }
+        
+        function irLogin() {
+            // Ir al login con parámetros de cache busting
+            window.location.href = '/?v=' + Date.now() + '&emergency=true&clean=true';
+        }
+        
+        // Auto-redirigir después de 2 segundos
+        setTimeout(() => {
+            irLogin();
+        }, 2000);
+    </script>
+</body>
+</html>`;
+  
+  res.send(html);
+});
+
 // Ruta de solución final
 app.get('/fix/final-solution', (req, res) => {
   console.log('🔥 Sirviendo página de solución final');
