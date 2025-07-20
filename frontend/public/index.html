@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
@@ -7,11 +7,59 @@
     <meta name="theme-color" content="#000000" />
     <meta
       name="description"
-      content="Tableros de Control - Indicadores de Gestión"
+      content="Web site created using create-react-app"
     />
     <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
-    <title>Tableros de Control - S/D/O</title>
+    <title>Tableros de Control - Indicadores de Gestión</title>
+    
+    <!-- 🔧 VERSIÓN CONTROLADA - CACHE BUSTING -->
+    <script>
+      const CURRENT_VERSION = '1.0.4'; // Cambiar en cada deploy
+      
+      // Verificar si hay una nueva versión
+      if (localStorage.getItem('app_version') !== CURRENT_VERSION) {
+        console.log('🔄 Nueva versión detectada:', CURRENT_VERSION);
+        localStorage.setItem('app_version', CURRENT_VERSION);
+        localStorage.clear(); // Limpiar todo el cache
+        sessionStorage.clear();
+        
+        // Recargar ignorando cache
+        window.location.reload(true);
+      } else {
+        console.log('✅ Versión actual:', CURRENT_VERSION);
+      }
+    </script>
+    
+    <!-- 🔧 INTERCEPTACIÓN GLOBAL DE URLs -->
+    <script>
+      // Interceptar fetch para reemplazar localhost
+      const originalFetch = window.fetch;
+      window.fetch = function(url, options) {
+        if (typeof url === 'string') {
+          if (url.includes('localhost')) {
+            const newUrl = url.replace(/http:\/\/localhost:\d+/, 'https://tablero-control-1.onrender.com');
+            console.log('🔧 URL interceptada:', url, '→', newUrl);
+            url = newUrl;
+          }
+          if (url.startsWith('/api/')) {
+            const newUrl = 'https://tablero-control-1.onrender.com' + url;
+            console.log('🔧 URL relativa interceptada:', url, '→', newUrl);
+            url = newUrl;
+          }
+        }
+        return originalFetch(url, options);
+      };
+      
+      // Limpiar cache al cargar
+      if ('caches' in window) {
+        caches.keys().then(names => {
+          names.forEach(name => {
+            caches.delete(name);
+          });
+        });
+      }
+    </script>
     
     <!-- Cache Control -->
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
@@ -22,7 +70,7 @@
     <script src="%PUBLIC_URL%/global-config.js"></script>
   </head>
   <body>
-    <noscript>Necesitas habilitar JavaScript para ejecutar esta aplicación.</noscript>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
   </body>
 </html>
