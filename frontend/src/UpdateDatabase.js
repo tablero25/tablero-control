@@ -15,7 +15,7 @@ function UpdateDatabase() {
       setStatus('Conectando a la base de datos...');
       
       // Llamar al endpoint de actualización
-      const response = await fetch('https://tablero-control-1.onrender.com/api/auth/update-database', {
+      const response = await fetch('https://tablero-control-1.onrender.com/api/update-database', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json'
