@@ -25,6 +25,85 @@ app.get('/health', (req, res) => {
   });
 });
 
+// Endpoint temporal para crear usuario admin (SOLO PARA DESARROLLO)
+app.get('/create-admin-now', async (req, res) => {
+  try {
+    console.log('🔧 Creando usuario admin desde endpoint...');
+    
+    // Verificar si el usuario admin ya existe
+    const existingUser = await pool.query(
+      'SELECT id, first_login FROM users WHERE username = $1',
+      ['admin']
+    );
+
+    if (existingUser.rows.length > 0) {
+      console.log('⚠️  Usuario admin ya existe, actualizando first_login...');
+      
+      await pool.query(
+        'UPDATE users SET first_login = TRUE WHERE username = $1',
+        ['admin']
+      );
+      
+      res.json({
+        success: true,
+        message: 'Usuario admin actualizado con first_login = TRUE',
+        username: 'admin',
+        password: 'admin123'
+      });
+      return;
+    }
+
+    // Hashear contraseña
+    const bcrypt = require('bcrypt');
+    const hashedPassword = await bcrypt.hash('admin123', 10);
+
+    // Crear usuario admin
+    const result = await pool.query(
+      `INSERT INTO users (
+        username, 
+        email, 
+        password, 
+        role, 
+        dni, 
+        nombre, 
+        apellido, 
+        funcion, 
+        is_active, 
+        first_login,
+        created_at
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, NOW()) RETURNING id`,
+      [
+        'admin',
+        'admin@tablero.com',
+        hashedPassword,
+        'ADMIN',
+        '00000000',
+        'Administrador',
+        'Sistema',
+        'Administrador del Sistema',
+        true,
+        true  // first_login = TRUE
+      ]
+    );
+
+    res.json({
+      success: true,
+      message: 'Usuario admin creado exitosamente',
+      id: result.rows[0].id,
+      username: 'admin',
+      password: 'admin123',
+      first_login: true
+    });
+
+  } catch (error) {
+    console.error('❌ Error creando admin:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
 // RUTA PRINCIPAL - Sirve el frontend React
 app.get('/', (req, res) => {
   console.log('🎯 Sirviendo frontend React desde ruta principal');
@@ -1753,83 +1832,4 @@ app.get('*', (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`Backend Excel server running on port ${PORT}`);
-}); 
-
-// Endpoint temporal para crear usuario admin (SOLO PARA DESARROLLO)
-app.get('/api/setup-admin', async (req, res) => {
-  try {
-    console.log('🔧 Creando usuario admin desde endpoint...');
-    
-    // Verificar si el usuario admin ya existe
-    const existingUser = await pool.query(
-      'SELECT id, first_login FROM users WHERE username = $1',
-      ['admin']
-    );
-
-    if (existingUser.rows.length > 0) {
-      console.log('⚠️  Usuario admin ya existe, actualizando first_login...');
-      
-      await pool.query(
-        'UPDATE users SET first_login = TRUE WHERE username = $1',
-        ['admin']
-      );
-      
-      res.json({
-        success: true,
-        message: 'Usuario admin actualizado con first_login = TRUE',
-        username: 'admin',
-        password: 'admin123'
-      });
-      return;
-    }
-
-    // Hashear contraseña
-    const bcrypt = require('bcrypt');
-    const hashedPassword = await bcrypt.hash('admin123', 10);
-
-    // Crear usuario admin
-    const result = await pool.query(
-      `INSERT INTO users (
-        username, 
-        email, 
-        password, 
-        role, 
-        dni, 
-        nombre, 
-        apellido, 
-        funcion, 
-        is_active, 
-        first_login,
-        created_at
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, NOW()) RETURNING id`,
-      [
-        'admin',
-        'admin@tablero.com',
-        hashedPassword,
-        'ADMIN',
-        '00000000',
-        'Administrador',
-        'Sistema',
-        'Administrador del Sistema',
-        true,
-        true  // first_login = TRUE
-      ]
-    );
-
-    res.json({
-      success: true,
-      message: 'Usuario admin creado exitosamente',
-      id: result.rows[0].id,
-      username: 'admin',
-      password: 'admin123',
-      first_login: true
-    });
-
-  } catch (error) {
-    console.error('❌ Error creando admin:', error);
-    res.status(500).json({
-      success: false,
-      error: error.message
-    });
-  }
-}); 
+});
