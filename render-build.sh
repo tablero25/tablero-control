@@ -21,6 +21,10 @@ cp backend/package.json backend/build/
 cp backend/index.js backend/build/
 cp backend/authRoutes.js backend/build/
 
+# Copiar archivo de configuración global
+echo "📁 Copiando configuración global..."
+cp frontend/public/global-config.js backend/build/
+
 # Crear directorio data si no existe
 mkdir -p backend/build/data
 
