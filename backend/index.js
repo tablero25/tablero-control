@@ -1756,7 +1756,7 @@ app.listen(PORT, () => {
 }); 
 
 // Endpoint temporal para crear usuario admin (SOLO PARA DESARROLLO)
-app.get('/setup-admin', async (req, res) => {
+app.get('/api/setup-admin', async (req, res) => {
   try {
     console.log('🔧 Creando usuario admin desde endpoint...');
     
