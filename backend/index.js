@@ -26,16 +26,7 @@ app.get('/debug.html', (req, res) => {
   }
 });
 
-app.get('/force-config.js', (req, res) => {
-  console.log('⚙️ Sirviendo script de configuración forzada');
-  const configPath = path.join(__dirname, 'build', 'force-config.js');
-  if (fs.existsSync(configPath)) {
-    res.setHeader('Content-Type', 'application/javascript');
-    res.sendFile(configPath);
-  } else {
-    res.status(404).json({ error: 'Script de configuración no encontrado' });
-  }
-});
+
 
 // Servir archivos estáticos del frontend React (copiado por render-build.sh)
 app.use(express.static(path.join(__dirname, 'build')));
