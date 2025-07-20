@@ -131,6 +131,28 @@ app.get('/api/diagnose', (req, res) => {
   });
 });
 
+// Ruta para forzar limpieza de cache
+app.get('/api/clear-cache', (req, res) => {
+  res.set({
+    'Cache-Control': 'no-cache, no-store, must-revalidate',
+    'Pragma': 'no-cache',
+    'Expires': '0'
+  });
+  
+  res.json({
+    status: 'OK',
+    message: 'Headers de cache limpiados',
+    timestamp: new Date().toISOString(),
+    instructions: [
+      '1. Presiona Ctrl+Shift+Delete en tu navegador',
+      '2. Selecciona "Todo el tiempo"',
+      '3. Marca todas las opciones',
+      '4. Haz clic en "Limpiar datos"',
+      '5. Recarga la página con Ctrl+F5'
+    ]
+  });
+});
+
 // Ruta de salud del sistema
 app.get('/api/health', (req, res) => {
   res.json({
