@@ -1,164 +1,284 @@
-# 🏥 Sistema de Tableros de Control
+# 🏥 Tablero de Control - Sistema de Gestión Hospitalaria
 
-Sistema completo de gestión y análisis de datos hospitalarios con interfaz web moderna y APIs robustas.
+## 📋 Descripción
 
-## 🚀 Características
+Sistema completo de gestión y control de datos hospitalarios que permite la carga, procesamiento y análisis de archivos Excel con información médica de diferentes establecimientos de salud.
 
-- **📊 Análisis de Excel**: Procesamiento avanzado de archivos Excel (.xlsx, .xls)
-- **🏥 Gestión de Establecimientos**: Soporte para múltiples hospitales y zonas
-- **📈 Indicadores en Tiempo Real**: Métricas de producción, camas, consultas
-- **🔐 Autenticación Segura**: Sistema de usuarios con roles y permisos
-- **📧 Notificaciones**: Envío de emails automáticos
-- **🌐 Interfaz Web Moderna**: React con diseño responsive
-- **⚡ APIs RESTful**: Backend Node.js con Express
-- **🗄️ Base de Datos PostgreSQL**: Almacenamiento robusto y escalable
+## 🌐 URL de Producción
 
-## 🏗️ Arquitectura
+**https://tablero-control-1.onrender.com**
 
-```
-Sistema de Tableros de Control/
-├── frontend/          # React App (Interfaz de Usuario)
-├── backend/           # Node.js + Express (APIs)
-├── data/             # Archivos Excel de datos
-├── build.sh          # Script de build para producción
-└── render.yaml       # Configuración de despliegue
-```
+## 🚀 Características Principales
 
-## 🛠️ Tecnologías
+### ✅ **Funcionalidades Implementadas:**
+- 🔐 **Sistema de Autenticación Completo**
+  - Login/Logout seguro
+  - Registro de usuarios con confirmación por email
+  - Cambio de contraseñas
+  - Gestión de roles (Admin, Usuario)
+  - Verificación de tokens JWT
 
-### Frontend
-- **React 18** - Biblioteca de interfaz de usuario
-- **React Router** - Navegación entre páginas
-- **React Gauge Chart** - Gráficos de indicadores
-- **XLSX** - Procesamiento de archivos Excel
+- 📊 **Gestión de Archivos Excel**
+  - Carga de archivos por establecimiento y año
+  - Validación automática de formatos
+  - Procesamiento de datos médicos
+  - Descarga de archivos procesados
 
-### Backend
+- 🏥 **Módulos Especializados:**
+  - **Ranking de Diagnósticos** - Análisis de diagnósticos más frecuentes
+  - **Atención Profesional** - Gestión por consultorio
+  - **Guardia** - Reportes de emergencias
+  - **Ranking de Mortalidad** - Estadísticas de mortalidad
+  - **Ranking de Motivos de Egresos** - Análisis de egresos
+
+- 👥 **Gestión de Usuarios**
+  - Panel de administración
+  - Activación/desactivación de usuarios
+  - Reset de contraseñas
+  - Confirmación de usuarios pendientes
+
+## 🛠️ Tecnologías Utilizadas
+
+### **Frontend:**
+- **React.js** - Framework principal
+- **CSS3** - Estilos y diseño responsivo
+- **JavaScript ES6+** - Lógica de aplicación
+
+### **Backend:**
 - **Node.js** - Runtime de JavaScript
 - **Express.js** - Framework web
-- **PostgreSQL** - Base de datos relacional
+- **PostgreSQL** - Base de datos principal
+- **JWT** - Autenticación y autorización
 - **Multer** - Manejo de archivos
-- **JWT** - Autenticación
 - **Nodemailer** - Envío de emails
-- **bcrypt** - Encriptación de contraseñas
+- **xlsx** - Procesamiento de archivos Excel
+
+### **Infraestructura:**
+- **Render.com** - Hosting y despliegue
+- **GitHub** - Control de versiones
+- **PostgreSQL (Render)** - Base de datos en la nube
+
+## 📁 Estructura del Proyecto
+
+```
+Tablero 1/
+├── backend/                 # Servidor Node.js
+│   ├── index.js            # Servidor principal
+│   ├── auth.js             # Configuración de autenticación
+│   ├── db.js               # Configuración de base de datos
+│   ├── emailConfig.js      # Configuración de email
+│   └── data/               # Datos de establecimientos
+├── frontend/               # Aplicación React
+│   ├── src/
+│   │   ├── App.js          # Componente principal
+│   │   ├── Login.js        # Página de login
+│   │   ├── Register.js     # Página de registro
+│   │   ├── Configuracion.js # Panel de administración
+│   │   └── ...
+│   └── public/
+└── BACKUP_FINAL_COMPLETO/  # Backup completo del sistema
+```
+
+## 🔧 Instalación y Configuración
+
+### **Requisitos Previos:**
+- Node.js (v14 o superior)
+- PostgreSQL
+- Git
+
+### **Pasos de Instalación:**
+
+1. **Clonar el repositorio:**
+```bash
+git clone https://github.com/tablero25/tablero-control.git
+cd tablero-control
+```
+
+2. **Instalar dependencias del backend:**
+```bash
+cd backend
+npm install
+```
+
+3. **Instalar dependencias del frontend:**
+```bash
+cd ../frontend
+npm install
+```
+
+4. **Configurar variables de entorno:**
+```bash
+# En backend/
+cp emailConfig.example.js emailConfig.js
+# Editar emailConfig.js con tus credenciales
+```
+
+5. **Configurar base de datos:**
+```bash
+# Ejecutar scripts de configuración
+node setup_production_db.js
+```
+
+## 🔐 Configuración de Variables de Entorno
+
+### **Backend (.env):**
+```env
+DATABASE_URL=postgresql://usuario:password@host:puerto/database
+JWT_SECRET=tu_jwt_secret_super_seguro
+EMAIL_USER=tu_email@gmail.com
+EMAIL_PASS=tu_password_de_aplicacion
+PORT=5001
+```
+
+### **Frontend:**
+Las URLs ya están configuradas para producción en:
+- `https://tablero-control-1.onrender.com`
 
 ## 🚀 Despliegue
 
-### Local Development
+### **Render.com (Recomendado):**
 
+1. **Conectar repositorio de GitHub**
+2. **Configurar variables de entorno:**
+   - `DATABASE_URL`
+   - `JWT_SECRET`
+   - `EMAIL_USER`
+   - `EMAIL_PASS`
+   - `PORT`
+
+3. **Comando de build:**
 ```bash
-# Instalar todas las dependencias
-npm run install:all
-
-# Ejecutar en modo desarrollo
-npm run dev
+npm install && npm run build
 ```
 
-### Producción (Render.com)
-
-El sistema está configurado para despliegue automático en Render.com:
-
-1. **Build Command**: `chmod +x build.sh && ./build.sh`
-2. **Start Command**: `cd backend && npm start`
-3. **Health Check**: `/health`
-
-## 📊 Funcionalidades
-
-### 1. Producción de Internación
-- Análisis de ocupación de camas
-- Indicadores de días de estancia
-- Métricas por establecimiento y zona
-
-### 2. Producción de Consulta Ambulatoria
-- Atención profesional por consultorio
-- Datos de guardia
-- Análisis de consultas por especialidad
-
-### 3. Ranking de Diagnósticos
-- Top diagnósticos por categoría
-- Análisis temporal (mensual/anual)
-- Comparativas entre establecimientos
-
-## 🔧 Configuración
-
-### Variables de Entorno
-
-```env
-# Base de Datos
-DATABASE_URL=postgresql://user:password@host:port/database
-
-# Email
-EMAIL_HOST=smtp.gmail.com
-EMAIL_PORT=587
-EMAIL_USER=tu-email@gmail.com
-EMAIL_PASS=tu-password
-
-# JWT
-JWT_SECRET=tu-secret-key
-
-# Frontend URL (para CORS)
-FRONTEND_URL=https://tu-dominio.com
+4. **Comando de start:**
+```bash
+node index.js
 ```
 
-## 📁 Estructura de Datos
+## 📊 Estructura de Base de Datos
 
-```
-data/
-├── [Establecimiento]/
-│   ├── [Año]/
-│   │   ├── [Mes]/
-│   │   │   ├── archivo.xlsx
-│   │   │   └── archivo.xls
-│   │   └── archivo_anual.xlsx
-│   └── Ranking de diagnósticos/
-│       └── [Año]/
-│           └── [Mes]/
-│               └── archivo.xls
-```
+### **Tablas Principales:**
+- `users` - Usuarios del sistema
+- `establecimientos` - Establecimientos de salud
+- `archivos` - Metadatos de archivos cargados
+- `ranking_diagnosticos` - Datos de diagnósticos
+- `atencion_profesional` - Datos de atención por consultorio
+- `guardia` - Datos de emergencias
 
-## 🔐 Autenticación
+## 🔑 Credenciales de Acceso
 
-- **Registro**: Creación de usuarios con validación de email
-- **Login**: Autenticación con JWT
-- **Roles**: Admin, Establecimiento, Usuario
-- **Permisos**: Acceso granular por establecimiento
+### **Usuario Administrador:**
+- **Email:** admin@tablero.com
+- **Contraseña:** admin123
+- **Rol:** Admin
 
-## 📈 APIs Disponibles
+### **Funciones de Administrador:**
+- Gestión completa de usuarios
+- Configuración del sistema
+- Acceso a todos los módulos
+- Estadísticas del sistema
 
-### Autenticación
-- `POST /api/auth/register` - Registro de usuarios
-- `POST /api/auth/login` - Inicio de sesión
-- `POST /api/auth/change-password` - Cambio de contraseña
+## 📱 Uso del Sistema
 
-### Datos
-- `GET /establecimientos` - Lista de establecimientos
-- `POST /guardar/:establecimiento/:anio` - Subir archivos
-- `GET /analizar/:establecimiento/:anio` - Analizar datos
+### **1. Acceso:**
+- Ir a: https://tablero-control-1.onrender.com
+- Iniciar sesión con credenciales
 
-### Health Check
-- `GET /health` - Estado del sistema
+### **2. Carga de Archivos:**
+- Seleccionar establecimiento
+- Elegir año
+- Cargar archivo Excel
+- Validar formato
+- Procesar datos
 
-## 🎯 Uso
+### **3. Análisis de Datos:**
+- Ver rankings de diagnósticos
+- Analizar atención profesional
+- Revisar reportes de guardia
+- Exportar resultados
 
-1. **Acceder al sistema**: https://tablero-control-1.onrender.com
-2. **Registrarse** o **iniciar sesión**
-3. **Seleccionar establecimiento** y **categoría**
-4. **Subir archivos Excel** con datos
-5. **Analizar** y **visualizar** indicadores
+## 🛡️ Seguridad
 
-## 🔄 Actualizaciones
+### **Medidas Implementadas:**
+- ✅ Autenticación JWT
+- ✅ Hashing de contraseñas (bcrypt)
+- ✅ Validación de tokens
+- ✅ Control de acceso por roles
+- ✅ Sanitización de datos
+- ✅ Validación de archivos
+- ✅ HTTPS en producción
 
-El sistema se actualiza automáticamente en Render.com cuando se hace push a la rama `main`.
+## 📈 Funcionalidades Avanzadas
+
+### **Procesamiento de Excel:**
+- Validación automática de formatos
+- Extracción de datos médicos
+- Generación de rankings
+- Exportación de resultados
+
+### **Sistema de Emails:**
+- Confirmación de registro
+- Reset de contraseñas
+- Notificaciones del sistema
+- Alertas de seguridad
+
+### **Panel de Administración:**
+- Gestión de usuarios
+- Estadísticas del sistema
+- Configuración general
+- Logs de actividad
+
+## 🔄 Mantenimiento
+
+### **Backup Automático:**
+- Base de datos respaldada en Render
+- Código versionado en GitHub
+- Backup local disponible
+
+### **Monitoreo:**
+- Logs de aplicación
+- Estadísticas de uso
+- Alertas de errores
+- Métricas de rendimiento
 
 ## 📞 Soporte
 
-Para soporte técnico o consultas:
-- **Email**: [tu-email@dominio.com]
-- **Documentación**: [URL de documentación]
+### **Contacto:**
+- **Desarrollador:** LuxioT
+- **Email:** [Tu email]
+- **GitHub:** https://github.com/tablero25
+
+### **Documentación Adicional:**
+- `GUIA_VALIDACION.md` - Guía de validación de archivos
+- Comentarios en el código
+- Logs del sistema
+
+## 🎯 Roadmap
+
+### **Próximas Funcionalidades:**
+- [ ] Dashboard con gráficos interactivos
+- [ ] API REST completa
+- [ ] Aplicación móvil
+- [ ] Integración con sistemas hospitalarios
+- [ ] Reportes automáticos
+- [ ] Machine Learning para análisis predictivo
 
 ## 📄 Licencia
 
-MIT License - Ver archivo LICENSE para más detalles.
+Este proyecto es propiedad del sistema de salud y está destinado para uso interno.
 
 ---
 
-**Desarrollado con ❤️ para el Sistema de Salud Pública** # Forzar despliegue - 07/18/2025 23:48:41
+## ✅ Estado Actual
+
+**🟢 SISTEMA COMPLETAMENTE OPERATIVO**
+
+- ✅ **Desplegado en producción**
+- ✅ **Base de datos configurada**
+- ✅ **Autenticación funcionando**
+- ✅ **Todas las funcionalidades activas**
+- ✅ **URLs actualizadas a producción**
+- ✅ **Backup completo realizado**
+
+**🌐 Acceso:** https://tablero-control-1.onrender.com
