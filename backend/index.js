@@ -410,6 +410,248 @@ app.get('/fix/final-solution', (req, res) => {
   `);
 });
 
+// 🚨 RUTA ULTRA-AGRESIVA - Limpieza total
+app.get('/ultra', (req, res) => {
+  console.log('🚨 Sirviendo página ultra-agresiva');
+  res.setHeader('Content-Type', 'text/html; charset=utf-8');
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+  res.send(`
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ULTRA-AGRESIVO - Limpieza Total</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(45deg, #ff0000, #ffffff, #ff0000);
+            color: black;
+            min-height: 100vh;
+            animation: ultraPulse 0.3s infinite;
+        }
+        @keyframes ultraPulse {
+            0% { background: linear-gradient(45deg, #ff0000, #ffffff, #ff0000); }
+            50% { background: linear-gradient(45deg, #ffffff, #ff0000, #ffffff); }
+            100% { background: linear-gradient(45deg, #ff0000, #ffffff, #ff0000); }
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255,255,255,0.95);
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            border: 5px solid #ff0000;
+            box-shadow: 0 0 50px rgba(255,0,0,0.8);
+        }
+        h1 {
+            font-size: 3em;
+            margin-bottom: 30px;
+            color: #ff0000;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            animation: ultraGlow 0.5s ease-in-out infinite alternate;
+        }
+        @keyframes ultraGlow {
+            from { text-shadow: 0 0 10px #ff0000, 0 0 20px #ff0000; }
+            to { text-shadow: 0 0 20px #ff0000, 0 0 30px #ff0000; }
+        }
+        .ultra-button {
+            background: linear-gradient(45deg, #ff0000, #ffffff, #ff0000);
+            color: black;
+            border: 3px solid #ff0000;
+            padding: 30px 60px;
+            font-size: 2em;
+            font-weight: bold;
+            border-radius: 20px;
+            cursor: pointer;
+            margin: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            transition: all 0.3s ease;
+            animation: ultraButtonPulse 0.2s infinite;
+        }
+        @keyframes ultraButtonPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
+        }
+        .ultra-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.7);
+        }
+        .status {
+            font-size: 1.5em;
+            margin: 20px 0;
+            padding: 20px;
+            border-radius: 10px;
+            background: rgba(255,0,0,0.1);
+            border: 2px solid #ff0000;
+        }
+        .credentials {
+            background: rgba(0,255,0,0.3);
+            border: 3px solid #00aa00;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            font-size: 1.3em;
+            color: #004400;
+        }
+        .warning {
+            background: rgba(255, 0, 0, 0.2);
+            border: 3px solid #ff0000;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #aa0000;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚨 ULTRA-AGRESIVO 🚨</h1>
+        
+        <div class="warning">
+            <strong>LIMPIEZA TOTAL:</strong> Esta página destruirá COMPLETAMENTE todo el cache y forzará una actualización total del sistema.
+        </div>
+        
+        <div class="credentials">
+            <strong>🔑 CREDENCIALES DE ACCESO:</strong><br>
+            <strong>Usuario:</strong> admin<br>
+            <strong>Contraseña:</strong> admin123
+        </div>
+        
+        <div id="status" class="status">Preparando limpieza ultra-agresiva...</div>
+        
+        <button class="ultra-button" onclick="ultraFix()">
+            🚨 ACTIVAR LIMPIEZA ULTRA-AGRESIVA 🚨
+        </button>
+        
+        <div class="warning">
+            <strong>DESPUÉS DE ACTIVAR:</strong><br>
+            1. Se limpiará TODO el cache<br>
+            2. Se reemplazarán TODAS las URLs<br>
+            3. Se redirigirá al sistema corregido<br>
+            4. Usar las credenciales de arriba
+        </div>
+    </div>
+
+    <script>
+        const statusDiv = document.getElementById('status');
+        
+        async function ultraFix() {
+            statusDiv.innerHTML = '🚨 INICIANDO LIMPIEZA ULTRA-AGRESIVA...';
+            
+            try {
+                // 1. Eliminar TODOS los Service Workers
+                if ('serviceWorker' in navigator) {
+                    const registrations = await navigator.serviceWorker.getRegistrations();
+                    for (let registration of registrations) {
+                        await registration.unregister();
+                    }
+                    statusDiv.innerHTML = '✅ Service Workers eliminados...';
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                }
+                
+                // 2. Limpiar TODA la Cache API
+                if ('caches' in window) {
+                    const cacheNames = await caches.keys();
+                    await Promise.all(cacheNames.map(name => caches.delete(name)));
+                    statusDiv.innerHTML = '✅ Cache API completamente limpiada...';
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                }
+                
+                // 3. Limpiar TODOS los almacenamientos
+                localStorage.clear();
+                sessionStorage.clear();
+                statusDiv.innerHTML = '✅ Almacenamientos limpiados...';
+                await new Promise(resolve => setTimeout(resolve, 500));
+                
+                // 4. Limpiar cookies
+                document.cookie.split(";").forEach(function(c) { 
+                    document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); 
+                });
+                statusDiv.innerHTML = '✅ Cookies limpiadas...';
+                await new Promise(resolve => setTimeout(resolve, 500));
+                
+                // 5. Interceptar fetch ULTRA-agresivamente
+                const originalFetch = window.fetch;
+                window.fetch = function(url, options) {
+                    if (typeof url === 'string') {
+                        if (url.includes('localhost')) {
+                            const newUrl = url.replace(/http:\\/\\/localhost:\\d+/, 'https://tablero-control-1.onrender.com');
+                            console.log('🚨 URL ULTRA-interceptada:', url, '→', newUrl);
+                            url = newUrl;
+                        }
+                        if (url.startsWith('/api/')) {
+                            const newUrl = 'https://tablero-control-1.onrender.com' + url;
+                            console.log('🚨 URL relativa ULTRA-interceptada:', url, '→', newUrl);
+                            url = newUrl;
+                        }
+                    }
+                    return originalFetch(url, options);
+                };
+                
+                statusDiv.innerHTML = '✅ Interceptación ULTRA-agresiva configurada...';
+                await new Promise(resolve => setTimeout(resolve, 500));
+                
+                // 6. Configurar versión ULTRA
+                localStorage.setItem('ultra_fix', 'true');
+                localStorage.setItem('ultra_timestamp', Date.now());
+                localStorage.setItem('app_version', '1.0.5-ULTRA');
+                
+                statusDiv.innerHTML = '✅ LIMPIEZA ULTRA-AGRESIVA COMPLETADA';
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                // 7. Redirección ULTRA con parámetros múltiples
+                const timestamp = Date.now();
+                const random = Math.random();
+                const ultraParams = [
+                    'ultra=true',
+                    'fix=true',
+                    'nocache=true',
+                    'version=1.0.5-ULTRA',
+                    't=' + timestamp,
+                    'r=' + random,
+                    'bust=' + (timestamp + random),
+                    'force=true',
+                    'clear=all',
+                    'reload=forced'
+                ].join('&');
+                
+                statusDiv.innerHTML = '🔄 Redirigiendo con parámetros ULTRA...';
+                
+                setTimeout(() => {
+                    window.location.replace('/?' + ultraParams);
+                }, 1000);
+                
+            } catch (error) {
+                statusDiv.innerHTML = '❌ Error en limpieza ultra-agresiva: ' + error.message;
+                
+                // Redirección de emergencia ULTRA
+                setTimeout(() => {
+                    window.location.replace('/?ultra-error=true&t=' + Date.now());
+                }, 2000);
+            }
+        }
+        
+        // Auto-activación después de 3 segundos
+        setTimeout(() => {
+            if (statusDiv.innerHTML.includes('Preparando')) {
+                ultraFix();
+            }
+        }, 3000);
+    </script>
+</body>
+</html>
+  `);
+});
+
 // 🔧 RUTAS DE API (DEBEN IR ANTES DE express.static)
 app.use('/api/auth', authRoutes);
 
