@@ -8,6 +8,7 @@ import Login from './Login';
 import Register from './Register';
 import ChangePassword from './ChangePassword';
 import Configuracion from './Configuracion';
+import UpdateDatabase from './UpdateDatabase';
 
 // Suprimir warnings de ResizeObserver en desarrollo
 if (process.env.NODE_ENV === 'development') {
@@ -2018,6 +2019,9 @@ function App() {
             <Login />
           )
         } />
+        
+        {/* Ruta temporal para actualizar base de datos */}
+        <Route path="/update-database" element={<UpdateDatabase />} />
       </Routes>
     </div>
   );
