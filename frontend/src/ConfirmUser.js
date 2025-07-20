@@ -1,84 +1,72 @@
 import React, { useState, useEffect } from 'react';
-import { useSearchParams, useNavigate, useParams } from 'react-router-dom';
-import './ConfirmUser.css';
-import API_BASE_URL from './config';
+import { useParams, useNavigate } from 'react-router-dom';
+import logoSDO from './logoo.png';
+import API_BASE_URL, { getApiUrl } from './config';
 
-const ConfirmUser = () => {
-  const [searchParams] = useSearchParams();
-  const { token: tokenParam } = useParams();
+function ConfirmUser() {
+  const { token } = useParams();
   const navigate = useNavigate();
-  const [status, setStatus] = useState('loading'); // loading, success, error, expired
+  const [status, setStatus] = useState('confirming');
   const [message, setMessage] = useState('');
-  const [userInfo, setUserInfo] = useState(null);
+  const [email, setEmail] = useState('');
+  const [resendStatus, setResendStatus] = useState('');
 
   useEffect(() => {
-    const confirmUser = async () => {
-      // Obtener token de parámetros de ruta o de consulta
-      const token = tokenParam || searchParams.get('token');
-      
-      if (!token) {
-        setStatus('error');
-        setMessage('Token de confirmación no encontrado');
-        return;
-      }
-
-      try {
-        const response = await fetch(`${API_BASE_URL}/api/auth/confirm/${token}`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
-
-        const data = await response.json();
-
-        if (response.ok) {
-          setStatus('success');
-          setMessage(data.message);
-          setUserInfo(data.user);
-        } else {
-          if (data.error.includes('expirado')) {
-            setStatus('expired');
-          } else {
-            setStatus('error');
-          }
-          setMessage(data.error);
-        }
-      } catch (error) {
-        console.error('Error confirmando usuario:', error);
-        setStatus('error');
-        setMessage('Error de conexión. Intenta nuevamente.');
-      }
-    };
-
-    confirmUser();
-  }, [searchParams, tokenParam]);
-
-  const handleResendEmail = async () => {
-    if (!userInfo?.email) {
-      setMessage('No se puede reenviar el email sin información del usuario');
-      return;
+    if (token) {
+      confirmUser(token);
     }
+  }, [token]);
 
+  const confirmUser = async (confirmationToken) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/auth/resend-confirmation`, {
-        method: 'POST',
+      const response = await fetch(getApiUrl(`/api/auth/confirm/${confirmationToken}`), {
+        method: 'GET',
         headers: {
           'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email: userInfo.email }),
+        }
       });
 
       const data = await response.json();
 
-      if (response.ok) {
-        setMessage('Email de confirmación reenviado exitosamente. Revisa tu bandeja de entrada.');
+      if (data.success) {
+        setStatus('success');
+        setMessage('¡Cuenta confirmada exitosamente! Ya puedes iniciar sesión.');
       } else {
-        setMessage(data.error);
+        setStatus('error');
+        setMessage(data.error || 'Error al confirmar la cuenta');
       }
     } catch (error) {
-      console.error('Error reenviando email:', error);
-      setMessage('Error reenviando email. Intenta nuevamente.');
+      setStatus('error');
+      setMessage('Error de conexión con el servidor');
+    }
+  };
+
+  const handleResendConfirmation = async (e) => {
+    e.preventDefault();
+    if (!email) {
+      setResendStatus('Por favor ingresa tu email');
+      return;
+    }
+
+    setResendStatus('Enviando...');
+    try {
+      const response = await fetch(getApiUrl('/api/auth/resend-confirmation'), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email })
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setResendStatus('Email de confirmación reenviado. Revisa tu bandeja de entrada.');
+      } else {
+        setResendStatus(data.error || 'Error al reenviar el email');
+      }
+    } catch (error) {
+      setResendStatus('Error de conexión con el servidor');
     }
   };
 
@@ -92,7 +80,7 @@ const ConfirmUser = () => {
 
   const renderContent = () => {
     switch (status) {
-      case 'loading':
+      case 'confirming':
         return (
           <div className="confirm-loading">
             <div className="spinner"></div>
@@ -106,12 +94,7 @@ const ConfirmUser = () => {
             <div className="success-icon">✓</div>
             <h2>¡Cuenta Confirmada!</h2>
             <p>{message}</p>
-            {userInfo && (
-              <div className="user-info">
-                <p><strong>Usuario:</strong> {userInfo.username}</p>
-                <p><strong>Email:</strong> {userInfo.email}</p>
-              </div>
-            )}
+            {/* userInfo is no longer available, so this block is removed */}
             <div className="button-group">
               <button onClick={handleGoToLogin} className="btn-primary">
                 Ir al Login
@@ -128,7 +111,7 @@ const ConfirmUser = () => {
             <p>{message}</p>
             <p>El enlace de confirmación ha expirado. Puedes solicitar un nuevo enlace.</p>
             <div className="button-group">
-              <button onClick={handleResendEmail} className="btn-secondary">
+              <button onClick={handleResendConfirmation} className="btn-secondary">
                 Reenviar Email
               </button>
               <button onClick={handleGoToRegister} className="btn-primary">
@@ -164,7 +147,7 @@ const ConfirmUser = () => {
     <div className="confirm-user-container">
       <div className="confirm-user-card">
         <div className="confirm-header">
-          <img src="/logoSDO.png" alt="Logo SDO" className="logo" />
+          <img src={logoSDO} alt="Logo SDO" className="logo" />
           <h1>Confirmación de Usuario</h1>
           <p>Tableros de Control - Indicadores de Gestión</p>
         </div>
