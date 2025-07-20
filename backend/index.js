@@ -39,6 +39,29 @@ app.get('/create-admin-now', async (req, res) => {
   try {
     console.log('🔧 Creando usuario admin desde endpoint...');
     
+    // Primero verificar la conexión a la base de datos
+    const testConnection = await pool.query('SELECT NOW()');
+    console.log('✅ Conexión a BD exitosa:', testConnection.rows[0]);
+    
+    // Verificar si la tabla users existe
+    const tableExists = await pool.query(`
+      SELECT EXISTS (
+        SELECT FROM information_schema.tables 
+        WHERE table_schema = 'public' 
+        AND table_name = 'users'
+      );
+    `);
+    
+    if (!tableExists.rows[0].exists) {
+      console.log('❌ La tabla users no existe');
+      return res.status(500).json({
+        success: false,
+        error: 'La tabla users no existe en la base de datos'
+      });
+    }
+    
+    console.log('✅ La tabla users existe');
+    
     // Verificar si el usuario admin ya existe
     const existingUser = await pool.query(
       'SELECT id, first_login FROM users WHERE username = $1',
@@ -108,7 +131,8 @@ app.get('/create-admin-now', async (req, res) => {
     console.error('❌ Error creando admin:', error);
     res.status(500).json({
       success: false,
-      error: error.message
+      error: error.message,
+      stack: error.stack
     });
   }
 });
