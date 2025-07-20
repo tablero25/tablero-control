@@ -1,276 +1,141 @@
 const express = require('express');
 const cors = require('cors');
-const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 5001;
 
-// Middleware
+// Middleware básico
 app.use(cors());
 app.use(express.json());
 
-// 🔧 PÁGINA DE LOGIN SIMPLE
+// 🔧 PÁGINA PRINCIPAL ULTRA-SIMPLE
 app.get('/', (req, res) => {
   res.send(`
     <!DOCTYPE html>
-    <html lang="es">
+    <html>
     <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Tablero de Control - Login</title>
+      <title>Sistema de Control</title>
       <style>
-        body {
-          font-family: Arial, sans-serif;
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-          margin: 0;
-          padding: 0;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          min-height: 100vh;
-        }
-        .login-container {
-          background: white;
-          padding: 40px;
-          border-radius: 15px;
-          box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-          width: 100%;
-          max-width: 400px;
-        }
-        .logo {
-          text-align: center;
-          margin-bottom: 30px;
-        }
-        .logo h1 {
-          color: #333;
-          margin: 0;
-          font-size: 2em;
-        }
-        .form-group {
-          margin-bottom: 20px;
-        }
-        label {
-          display: block;
-          margin-bottom: 5px;
-          color: #555;
-          font-weight: bold;
-        }
-        input {
-          width: 100%;
-          padding: 12px;
-          border: 2px solid #ddd;
-          border-radius: 8px;
-          font-size: 16px;
-          box-sizing: border-box;
-        }
-        input:focus {
-          outline: none;
-          border-color: #667eea;
-        }
-        button {
-          width: 100%;
-          padding: 15px;
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-          color: white;
-          border: none;
-          border-radius: 8px;
-          font-size: 18px;
-          font-weight: bold;
-          cursor: pointer;
-          transition: transform 0.2s;
-        }
-        button:hover {
-          transform: translateY(-2px);
-        }
-        .error {
-          color: #e74c3c;
-          text-align: center;
-          margin-top: 10px;
-          display: none;
-        }
-        .success {
-          color: #27ae60;
-          text-align: center;
-          margin-top: 10px;
-          display: none;
-        }
+        body { font-family: Arial; text-align: center; padding: 50px; background: #f0f0f0; }
+        .container { background: white; padding: 30px; border-radius: 10px; max-width: 500px; margin: 0 auto; }
+        input, button { padding: 10px; margin: 10px; width: 200px; }
+        button { background: #007bff; color: white; border: none; cursor: pointer; }
+        .error { color: red; }
+        .success { color: green; }
       </style>
     </head>
     <body>
-      <div class="login-container">
-        <div class="logo">
-          <h1>🏥 Tablero de Control</h1>
-        </div>
-        <form id="loginForm">
-          <div class="form-group">
-            <label for="username">Usuario:</label>
-            <input type="text" id="username" name="username" required>
-          </div>
-          <div class="form-group">
-            <label for="password">Contraseña:</label>
-            <input type="password" id="password" name="password" required>
-          </div>
-          <button type="submit">Iniciar Sesión</button>
-        </form>
-        <div id="error" class="error"></div>
-        <div id="success" class="success"></div>
+      <div class="container">
+        <h1>🏥 Sistema de Control</h1>
+        <h2>Login</h2>
+        <input type="text" id="user" placeholder="Usuario" value="admin">
+        <br>
+        <input type="password" id="pass" placeholder="Contraseña" value="admin123">
+        <br>
+        <button onclick="login()">Entrar</button>
+        <div id="result"></div>
       </div>
-
+      
       <script>
-        document.getElementById('loginForm').addEventListener('submit', async (e) => {
-          e.preventDefault();
-          
-          const username = document.getElementById('username').value;
-          const password = document.getElementById('password').value;
-          const errorDiv = document.getElementById('error');
-          const successDiv = document.getElementById('success');
-          
-          errorDiv.style.display = 'none';
-          successDiv.style.display = 'none';
+        async function login() {
+          const user = document.getElementById('user').value;
+          const pass = document.getElementById('pass').value;
+          const result = document.getElementById('result');
           
           try {
-            const response = await fetch('/api/auth/login', {
+            const response = await fetch('/login', {
               method: 'POST',
-              headers: {
-                'Content-Type': 'application/json'
-              },
-              body: JSON.stringify({ username, password })
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ username: user, password: pass })
             });
             
             const data = await response.json();
             
             if (data.success) {
-              successDiv.textContent = '✅ Login exitoso! Redirigiendo...';
-              successDiv.style.display = 'block';
-              
-              // Guardar token
-              localStorage.setItem('token', data.token);
-              localStorage.setItem('user', JSON.stringify(data.user));
-              
-              // Redirigir al dashboard
+              result.innerHTML = '<div class="success">✅ Login exitoso! Redirigiendo...</div>';
               setTimeout(() => {
                 window.location.href = '/dashboard';
               }, 1000);
             } else {
-              errorDiv.textContent = data.message || 'Error en el login';
-              errorDiv.style.display = 'block';
+              result.innerHTML = '<div class="error">❌ ' + data.message + '</div>';
             }
           } catch (error) {
-            errorDiv.textContent = 'Error de conexión: ' + error.message;
-            errorDiv.style.display = 'block';
+            result.innerHTML = '<div class="error">❌ Error: ' + error.message + '</div>';
           }
-        });
+        }
       </script>
     </body>
     </html>
   `);
 });
 
-// 🔧 PÁGINA DEL DASHBOARD
+// 🔧 LOGIN SIMPLE
+app.post('/login', (req, res) => {
+  const { username, password } = req.body;
+  
+  if (username === 'admin' && password === 'admin123') {
+    res.json({ success: true, message: 'Login correcto' });
+  } else {
+    res.json({ success: false, message: 'Usuario o contraseña incorrectos' });
+  }
+});
+
+// 🔧 DASHBOARD SIMPLE
 app.get('/dashboard', (req, res) => {
   res.send(`
     <!DOCTYPE html>
-    <html lang="es">
+    <html>
     <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Dashboard - Tablero de Control</title>
+      <title>Dashboard</title>
       <style>
-        body {
-          font-family: Arial, sans-serif;
-          margin: 0;
-          padding: 0;
-          background: #f5f5f5;
-        }
-        .header {
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-          color: white;
-          padding: 20px;
-          text-align: center;
-        }
-        .container {
-          max-width: 1200px;
-          margin: 0 auto;
-          padding: 20px;
-        }
-        .welcome {
-          background: white;
-          padding: 30px;
-          border-radius: 10px;
-          margin-bottom: 20px;
-          box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        .stats {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-          gap: 20px;
-          margin-bottom: 20px;
-        }
-        .stat-card {
-          background: white;
-          padding: 20px;
-          border-radius: 10px;
-          box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-          text-align: center;
-        }
-        .stat-number {
-          font-size: 2em;
-          font-weight: bold;
-          color: #667eea;
-        }
-        .logout-btn {
-          background: #e74c3c;
-          color: white;
-          border: none;
-          padding: 10px 20px;
-          border-radius: 5px;
-          cursor: pointer;
-          float: right;
-        }
+        body { font-family: Arial; margin: 0; padding: 20px; background: #f0f0f0; }
+        .header { background: #007bff; color: white; padding: 20px; text-align: center; }
+        .content { max-width: 800px; margin: 20px auto; background: white; padding: 20px; border-radius: 10px; }
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin: 20px 0; }
+        .stat { background: #f8f9fa; padding: 20px; text-align: center; border-radius: 5px; }
+        .logout { background: #dc3545; color: white; border: none; padding: 10px 20px; cursor: pointer; }
       </style>
     </head>
     <body>
       <div class="header">
-        <button class="logout-btn" onclick="logout()">Cerrar Sesión</button>
-        <h1>🏥 Dashboard - Tablero de Control</h1>
+        <button class="logout" onclick="logout()">Cerrar Sesión</button>
+        <h1>🏥 Dashboard - Sistema de Control</h1>
       </div>
       
-      <div class="container">
-        <div class="welcome">
-          <h2>¡Bienvenido al Sistema!</h2>
-          <p>Has iniciado sesión correctamente en el Tablero de Control.</p>
-        </div>
+      <div class="content">
+        <h2>¡Bienvenido al Sistema!</h2>
+        <p>Has iniciado sesión correctamente.</p>
         
         <div class="stats">
-          <div class="stat-card">
-            <div class="stat-number">25</div>
-            <div>Establecimientos</div>
+          <div class="stat">
+            <h3>25</h3>
+            <p>Establecimientos</p>
           </div>
-          <div class="stat-card">
-            <div class="stat-number">1,234</div>
-            <div>Pacientes</div>
+          <div class="stat">
+            <h3>1,234</h3>
+            <p>Pacientes</p>
           </div>
-          <div class="stat-card">
-            <div class="stat-number">89</div>
-            <div>Médicos</div>
+          <div class="stat">
+            <h3>89</h3>
+            <p>Médicos</p>
           </div>
-          <div class="stat-card">
-            <div class="stat-number">95%</div>
-            <div>Eficiencia</div>
+          <div class="stat">
+            <h3>95%</h3>
+            <p>Eficiencia</p>
           </div>
         </div>
-      </div>
-
-      <script>
-        // Verificar si hay token
-        const token = localStorage.getItem('token');
-        if (!token) {
-          window.location.href = '/';
-        }
         
+        <h3>Funcionalidades disponibles:</h3>
+        <ul>
+          <li>📊 Ver estadísticas</li>
+          <li>👥 Gestionar usuarios</li>
+          <li>🏥 Administrar establecimientos</li>
+          <li>📈 Generar reportes</li>
+        </ul>
+      </div>
+      
+      <script>
         function logout() {
-          localStorage.removeItem('token');
-          localStorage.removeItem('user');
           window.location.href = '/';
         }
       </script>
@@ -279,54 +144,16 @@ app.get('/dashboard', (req, res) => {
   `);
 });
 
-// 🔧 RUTA DE LOGIN SIMPLE
-app.post('/api/auth/login', (req, res) => {
-  const { username, password } = req.body;
-  
-  console.log('🔑 Login attempt:', { username, password });
-  
-  if (username === 'admin' && password === 'admin123') {
-    console.log('✅ Login exitoso');
-    res.json({
-      success: true,
-      token: 'test-token-123',
-      user: {
-        id: 1,
-        username: 'admin',
-        role: 'ADMIN',
-        nombre: 'Administrador'
-      },
-      message: 'Login exitoso'
-    });
-  } else {
-    console.log('❌ Login fallido');
-    res.json({
-      success: false,
-      message: 'Usuario o contraseña incorrectos'
-    });
-  }
-});
-
 // 🔧 RUTA DE PRUEBA
-app.get('/api/test', (req, res) => {
-  res.json({ 
-    message: 'API funcionando correctamente',
-    timestamp: new Date().toISOString(),
-    status: 'OK'
-  });
+app.get('/test', (req, res) => {
+  res.json({ message: 'Sistema funcionando', timestamp: new Date().toISOString() });
 });
 
 // 🔧 RUTA DE SALUD
 app.get('/health', (req, res) => {
-  res.json({
-    status: 'OK',
-    message: 'Sistema funcionando correctamente',
-    timestamp: new Date().toISOString(),
-    version: '1.0.0'
-  });
+  res.json({ status: 'OK', message: 'Sistema funcionando' });
 });
 
 app.listen(PORT, () => {
-  console.log(`🚀 Servidor funcionando en puerto ${PORT}`);
-  console.log(`🌐 URL: http://localhost:${PORT}`);
+  console.log('🚀 Servidor funcionando en puerto', PORT);
 }); 
