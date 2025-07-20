@@ -16,7 +16,7 @@
     <!-- Script de control de versiones y cache busting -->
     <script>
       // Versión de la aplicación para cache busting
-      window.APP_VERSION = '3.0.0-' + Date.now();
+      window.APP_VERSION = '4.0.0-' + Date.now();
       
       // Detectar si viene de limpieza nuclear o emergencia
       const urlParams = new URLSearchParams(window.location.search);
@@ -24,20 +24,107 @@
       const isDirect = urlParams.get('direct') === 'true';
       const isEmergency = urlParams.get('emergency') === 'true';
       const isClean = urlParams.get('clean') === 'true';
+      const isForce = urlParams.get('force') === 'true';
+      const isReload = urlParams.get('reload') === 'true';
+      const isCache = urlParams.get('cache') === 'true';
       
-      if (isNuclear || isDirect || isEmergency || isClean) {
+      // Detectar si la URL contiene palabras clave de limpieza
+      const currentPath = window.location.pathname;
+      const isForceReload = currentPath.includes('force-reload') || currentPath.includes('cache-clear');
+      
+      if (isNuclear || isDirect || isEmergency || isClean || isForce || isReload || isCache || isForceReload) {
         console.log('🚨 DETECTADA LIMPIEZA - Forzando URLs correctas');
         
-        // Limpiar cualquier cache residual
-        if ('caches' in window) {
-          caches.keys().then(names => {
-            names.forEach(name => caches.delete(name));
-          });
-        }
+        // Mostrar página de limpieza inmediatamente
+        document.body.innerHTML = `
+          <div style="
+            font-family: Arial, sans-serif; 
+            background: linear-gradient(45deg, #ff0000, #ff6600);
+            color: white;
+            text-align: center;
+            padding: 50px;
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          ">
+            <div style="
+              background: rgba(0,0,0,0.8); 
+              padding: 30px; 
+              border-radius: 15px;
+              max-width: 600px;
+            ">
+              <h1>🧹 LIMPIANDO CACHE</h1>
+              <p>Limpiando todo el cache del navegador...</p>
+              <div id="status" style="margin: 20px 0; font-size: 16px;">Iniciando limpieza...</div>
+              <button onclick="limpiarTodo()" style="
+                background: #00ff00;
+                color: black;
+                border: none;
+                padding: 20px 40px;
+                font-size: 20px;
+                border-radius: 8px;
+                cursor: pointer;
+                margin: 10px;
+                font-weight: bold;
+              ">LIMPIAR AHORA</button>
+            </div>
+          </div>
+        `;
         
-        // Forzar recarga de recursos con cache busting
-        const timestamp = Date.now();
-        window.location.search = '?v=' + timestamp + '&clean=true&force=' + timestamp;
+        // Función de limpieza
+        window.limpiarTodo = function() {
+          const status = document.getElementById('status');
+          status.innerHTML = 'Limpiando localStorage...';
+          
+          try {
+            localStorage.clear();
+            status.innerHTML = 'Limpiando sessionStorage...';
+            sessionStorage.clear();
+            
+            status.innerHTML = 'Limpiando cache del navegador...';
+            if ('caches' in window) {
+              caches.keys().then(names => {
+                names.forEach(name => caches.delete(name));
+              });
+            }
+            
+            status.innerHTML = 'Desregistrando service workers...';
+            if ('serviceWorker' in navigator) {
+              navigator.serviceWorker.getRegistrations().then(registrations => {
+                registrations.forEach(registration => registration.unregister());
+              });
+            }
+            
+            status.innerHTML = 'Redirigiendo al login...';
+            
+            setTimeout(() => {
+              const timestamp = Date.now();
+              window.location.href = '/?v=' + timestamp + '&clean=true&final=' + timestamp;
+            }, 1000);
+            
+          } catch(e) {
+            status.innerHTML = 'Error: ' + e.message;
+          }
+        };
+        
+        // Auto-activar limpieza
+        setTimeout(() => {
+          if (window.limpiarTodo) {
+            window.limpiarTodo();
+          }
+        }, 2000);
+        
+        // No cargar React si estamos en modo limpieza
+        throw new Error('MODO LIMPIEZA ACTIVADO');
+      }
+      
+      // Limpiar cualquier cache residual
+      if ('caches' in window) {
+        caches.keys().then(names => {
+          names.forEach(name => caches.delete(name));
+        });
       }
       
       // Interceptar todas las llamadas fetch para reemplazar localhost
