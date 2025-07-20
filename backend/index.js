@@ -4,9 +4,18 @@ const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
 const XLSX = require('xlsx');
+const { Pool } = require('pg');
 
 // Importar rutas de autenticación
 const authRoutes = require('./authRoutes');
+
+// Configuración de la base de datos PostgreSQL
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false
+  }
+});
 
 const app = express();
 app.use(cors());
