@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diagnóstico y Corrección de Configuración</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background-color: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        .warning { background-color: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        pre {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        .fix-button {
+            background-color: #28a745;
+        }
+        .fix-button:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Diagnóstico y Corrección de Configuración</h1>
+        
+        <div id="diagnosis"></div>
+        
+        <h2>Acciones de Corrección</h2>
+        <button onclick="fixConfiguration()" class="fix-button">🔧 Corregir Configuración</button>
+        <button onclick="clearAllCache()">🧹 Limpiar Todo el Cache</button>
+        <button onclick="forceReload()">🔄 Forzar Recarga</button>
+        <button onclick="goToMain()">🏠 Ir a la Aplicación Principal</button>
+        
+        <h2>Logs de Diagnóstico</h2>
+        <pre id="logs"></pre>
+    </div>
+
+    <script>
+        const diagnosisDiv = document.getElementById('diagnosis');
+        const logsDiv = document.getElementById('logs');
+        
+        function log(message) {
+            const timestamp = new Date().toLocaleTimeString();
+            logsDiv.textContent += `[${timestamp}] ${message}\n`;
+            console.log(message);
+        }
+        
+        function runDiagnosis() {
+            log('🔍 Iniciando diagnóstico...');
+            
+            const issues = [];
+            const fixes = [];
+            
+            // Verificar hostname
+            const hostname = window.location.hostname;
+            log(`📍 Hostname detectado: ${hostname}`);
+            
+            if (hostname === 'localhost' || hostname === '127.0.0.1') {
+                log('✅ Entorno de desarrollo detectado');
+            } else {
+                log('✅ Entorno de producción detectado');
+                
+                // Verificar configuración global
+                if (!window.API_BASE_URL) {
+                    issues.push('❌ window.API_BASE_URL no está configurado');
+                    fixes.push('Configurar window.API_BASE_URL = "https://tablero-control-1.onrender.com"');
+                } else {
+                    log(`✅ window.API_BASE_URL configurado: ${window.API_BASE_URL}`);
+                }
+                
+                // Verificar función getApiUrl
+                if (!window.getApiUrl) {
+                    issues.push('❌ window.getApiUrl no está disponible');
+                    fixes.push('Crear función window.getApiUrl');
+                } else {
+                    log('✅ window.getApiUrl disponible');
+                }
+                
+                // Verificar scripts de localhost
+                const localhostScripts = document.querySelectorAll('script[src*="localhost"]');
+                if (localhostScripts.length > 0) {
+                    issues.push(`❌ ${localhostScripts.length} scripts de localhost detectados`);
+                    fixes.push('Eliminar referencias a localhost');
+                } else {
+                    log('✅ No se detectaron scripts de localhost');
+                }
+            }
+            
+            // Mostrar diagnóstico
+            let diagnosisHTML = '<h3>Estado del Sistema</h3>';
+            
+            if (issues.length === 0) {
+                diagnosisHTML += '<div class="status success">✅ Sistema configurado correctamente</div>';
+            } else {
+                diagnosisHTML += '<div class="status error">❌ Problemas detectados:</div>';
+                issues.forEach(issue => {
+                    diagnosisHTML += `<div class="status warning">${issue}</div>`;
+                });
+                diagnosisHTML += '<div class="status info">💡 Soluciones disponibles:</div>';
+                fixes.forEach(fix => {
+                    diagnosisHTML += `<div class="status info">${fix}</div>`;
+                });
+            }
+            
+            diagnosisDiv.innerHTML = diagnosisHTML;
+            
+            log(`📊 Diagnóstico completado: ${issues.length} problemas encontrados`);
+        }
+        
+        function fixConfiguration() {
+            log('🔧 Aplicando correcciones...');
+            
+            // Configurar API_BASE_URL si no existe
+            if (!window.API_BASE_URL) {
+                window.API_BASE_URL = 'https://tablero-control-1.onrender.com';
+                log('✅ window.API_BASE_URL configurado');
+            }
+            
+            // Crear función getApiUrl si no existe
+            if (!window.getApiUrl) {
+                window.getApiUrl = function(endpoint) {
+                    const timestamp = Date.now();
+                    return `${window.API_BASE_URL}${endpoint}?v=${timestamp}`;
+                };
+                log('✅ window.getApiUrl creado');
+            }
+            
+            // Limpiar cache
+            if ('caches' in window) {
+                caches.keys().then(function(names) {
+                    names.forEach(function(name) {
+                        caches.delete(name);
+                        log(`🗑️ Cache eliminado: ${name}`);
+                    });
+                });
+            }
+            
+            // Limpiar storage
+            localStorage.clear();
+            sessionStorage.clear();
+            log('🗑️ Storage limpiado');
+            
+            log('✅ Correcciones aplicadas');
+            runDiagnosis();
+        }
+        
+        function clearAllCache() {
+            log('🧹 Limpiando todo el cache...');
+            
+            // Limpiar cache del navegador
+            if ('caches' in window) {
+                caches.keys().then(function(names) {
+                    names.forEach(function(name) {
+                        caches.delete(name);
+                        log(`🗑️ Cache eliminado: ${name}`);
+                    });
+                });
+            }
+            
+            // Limpiar storage
+            localStorage.clear();
+            sessionStorage.clear();
+            log('🗑️ Storage limpiado');
+            
+            // Forzar recarga de scripts
+            const scripts = document.querySelectorAll('script[src]');
+            scripts.forEach(script => {
+                if (script.src.includes('static/js/')) {
+                    const newSrc = script.src + '?v=' + Date.now();
+                    script.src = newSrc;
+                    log(`🔄 Script recargado: ${newSrc}`);
+                }
+            });
+            
+            log('✅ Cache limpiado completamente');
+        }
+        
+        function forceReload() {
+            log('🔄 Forzando recarga...');
+            window.location.reload(true);
+        }
+        
+        function goToMain() {
+            log('🏠 Redirigiendo a la aplicación principal...');
+            window.location.href = '/';
+        }
+        
+        // Ejecutar diagnóstico al cargar
+        log('🚀 Página de diagnóstico cargada');
+        runDiagnosis();
+        
+        // Auto-corrección después de 3 segundos
+        setTimeout(() => {
+            if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+                if (!window.API_BASE_URL || !window.getApiUrl) {
+                    log('🔧 Aplicando auto-corrección...');
+                    fixConfiguration();
+                }
+            }
+        }, 3000);
+    </script>
+</body>
+</html> 
