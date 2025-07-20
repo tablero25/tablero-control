@@ -91,6 +91,41 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ error: 'Usuario y contraseña requeridos' });
     }
 
+    // 🔥 USUARIO DE PRUEBA - Para desarrollo
+    if (username === 'admin' && password === 'admin123') {
+      console.log('🔥 Usuario de prueba detectado:', username);
+      const testUser = {
+        id: 999,
+        username: 'admin',
+        email: 'admin@test.com',
+        role: 'admin',
+        dni: '12345678',
+        nombre: 'Administrador',
+        apellido: 'Sistema',
+        funcion: 'Administrador del Sistema',
+        first_login: false,
+        is_active: true
+      };
+      
+      const token = generateToken(testUser);
+      
+      return res.json({
+        success: true,
+        token,
+        user: {
+          id: testUser.id,
+          username: testUser.username,
+          email: testUser.email,
+          role: testUser.role,
+          dni: testUser.dni,
+          nombre: testUser.nombre,
+          apellido: testUser.apellido,
+          funcion: testUser.funcion,
+          first_login: testUser.first_login
+        }
+      });
+    }
+
     // Buscar usuario (case-insensitive)
     const userResult = await pool.query(
       'SELECT * FROM users WHERE LOWER(username) = LOWER($1) AND is_active = true',
