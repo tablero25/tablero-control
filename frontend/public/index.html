@@ -16,15 +16,17 @@
     <!-- Script de control de versiones y cache busting -->
     <script>
       // Versión de la aplicación para cache busting
-      window.APP_VERSION = '2.0.0-' + Date.now();
+      window.APP_VERSION = '3.0.0-' + Date.now();
       
-      // Detectar si viene de limpieza nuclear
+      // Detectar si viene de limpieza nuclear o emergencia
       const urlParams = new URLSearchParams(window.location.search);
       const isNuclear = urlParams.get('nuclear') === 'true';
       const isDirect = urlParams.get('direct') === 'true';
+      const isEmergency = urlParams.get('emergency') === 'true';
+      const isClean = urlParams.get('clean') === 'true';
       
-      if (isNuclear || isDirect) {
-        console.log('🚨 DETECTADA LIMPIEZA NUCLEAR - Forzando URLs correctas');
+      if (isNuclear || isDirect || isEmergency || isClean) {
+        console.log('🚨 DETECTADA LIMPIEZA - Forzando URLs correctas');
         
         // Limpiar cualquier cache residual
         if ('caches' in window) {
@@ -33,8 +35,9 @@
           });
         }
         
-        // Forzar recarga de recursos
-        window.location.search = '?v=' + Date.now() + '&nuclear=true';
+        // Forzar recarga de recursos con cache busting
+        const timestamp = Date.now();
+        window.location.search = '?v=' + timestamp + '&clean=true&force=' + timestamp;
       }
       
       // Interceptar todas las llamadas fetch para reemplazar localhost
@@ -63,6 +66,32 @@
         
         return originalXHROpen.call(this, method, modifiedUrl, ...args);
       };
+      
+      // Forzar recarga de recursos estáticos con cache busting
+      function forceReloadResources() {
+        const timestamp = Date.now();
+        const links = document.querySelectorAll('link[rel="stylesheet"]');
+        const scripts = document.querySelectorAll('script[src]');
+        
+        links.forEach(link => {
+          if (link.href && !link.href.includes('?v=')) {
+            link.href = link.href + '?v=' + timestamp;
+          }
+        });
+        
+        scripts.forEach(script => {
+          if (script.src && !script.src.includes('?v=')) {
+            script.src = script.src + '?v=' + timestamp;
+          }
+        });
+      }
+      
+      // Ejecutar cuando el DOM esté listo
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', forceReloadResources);
+      } else {
+        forceReloadResources();
+      }
     </script>
   </head>
   <body>
