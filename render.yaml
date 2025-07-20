@@ -2,19 +2,24 @@ services:
   - type: web
     name: tablero-control-1
     env: node
-    plan: free
-    buildCommand: chmod +x render-build.sh && ./render-build.sh
-    startCommand: cd backend && npm start
+    buildCommand: |
+      cd frontend && npm install && npm run build
+      cd ../backend && npm install
+    startCommand: cd backend && node index.js
     envVars:
       - key: NODE_ENV
         value: production
-      - key: DATABASE_URL
-        sync: false
-      - key: JWT_SECRET
-        generateValue: true
-      - key: EMAIL_USER
-        sync: false
-      - key: EMAIL_PASS
-        sync: false
+      - key: PORT
+        value: 10000
+      - key: DB_USER
+        value: luxiot
+      - key: DB_HOST
+        value: localhost
+      - key: DB_NAME
+        value: sdo_tablero
+      - key: DB_PASSWORD
+        value: Sistema2025
+      - key: DB_PORT
+        value: 5432
     healthCheckPath: /health
     autoDeploy: true 
