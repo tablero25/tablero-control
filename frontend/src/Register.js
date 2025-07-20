@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import logoSDO from './logoo.png';
-import API_BASE_URL, { getApiUrl } from './config';
 
 // Lista completa de establecimientos por zona
 const ZONAS = [
@@ -57,6 +56,15 @@ function Register({ onRegister }) {
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
 
+  // Usar configuración global establecida por index.html
+  const getApiUrl = (endpoint) => {
+    const apiBaseUrl = window.API_BASE_URL || 'https://tablero-control-1.onrender.com';
+    const timestamp = Date.now();
+    const url = `${apiBaseUrl}${endpoint}?v=${timestamp}`;
+    console.log('🔗 Register.js - getApiUrl generada:', url);
+    return url;
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     if (name === 'dni') {
@@ -87,6 +95,9 @@ function Register({ onRegister }) {
     }
 
     try {
+      console.log('🚀 Register.js - Iniciando registro...');
+      console.log('🌐 API_BASE_URL actual:', window.API_BASE_URL);
+      
       const res = await fetch(getApiUrl('/api/auth/register'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -119,6 +130,7 @@ function Register({ onRegister }) {
         setError(data.error || 'Error al registrar usuario');
       }
     } catch (err) {
+      console.error('❌ Register.js - Error de conexión:', err);
       setError('Error de conexión con el servidor');
     } finally {
       setLoading(false);
