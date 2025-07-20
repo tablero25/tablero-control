@@ -30,7 +30,28 @@ app.get('/debug.html', (req, res) => {
 
 // Rutas específicas para páginas de solución (ANTES de express.static)
 app.get('/fix/final-solution', (req, res) => {
-  console.log('🔥 Sirviendo página de solución final');
+  console.log('🔥 Redirigiendo a solución final via POST');
+  res.send(`
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Redirigiendo a Solución Final...</title>
+</head>
+<body>
+    <h1>Redirigiendo a Solución Final...</h1>
+    <form id="redirectForm" method="POST" action="/fix/final-solution">
+        <input type="hidden" name="redirect" value="true">
+    </form>
+    <script>
+        document.getElementById('redirectForm').submit();
+    </script>
+</body>
+</html>
+  `);
+});
+
+app.post('/fix/final-solution', (req, res) => {
+  console.log('🔥 Sirviendo página de solución final via POST');
   res.setHeader('Content-Type', 'text/html; charset=utf-8');
   res.send(`
 <!DOCTYPE html>
