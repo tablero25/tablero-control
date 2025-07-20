@@ -124,6 +124,103 @@ app.get('/force-reload', (req, res) => {
   res.send(html);
 });
 
+// 🚨 RUTA ALTERNATIVA - CACHE CLEAR
+app.get('/cache-clear', (req, res) => {
+  console.log('🧹 Sirviendo página cache-clear');
+  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate, private');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+  
+  const html = `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LIMPIAR CACHE</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            background: linear-gradient(45deg, #ff0000, #ff6600);
+            color: white;
+            text-align: center;
+            padding: 50px;
+            margin: 0;
+        }
+        .container { 
+            background: rgba(0,0,0,0.8); 
+            padding: 30px; 
+            border-radius: 15px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .button {
+            background: #00ff00;
+            color: black;
+            border: none;
+            padding: 20px 40px;
+            font-size: 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 10px;
+            font-weight: bold;
+        }
+        .status { margin: 20px 0; font-size: 16px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧹 LIMPIAR CACHE</h1>
+        <p>Esta página limpiará todo el cache y te llevará al login</p>
+        
+        <div class="status" id="status">Preparando limpieza...</div>
+        
+        <button class="button" onclick="limpiarCache()">LIMPIAR CACHE AHORA</button>
+    </div>
+
+    <script>
+        function limpiarCache() {
+            const status = document.getElementById('status');
+            status.innerHTML = 'Limpiando cache...';
+            
+            // Limpiar todo
+            try {
+                localStorage.clear();
+                sessionStorage.clear();
+                if ('caches' in window) {
+                    caches.keys().then(names => {
+                        names.forEach(name => caches.delete(name));
+                    });
+                }
+                if ('serviceWorker' in navigator) {
+                    navigator.serviceWorker.getRegistrations().then(registrations => {
+                        registrations.forEach(registration => registration.unregister());
+                    });
+                }
+            } catch(e) {
+                console.log('Error limpiando:', e);
+            }
+            
+            status.innerHTML = 'Redirigiendo al login...';
+            
+            // Recargar con parámetros que fuerzan cache busting
+            setTimeout(() => {
+                const timestamp = Date.now();
+                window.location.href = '/?v=' + timestamp + '&clean=true&cache=' + timestamp;
+            }, 1000);
+        }
+        
+        // Auto-activar después de 2 segundos
+        setTimeout(() => {
+            limpiarCache();
+        }, 2000);
+    </script>
+</body>
+</html>`;
+  
+  res.send(html);
+});
+
 // Ruta de emergencia - redirige directo al login
 app.get('/emergency', (req, res) => {
   res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate, private');
