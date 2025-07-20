@@ -1995,6 +1995,29 @@ function App() {
             <Login />
           )
         } />
+        
+        {/* Ruta adicional para forzar despliegue */}
+        <Route path="/password" element={
+          user && user.first_login ? (
+            <ChangePassword 
+              onCancel={() => {
+                setUser({...user, first_login: false});
+                window.location.href = '/sistema-tablero';
+              }}
+              onSuccess={() => {
+                setUser({...user, first_login: false});
+                window.location.href = '/sistema-tablero';
+              }}
+            />
+          ) : user ? (
+            <ChangePassword 
+              onCancel={() => window.location.href = '/sistema-tablero'}
+              onSuccess={() => window.location.href = '/sistema-tablero'}
+            />
+          ) : (
+            <Login />
+          )
+        } />
       </Routes>
     </div>
   );
