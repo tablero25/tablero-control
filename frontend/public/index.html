@@ -19,8 +19,64 @@
     
     <title>Tableros de Control - Indicadores de Gestión</title>
     
-    <!-- Script de configuración forzada - SE EJECUTA ANTES QUE REACT -->
-    <script src="%PUBLIC_URL%/force-config.js"></script>
+    <!-- CONFIGURACIÓN FORZADA INCLUIDA DIRECTAMENTE -->
+    <script>
+      // Configuración forzada - se ejecuta ANTES que React
+      (function() {
+        'use strict';
+        
+        // Detectar entorno inmediatamente
+        const isProduction = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
+        const productionUrl = 'https://tablero-control-1.onrender.com';
+        const developmentUrl = 'http://localhost:5001';
+        
+        // Configurar URL base global
+        window.API_BASE_URL = isProduction ? productionUrl : developmentUrl;
+        
+        // Función global para obtener URLs de API
+        window.getApiUrl = function(endpoint) {
+          const timestamp = Date.now();
+          return `${window.API_BASE_URL}${endpoint}?v=${timestamp}`;
+        };
+        
+        // Log de configuración
+        console.log('🚀 CONFIGURACIÓN FORZADA APLICADA:');
+        console.log('📍 Hostname:', window.location.hostname);
+        console.log('🌐 API_BASE_URL:', window.API_BASE_URL);
+        console.log('🔧 Entorno:', isProduction ? 'PRODUCCIÓN' : 'DESARROLLO');
+        console.log('🕒 Timestamp:', new Date().toISOString());
+        
+        // Verificar que no esté usando localhost en producción
+        if (isProduction) {
+          // Buscar cualquier referencia a localhost en scripts cargados
+          const scripts = document.querySelectorAll('script[src*="localhost"]');
+          if (scripts.length > 0) {
+            console.error('❌ ERROR: Detectados scripts de localhost en producción');
+            console.error('Scripts problemáticos:', scripts);
+            
+            // Forzar recarga completa
+            setTimeout(() => {
+              console.log('🔄 Forzando recarga completa...');
+              window.location.reload(true);
+            }, 1000);
+          }
+        }
+        
+        // Limpiar cache de manera agresiva
+        if ('caches' in window) {
+          caches.keys().then(function(names) {
+            names.forEach(function(name) {
+              caches.delete(name);
+            });
+          });
+        }
+        
+        // Limpiar storage
+        localStorage.clear();
+        sessionStorage.clear();
+        
+      })();
+    </script>
     
     <!-- Script para limpiar cache y forzar recarga -->
     <script>
