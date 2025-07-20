@@ -21,6 +21,7 @@ fi
 echo "📁 Copiando archivos personalizados al build..."
 cp public/debug.html build/
 cp public/force-config.js build/
+cp public/override-config.js build/
 
 # Copiar build al backend
 echo "📁 Copiando build al backend..."
