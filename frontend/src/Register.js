@@ -7,7 +7,8 @@ function Register({ onRegister }) {
     nombre: '',
     apellido: '',
     funcion: '',
-    username: ''
+    username: '',
+    email: ''
   });
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -42,20 +43,22 @@ function Register({ onRegister }) {
           nombre: formData.nombre,
           apellido: formData.apellido,
           funcion: formData.funcion,
-          username: formData.username
+          username: formData.username,
+          email: formData.email
         }),
       });
       
       const data = await res.json();
       
       if (data.success) {
-        setSuccess('Usuario registrado exitosamente. Puede iniciar sesión.');
+        setSuccess(data.message || 'Usuario registrado exitosamente. Revisa tu email para confirmar tu cuenta.');
         setFormData({
           dni: '',
           nombre: '',
           apellido: '',
           funcion: '',
-          username: ''
+          username: '',
+          email: ''
         });
         if (onRegister) onRegister();
       } else {
@@ -109,6 +112,15 @@ function Register({ onRegister }) {
           name="funcion"
           placeholder="Función"
           value={formData.funcion}
+          onChange={handleChange}
+          required
+        />
+        
+        <input
+          type="email"
+          name="email"
+          placeholder="Email"
+          value={formData.email}
           onChange={handleChange}
           required
         />
