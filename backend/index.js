@@ -652,6 +652,168 @@ app.get('/ultra', (req, res) => {
   `);
 });
 
+// Ruta nuclear - limpia TODO y redirige
+app.get('/nuclear', (req, res) => {
+  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate, private');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+  
+  const html = `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LIMPIEZA NUCLEAR</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            background: linear-gradient(45deg, #ff0000, #ff6600);
+            color: white;
+            text-align: center;
+            padding: 50px;
+            margin: 0;
+        }
+        .container { 
+            background: rgba(0,0,0,0.8); 
+            padding: 30px; 
+            border-radius: 15px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .button {
+            background: #ff0000;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 10px;
+        }
+        .status { margin: 20px 0; font-size: 16px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚨 LIMPIEZA NUCLEAR 🚨</h1>
+        <p>Esta página limpiará TODO el cache y forzará una recarga completa</p>
+        
+        <div class="status" id="status">Iniciando limpieza...</div>
+        
+        <button class="button" onclick="activarNuclear()">ACTIVAR LIMPIEZA NUCLEAR</button>
+        <button class="button" onclick="irDirecto()">IR DIRECTO AL LOGIN</button>
+    </div>
+
+    <script>
+        let limpiezaCompletada = false;
+        
+        function limpiarTodo() {
+            const status = document.getElementById('status');
+            
+            // 1. Limpiar localStorage
+            try {
+                localStorage.clear();
+                status.innerHTML += '<br>✅ localStorage limpiado';
+            } catch(e) {
+                status.innerHTML += '<br>❌ Error localStorage: ' + e.message;
+            }
+            
+            // 2. Limpiar sessionStorage
+            try {
+                sessionStorage.clear();
+                status.innerHTML += '<br>✅ sessionStorage limpiado';
+            } catch(e) {
+                status.innerHTML += '<br>❌ Error sessionStorage: ' + e.message;
+            }
+            
+            // 3. Limpiar IndexedDB
+            try {
+                if ('indexedDB' in window) {
+                    indexedDB.databases().then(databases => {
+                        databases.forEach(db => {
+                            indexedDB.deleteDatabase(db.name);
+                        });
+                    });
+                    status.innerHTML += '<br>✅ IndexedDB limpiado';
+                }
+            } catch(e) {
+                status.innerHTML += '<br>❌ Error IndexedDB: ' + e.message;
+            }
+            
+            // 4. Limpiar cookies
+            try {
+                document.cookie.split(";").forEach(function(c) { 
+                    document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); 
+                });
+                status.innerHTML += '<br>✅ Cookies limpiadas';
+            } catch(e) {
+                status.innerHTML += '<br>❌ Error cookies: ' + e.message;
+            }
+            
+            // 5. Unregister service workers
+            try {
+                if ('serviceWorker' in navigator) {
+                    navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                        for(let registration of registrations) {
+                            registration.unregister();
+                        }
+                    });
+                    status.innerHTML += '<br>✅ Service Workers desregistrados';
+                }
+            } catch(e) {
+                status.innerHTML += '<br>❌ Error Service Workers: ' + e.message;
+            }
+            
+            // 6. Limpiar cache del navegador
+            try {
+                if ('caches' in window) {
+                    caches.keys().then(function(names) {
+                        for (let name of names) {
+                            caches.delete(name);
+                        }
+                    });
+                    status.innerHTML += '<br>✅ Cache del navegador limpiado';
+                }
+            } catch(e) {
+                status.innerHTML += '<br>❌ Error cache: ' + e.message;
+            }
+            
+            limpiezaCompletada = true;
+            status.innerHTML += '<br><br>🎉 ¡LIMPIEZA COMPLETADA!';
+        }
+        
+        function activarNuclear() {
+            limpiarTodo();
+            setTimeout(() => {
+                // Forzar recarga completa
+                window.location.href = '/?v=' + Date.now() + '&nuclear=true';
+            }, 2000);
+        }
+        
+        function irDirecto() {
+            // Ir directo al login con parámetros de cache busting
+            window.location.href = '/?v=' + Date.now() + '&nuclear=true&direct=true';
+        }
+        
+        // Auto-activar después de 3 segundos
+        setTimeout(() => {
+            if (!limpiezaCompletada) {
+                activarNuclear();
+            }
+        }, 3000);
+        
+        // Limpiar al cargar la página
+        window.onload = function() {
+            limpiarTodo();
+        };
+    </script>
+</body>
+</html>`;
+  
+  res.send(html);
+});
+
 // 🔧 RUTAS DE API (DEBEN IR ANTES DE express.static)
 app.use('/api/auth', authRoutes);
 

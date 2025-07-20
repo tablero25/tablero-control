@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
   <head>
     <meta charset="utf-8" />
     <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
@@ -7,70 +7,66 @@
     <meta name="theme-color" content="#000000" />
     <meta
       name="description"
-      content="Web site created using create-react-app"
+      content="Tablero de Control - Sistema de Gestión"
     />
     <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
-    <title>Tableros de Control - Indicadores de Gestión</title>
+    <title>Tablero de Control</title>
     
-    <!-- 🔧 VERSIÓN CONTROLADA - CACHE BUSTING -->
+    <!-- Script de control de versiones y cache busting -->
     <script>
-      const CURRENT_VERSION = '1.0.4'; // Cambiar en cada deploy
+      // Versión de la aplicación para cache busting
+      window.APP_VERSION = '2.0.0-' + Date.now();
       
-      // Verificar si hay una nueva versión
-      if (localStorage.getItem('app_version') !== CURRENT_VERSION) {
-        console.log('🔄 Nueva versión detectada:', CURRENT_VERSION);
-        localStorage.setItem('app_version', CURRENT_VERSION);
-        localStorage.clear(); // Limpiar todo el cache
-        sessionStorage.clear();
+      // Detectar si viene de limpieza nuclear
+      const urlParams = new URLSearchParams(window.location.search);
+      const isNuclear = urlParams.get('nuclear') === 'true';
+      const isDirect = urlParams.get('direct') === 'true';
+      
+      if (isNuclear || isDirect) {
+        console.log('🚨 DETECTADA LIMPIEZA NUCLEAR - Forzando URLs correctas');
         
-        // Recargar ignorando cache
-        window.location.reload(true);
-      } else {
-        console.log('✅ Versión actual:', CURRENT_VERSION);
+        // Limpiar cualquier cache residual
+        if ('caches' in window) {
+          caches.keys().then(names => {
+            names.forEach(name => caches.delete(name));
+          });
+        }
+        
+        // Forzar recarga de recursos
+        window.location.search = '?v=' + Date.now() + '&nuclear=true';
       }
-    </script>
-    
-    <!-- 🔧 INTERCEPTACIÓN GLOBAL DE URLs -->
-    <script>
-      // Interceptar fetch para reemplazar localhost
+      
+      // Interceptar todas las llamadas fetch para reemplazar localhost
       const originalFetch = window.fetch;
       window.fetch = function(url, options) {
-        if (typeof url === 'string') {
-          if (url.includes('localhost')) {
-            const newUrl = url.replace(/http:\/\/localhost:\d+/, 'https://tablero-control-1.onrender.com');
-            console.log('🔧 URL interceptada:', url, '→', newUrl);
-            url = newUrl;
-          }
-          if (url.startsWith('/api/')) {
-            const newUrl = 'https://tablero-control-1.onrender.com' + url;
-            console.log('🔧 URL relativa interceptada:', url, '→', newUrl);
-            url = newUrl;
-          }
+        let modifiedUrl = url;
+        
+        // Si es una URL localhost, reemplazarla con la URL de producción
+        if (typeof url === 'string' && url.includes('localhost:5001')) {
+          modifiedUrl = url.replace('http://localhost:5001', 'https://tablero-control-1.onrender.com');
+          console.log('🔄 Interceptando fetch:', url, '→', modifiedUrl);
         }
-        return originalFetch(url, options);
+        
+        return originalFetch(modifiedUrl, options);
       };
       
-      // Limpiar cache al cargar
-      if ('caches' in window) {
-        caches.keys().then(names => {
-          names.forEach(name => {
-            caches.delete(name);
-          });
-        });
-      }
+      // Interceptar XMLHttpRequest también
+      const originalXHROpen = XMLHttpRequest.prototype.open;
+      XMLHttpRequest.prototype.open = function(method, url, ...args) {
+        let modifiedUrl = url;
+        
+        if (typeof url === 'string' && url.includes('localhost:5001')) {
+          modifiedUrl = url.replace('http://localhost:5001', 'https://tablero-control-1.onrender.com');
+          console.log('🔄 Interceptando XHR:', url, '→', modifiedUrl);
+        }
+        
+        return originalXHROpen.call(this, method, modifiedUrl, ...args);
+      };
     </script>
-    
-    <!-- Cache Control -->
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-    <meta http-equiv="Pragma" content="no-cache" />
-    <meta http-equiv="Expires" content="0" />
-    
-    <!-- Configuración global - Cargar ANTES que React -->
-    <script src="%PUBLIC_URL%/global-config.js"></script>
   </head>
   <body>
-    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <noscript>Necesitas habilitar JavaScript para ejecutar esta aplicación.</noscript>
     <div id="root"></div>
   </body>
 </html>
