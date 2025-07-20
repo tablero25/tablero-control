@@ -52,7 +52,20 @@
           });
         }
         
-        console.log('🧹 Cache limpiado forzadamente');
+        // Limpiar localStorage y sessionStorage
+        localStorage.clear();
+        sessionStorage.clear();
+        
+        // Forzar recarga de todos los recursos JavaScript
+        const scripts = document.querySelectorAll('script[src]');
+        scripts.forEach(script => {
+          if (script.src.includes('static/js/')) {
+            const newSrc = script.src + '?v=' + Date.now();
+            script.src = newSrc;
+          }
+        });
+        
+        console.log('🧹 Cache limpiado forzadamente y scripts recargados');
       }
     </script>
     
