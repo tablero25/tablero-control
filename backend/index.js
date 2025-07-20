@@ -29,27 +29,27 @@ app.get('/debug.html', (req, res) => {
 
 
 // Rutas específicas para páginas de solución (ANTES de express.static)
-app.get('/final-solution.html', (req, res) => {
+app.get('/fix/final-solution', (req, res) => {
   console.log('🔥 Sirviendo página de solución final');
   res.sendFile(path.join(__dirname, 'build/final-solution.html'));
 });
 
-app.get('/ultra-nuclear.html', (req, res) => {
+app.get('/fix/ultra-nuclear', (req, res) => {
   console.log('☢️ Sirviendo página ultra-nuclear');
   res.sendFile(path.join(__dirname, 'build/ultra-nuclear.html'));
 });
 
-app.get('/nuclear-fix.html', (req, res) => {
+app.get('/fix/nuclear-fix', (req, res) => {
   console.log('☢️ Sirviendo página nuclear');
   res.sendFile(path.join(__dirname, 'build/nuclear-fix.html'));
 });
 
-app.get('/clear-cache.html', (req, res) => {
+app.get('/fix/clear-cache', (req, res) => {
   console.log('🧹 Sirviendo página de limpieza de cache');
   res.sendFile(path.join(__dirname, 'build/clear-cache.html'));
 });
 
-app.get('/diagnostico-api.html', (req, res) => {
+app.get('/fix/diagnostico-api', (req, res) => {
   console.log('🔍 Sirviendo página de diagnóstico API');
   res.sendFile(path.join(__dirname, 'build/diagnostico-api.html'));
 });
