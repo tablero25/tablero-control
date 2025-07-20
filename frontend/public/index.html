@@ -5,180 +5,144 @@
     <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#000000" />
-    <meta
-      name="description"
-      content="Tablero de Control - Sistema de Gestión"
-    />
+    <meta name="description" content="Sistema de Control de Tableros" />
     <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
     <title>Tablero de Control</title>
     
-    <!-- Script de control de versiones y cache busting -->
+    <!-- 🔧 SCRIPT DE DETECCIÓN Y LIMPIEZA AUTOMÁTICA DE CACHE -->
     <script>
-      // Versión de la aplicación para cache busting
-      window.APP_VERSION = '4.0.0-' + Date.now();
-      
-      // Detectar si viene de limpieza nuclear o emergencia
-      const urlParams = new URLSearchParams(window.location.search);
-      const isNuclear = urlParams.get('nuclear') === 'true';
-      const isDirect = urlParams.get('direct') === 'true';
-      const isEmergency = urlParams.get('emergency') === 'true';
-      const isClean = urlParams.get('clean') === 'true';
-      const isForce = urlParams.get('force') === 'true';
-      const isReload = urlParams.get('reload') === 'true';
-      const isCache = urlParams.get('cache') === 'true';
-      
-      // Detectar si la URL contiene palabras clave de limpieza
-      const currentPath = window.location.pathname;
-      const isForceReload = currentPath.includes('force-reload') || currentPath.includes('cache-clear');
-      
-      if (isNuclear || isDirect || isEmergency || isClean || isForce || isReload || isCache || isForceReload) {
-        console.log('🚨 DETECTADA LIMPIEZA - Forzando URLs correctas');
+      (function() {
+        console.log('🔧 Iniciando detección de cache...');
         
-        // Mostrar página de limpieza inmediatamente
-        document.body.innerHTML = `
-          <div style="
-            font-family: Arial, sans-serif; 
-            background: linear-gradient(45deg, #ff0000, #ff6600);
-            color: white;
-            text-align: center;
-            padding: 50px;
-            margin: 0;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-          ">
-            <div style="
-              background: rgba(0,0,0,0.8); 
-              padding: 30px; 
-              border-radius: 15px;
-              max-width: 600px;
-            ">
-              <h1>🧹 LIMPIANDO CACHE</h1>
-              <p>Limpiando todo el cache del navegador...</p>
-              <div id="status" style="margin: 20px 0; font-size: 16px;">Iniciando limpieza...</div>
-              <button onclick="limpiarTodo()" style="
-                background: #00ff00;
-                color: black;
-                border: none;
-                padding: 20px 40px;
-                font-size: 20px;
-                border-radius: 8px;
-                cursor: pointer;
-                margin: 10px;
-                font-weight: bold;
-              ">LIMPIAR AHORA</button>
-            </div>
-          </div>
-        `;
+        // Detectar si estamos en producción
+        const isProduction = window.location.hostname !== 'localhost';
         
-        // Función de limpieza
-        window.limpiarTodo = function() {
-          const status = document.getElementById('status');
-          status.innerHTML = 'Limpiando localStorage...';
+        if (isProduction) {
+          console.log('🌐 Detectado entorno de producción');
           
-          try {
-            localStorage.clear();
-            status.innerHTML = 'Limpiando sessionStorage...';
-            sessionStorage.clear();
+          // Verificar si hay problemas de cache
+          const hasCacheIssues = localStorage.getItem('cache_cleared') !== 'true' || 
+                                sessionStorage.getItem('cache_cleared') !== 'true';
+          
+          if (hasCacheIssues) {
+            console.log('⚠️ Detectados problemas de cache, iniciando limpieza...');
             
-            status.innerHTML = 'Limpiando cache del navegador...';
-            if ('caches' in window) {
-              caches.keys().then(names => {
-                names.forEach(name => caches.delete(name));
-              });
-            }
+            // Mostrar mensaje de limpieza
+            document.body.innerHTML = `
+              <div style="
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                color: white;
+                font-family: Arial, sans-serif;
+                z-index: 9999;
+              ">
+                <div style="text-align: center; padding: 20px;">
+                  <h1 style="font-size: 2.5em; margin-bottom: 20px;">🔄 Limpiando Cache...</h1>
+                  <div style="font-size: 1.2em; margin-bottom: 30px;">
+                    <p>Detectamos que necesitas una limpieza de cache.</p>
+                    <p>Esto tomará unos segundos...</p>
+                  </div>
+                  <div style="
+                    width: 50px;
+                    height: 50px;
+                    border: 5px solid rgba(255,255,255,0.3);
+                    border-top: 5px solid white;
+                    border-radius: 50%;
+                    animation: spin 1s linear infinite;
+                    margin: 0 auto;
+                  "></div>
+                </div>
+              </div>
+              <style>
+                @keyframes spin {
+                  0% { transform: rotate(0deg); }
+                  100% { transform: rotate(360deg); }
+                }
+              </style>
+            `;
             
-            status.innerHTML = 'Desregistrando service workers...';
-            if ('serviceWorker' in navigator) {
-              navigator.serviceWorker.getRegistrations().then(registrations => {
-                registrations.forEach(registration => registration.unregister());
-              });
-            }
-            
-            status.innerHTML = 'Redirigiendo al login...';
-            
+            // Limpiar todo el cache
             setTimeout(() => {
-              const timestamp = Date.now();
-              window.location.href = '/?v=' + timestamp + '&clean=true&final=' + timestamp;
+              // Limpiar localStorage y sessionStorage
+              localStorage.clear();
+              sessionStorage.clear();
+              
+              // Marcar como limpiado
+              localStorage.setItem('cache_cleared', 'true');
+              sessionStorage.setItem('cache_cleared', 'true');
+              
+              // Limpiar cache del navegador
+              if ('caches' in window) {
+                caches.keys().then(names => {
+                  names.forEach(name => {
+                    caches.delete(name);
+                  });
+                });
+              }
+              
+              // Desregistrar service worker
+              if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.getRegistrations().then(registrations => {
+                  registrations.forEach(registration => {
+                    registration.unregister();
+                  });
+                });
+              }
+              
+              // Forzar recarga con parámetros de cache busting
+              setTimeout(() => {
+                const timestamp = new Date().getTime();
+                const newUrl = window.location.href.split('?')[0] + '?v=' + timestamp + '&cache_cleared=true';
+                window.location.href = newUrl;
+              }, 2000);
+              
             }, 1000);
             
-          } catch(e) {
-            status.innerHTML = 'Error: ' + e.message;
+            return; // No cargar React hasta que se limpie el cache
           }
+        }
+        
+        console.log('✅ Cache verificado, cargando aplicación...');
+      })();
+    </script>
+    
+    <!-- 🔧 INTERCEPTOR GLOBAL DE FETCH/XHR -->
+    <script>
+      (function() {
+        const originalFetch = window.fetch;
+        const originalXHROpen = XMLHttpRequest.prototype.open;
+        
+        // Interceptar fetch
+        window.fetch = function(url, options) {
+          if (typeof url === 'string' && url.includes('localhost:5001')) {
+            const newUrl = url.replace('http://localhost:5001', 'https://tablero-control-1.onrender.com');
+            console.log('🔄 Fetch interceptado:', url, '→', newUrl);
+            return originalFetch(newUrl, options);
+          }
+          return originalFetch(url, options);
         };
         
-        // Auto-activar limpieza
-        setTimeout(() => {
-          if (window.limpiarTodo) {
-            window.limpiarTodo();
+        // Interceptar XMLHttpRequest
+        XMLHttpRequest.prototype.open = function(method, url, ...args) {
+          if (typeof url === 'string' && url.includes('localhost:5001')) {
+            const newUrl = url.replace('http://localhost:5001', 'https://tablero-control-1.onrender.com');
+            console.log('🔄 XHR interceptado:', url, '→', newUrl);
+            return originalXHROpen.call(this, method, newUrl, ...args);
           }
-        }, 2000);
+          return originalXHROpen.call(this, method, url, ...args);
+        };
         
-        // No cargar React si estamos en modo limpieza
-        throw new Error('MODO LIMPIEZA ACTIVADO');
-      }
-      
-      // Limpiar cualquier cache residual
-      if ('caches' in window) {
-        caches.keys().then(names => {
-          names.forEach(name => caches.delete(name));
-        });
-      }
-      
-      // Interceptar todas las llamadas fetch para reemplazar localhost
-      const originalFetch = window.fetch;
-      window.fetch = function(url, options) {
-        let modifiedUrl = url;
-        
-        // Si es una URL localhost, reemplazarla con la URL de producción
-        if (typeof url === 'string' && url.includes('localhost:5001')) {
-          modifiedUrl = url.replace('http://localhost:5001', 'https://tablero-control-1.onrender.com');
-          console.log('🔄 Interceptando fetch:', url, '→', modifiedUrl);
-        }
-        
-        return originalFetch(modifiedUrl, options);
-      };
-      
-      // Interceptar XMLHttpRequest también
-      const originalXHROpen = XMLHttpRequest.prototype.open;
-      XMLHttpRequest.prototype.open = function(method, url, ...args) {
-        let modifiedUrl = url;
-        
-        if (typeof url === 'string' && url.includes('localhost:5001')) {
-          modifiedUrl = url.replace('http://localhost:5001', 'https://tablero-control-1.onrender.com');
-          console.log('🔄 Interceptando XHR:', url, '→', modifiedUrl);
-        }
-        
-        return originalXHROpen.call(this, method, modifiedUrl, ...args);
-      };
-      
-      // Forzar recarga de recursos estáticos con cache busting
-      function forceReloadResources() {
-        const timestamp = Date.now();
-        const links = document.querySelectorAll('link[rel="stylesheet"]');
-        const scripts = document.querySelectorAll('script[src]');
-        
-        links.forEach(link => {
-          if (link.href && !link.href.includes('?v=')) {
-            link.href = link.href + '?v=' + timestamp;
-          }
-        });
-        
-        scripts.forEach(script => {
-          if (script.src && !script.src.includes('?v=')) {
-            script.src = script.src + '?v=' + timestamp;
-          }
-        });
-      }
-      
-      // Ejecutar cuando el DOM esté listo
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', forceReloadResources);
-      } else {
-        forceReloadResources();
-      }
+        console.log('🔧 Interceptores de red configurados');
+      })();
     </script>
   </head>
   <body>
