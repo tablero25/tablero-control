@@ -899,14 +899,43 @@ app.get('/health', (req, res) => {
   });
 });
 
-// Ruta de prueba simple
+// 🔧 RUTA DE PRUEBA SIMPLE
 app.get('/api/test', (req, res) => {
-  res.json({
-    status: 'OK',
-    message: 'API de prueba funcionando correctamente',
+  res.json({ 
+    message: 'API funcionando correctamente',
     timestamp: new Date().toISOString(),
-    version: '1.0.0'
+    status: 'OK'
   });
+});
+
+// 🔧 RUTA DE LOGIN SIMPLE
+app.post('/api/auth/login', (req, res) => {
+  const { username, password } = req.body;
+  
+  console.log('🔑 Login attempt:', { username, password });
+  
+  if (username === 'admin' && password === 'admin123') {
+    console.log('✅ Login exitoso');
+    res.json({
+      success: true,
+      token: 'test-token-123',
+      user: {
+        id: 999,
+        username: 'admin',
+        email: 'admin@test.com',
+        role: 'admin',
+        dni: '12345678',
+        nombre: 'Administrador',
+        apellido: 'Sistema',
+        funcion: 'Administrador',
+        first_login: false
+      },
+      establecimientos: []
+    });
+  } else {
+    console.log('❌ Login fallido');
+    res.status(401).json({ error: 'Usuario o contraseña incorrectos' });
+  }
 });
 
 // Ruta de diagnóstico para problemas de conexión
