@@ -1,152 +1,40 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#000000" />
-    <meta name="description" content="Sistema de Control de Tableros" />
+    <meta name="description" content="Web site created using create-react-app" />
     <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
+    <!--
+      manifest.json provides metadata used when your web app is installed on a
+      user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
+    -->
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
-    <title>Tablero de Control</title>
-    
-    <!-- 🔧 SCRIPT DE DETECCIÓN Y LIMPIEZA AUTOMÁTICA DE CACHE -->
-    <script>
-      (function() {
-        console.log('🔧 Iniciando detección de cache...');
-        
-        // Detectar si estamos en producción
-        const isProduction = window.location.hostname !== 'localhost';
-        
-        if (isProduction) {
-          console.log('🌐 Detectado entorno de producción');
-          
-          // Verificar si hay problemas de cache
-          const hasCacheIssues = localStorage.getItem('cache_cleared') !== 'true' || 
-                                sessionStorage.getItem('cache_cleared') !== 'true';
-          
-          if (hasCacheIssues) {
-            console.log('⚠️ Detectados problemas de cache, iniciando limpieza...');
-            
-            // Mostrar mensaje de limpieza
-            document.body.innerHTML = `
-              <div style="
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-                align-items: center;
-                color: white;
-                font-family: Arial, sans-serif;
-                z-index: 9999;
-              ">
-                <div style="text-align: center; padding: 20px;">
-                  <h1 style="font-size: 2.5em; margin-bottom: 20px;">🔄 Limpiando Cache...</h1>
-                  <div style="font-size: 1.2em; margin-bottom: 30px;">
-                    <p>Detectamos que necesitas una limpieza de cache.</p>
-                    <p>Esto tomará unos segundos...</p>
-                  </div>
-                  <div style="
-                    width: 50px;
-                    height: 50px;
-                    border: 5px solid rgba(255,255,255,0.3);
-                    border-top: 5px solid white;
-                    border-radius: 50%;
-                    animation: spin 1s linear infinite;
-                    margin: 0 auto;
-                  "></div>
-                </div>
-              </div>
-              <style>
-                @keyframes spin {
-                  0% { transform: rotate(0deg); }
-                  100% { transform: rotate(360deg); }
-                }
-              </style>
-            `;
-            
-            // Limpiar todo el cache
-            setTimeout(() => {
-              // Limpiar localStorage y sessionStorage
-              localStorage.clear();
-              sessionStorage.clear();
-              
-              // Marcar como limpiado
-              localStorage.setItem('cache_cleared', 'true');
-              sessionStorage.setItem('cache_cleared', 'true');
-              
-              // Limpiar cache del navegador
-              if ('caches' in window) {
-                caches.keys().then(names => {
-                  names.forEach(name => {
-                    caches.delete(name);
-                  });
-                });
-              }
-              
-              // Desregistrar service worker
-              if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.getRegistrations().then(registrations => {
-                  registrations.forEach(registration => {
-                    registration.unregister();
-                  });
-                });
-              }
-              
-              // Forzar recarga con parámetros de cache busting
-              setTimeout(() => {
-                const timestamp = new Date().getTime();
-                const newUrl = window.location.href.split('?')[0] + '?v=' + timestamp + '&cache_cleared=true';
-                window.location.href = newUrl;
-              }, 2000);
-              
-            }, 1000);
-            
-            return; // No cargar React hasta que se limpie el cache
-          }
-        }
-        
-        console.log('✅ Cache verificado, cargando aplicación...');
-      })();
-    </script>
-    
-    <!-- 🔧 INTERCEPTOR GLOBAL DE FETCH/XHR -->
-    <script>
-      (function() {
-        const originalFetch = window.fetch;
-        const originalXHROpen = XMLHttpRequest.prototype.open;
-        
-        // Interceptar fetch
-        window.fetch = function(url, options) {
-          if (typeof url === 'string' && url.includes('localhost:5001')) {
-            const newUrl = url.replace('http://localhost:5001', 'https://tablero-control-1.onrender.com');
-            console.log('🔄 Fetch interceptado:', url, '→', newUrl);
-            return originalFetch(newUrl, options);
-          }
-          return originalFetch(url, options);
-        };
-        
-        // Interceptar XMLHttpRequest
-        XMLHttpRequest.prototype.open = function(method, url, ...args) {
-          if (typeof url === 'string' && url.includes('localhost:5001')) {
-            const newUrl = url.replace('http://localhost:5001', 'https://tablero-control-1.onrender.com');
-            console.log('🔄 XHR interceptado:', url, '→', newUrl);
-            return originalXHROpen.call(this, method, newUrl, ...args);
-          }
-          return originalXHROpen.call(this, method, url, ...args);
-        };
-        
-        console.log('🔧 Interceptores de red configurados');
-      })();
-    </script>
+    <!--
+      Notice the use of %PUBLIC_URL% in the tags above.
+      It will be replaced with the URL of the `public` folder during the build.
+      Only files inside the `public` folder can be referenced from the HTML.
+
+      Unlike "/favicon.ico" or "favicon.ico", "%PUBLIC_URL%/favicon.ico" will
+      work correctly both with client-side routing and a non-root public URL.
+      Learn how to configure a non-root public URL by running `npm run build`.
+    -->
+    <title>React App</title>
   </head>
   <body>
-    <noscript>Necesitas habilitar JavaScript para ejecutar esta aplicación.</noscript>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
+    <!--
+      This HTML file is a template.
+      If you open it directly in the browser, you will see an empty page.
+
+      You can add webfonts, meta tags, or analytics to this file.
+      The build step will place the bundled scripts into the <body> tag.
+
+      To begin the development, run `npm start` or `yarn start`.
+      To create a production bundle, use `npm run build` or `yarn build`.
+    -->
   </body>
 </html>

@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Control - Versión Final</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .login-screen {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        
+        .login-form {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+        
+        .login-form h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+        
+        .login-form h2 {
+            color: #666;
+            margin-bottom: 30px;
+            font-weight: 300;
+        }
+        
+        .dashboard {
+            display: none;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+            margin: 20px auto;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .logout-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        .logout-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin: 40px 0;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            border-left: 5px solid #667eea;
+            transition: transform 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .stat-number {
+            font-size: 3em;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        
+        .stat-label {
+            font-size: 1.1em;
+            color: #666;
+            font-weight: 500;
+        }
+        
+        input {
+            width: 100%;
+            padding: 15px 20px;
+            margin: 15px 0;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        button {
+            width: 100%;
+            padding: 15px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        .error {
+            color: #e74c3c;
+            margin-top: 15px;
+            display: none;
+            padding: 10px;
+            background: #fdf2f2;
+            border-radius: 8px;
+            border-left: 4px solid #e74c3c;
+        }
+        
+        .success {
+            color: #27ae60;
+            margin-top: 15px;
+            display: none;
+            padding: 10px;
+            background: #f0f9f4;
+            border-radius: 8px;
+            border-left: 4px solid #27ae60;
+        }
+        
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin: 40px 0;
+        }
+        
+        .menu-card {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        
+        .menu-card:hover {
+            transform: translateY(-5px);
+            border-color: #667eea;
+            box-shadow: 0 15px 30px rgba(102, 126, 234, 0.2);
+        }
+        
+        .menu-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+        }
+        
+        .menu-card h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+        
+        .menu-card p {
+            color: #666;
+            line-height: 1.6;
+        }
+        
+        .section-title {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 2em;
+            text-align: center;
+        }
+        
+        .welcome-message {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #666;
+            font-size: 1.1em;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .login-form {
+                padding: 30px 20px;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .menu-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- PANTALLA DE LOGIN -->
+        <div id="loginScreen" class="login-screen">
+            <div class="login-form">
+                <h1>🏥</h1>
+                <h1>Sistema de Control</h1>
+                <h2>Iniciar Sesión</h2>
+                
+                <input type="text" id="username" placeholder="Usuario" value="admin">
+                <input type="password" id="password" placeholder="Contraseña" value="admin123">
+                <button onclick="login()">Entrar al Sistema</button>
+                
+                <div id="loginError" class="error"></div>
+                <div id="loginSuccess" class="success"></div>
+            </div>
+        </div>
+        
+        <!-- DASHBOARD -->
+        <div id="dashboard" class="dashboard">
+            <div class="header">
+                <button class="logout-btn" onclick="logout()">Cerrar Sesión</button>
+                <h1>🏥 Dashboard</h1>
+                <p>Sistema de Control - Bienvenido, <span id="userName">Administrador</span></p>
+            </div>
+            
+            <div class="content">
+                <h2 class="section-title">📊 Estadísticas Generales</h2>
+                <p class="welcome-message">Resumen de los indicadores más importantes del sistema</p>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number">25</div>
+                        <div class="stat-label">Establecimientos</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">1,234</div>
+                        <div class="stat-label">Pacientes</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">89</div>
+                        <div class="stat-label">Médicos</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">95%</div>
+                        <div class="stat-label">Eficiencia</div>
+                    </div>
+                </div>
+                
+                <h2 class="section-title">🛠️ Funcionalidades</h2>
+                <p class="welcome-message">Accede a las herramientas del sistema</p>
+                
+                <div class="menu-grid">
+                    <div class="menu-card" onclick="showMessage('Gestión de Usuarios')">
+                        <div class="menu-icon">👥</div>
+                        <h3>Gestión de Usuarios</h3>
+                        <p>Administrar usuarios del sistema, roles y permisos</p>
+                    </div>
+                    <div class="menu-card" onclick="showMessage('Establecimientos')">
+                        <div class="menu-icon">🏥</div>
+                        <h3>Establecimientos</h3>
+                        <p>Gestionar centros médicos y sus configuraciones</p>
+                    </div>
+                    <div class="menu-card" onclick="showMessage('Reportes')">
+                        <div class="menu-icon">📈</div>
+                        <h3>Reportes</h3>
+                        <p>Generar reportes y estadísticas detalladas</p>
+                    </div>
+                    <div class="menu-card" onclick="showMessage('Configuración')">
+                        <div class="menu-icon">⚙️</div>
+                        <h3>Configuración</h3>
+                        <p>Configurar parámetros del sistema</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Verificar si ya está logueado al cargar la página
+        window.onload = function() {
+            if (localStorage.getItem('loggedIn') === 'true') {
+                showDashboard();
+            }
+        };
+        
+        function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const errorDiv = document.getElementById('loginError');
+            const successDiv = document.getElementById('loginSuccess');
+            
+            // Limpiar mensajes anteriores
+            errorDiv.style.display = 'none';
+            successDiv.style.display = 'none';
+            
+            // Validación simple - SIN CONEXIÓN A SERVIDOR
+            if (username === 'admin' && password === 'admin123') {
+                // Login exitoso
+                localStorage.setItem('loggedIn', 'true');
+                localStorage.setItem('username', username);
+                
+                successDiv.textContent = '✅ ¡Login exitoso! Redirigiendo al dashboard...';
+                successDiv.style.display = 'block';
+                
+                setTimeout(() => {
+                    showDashboard();
+                }, 1500);
+            } else {
+                // Login fallido
+                errorDiv.textContent = '❌ Usuario o contraseña incorrectos. Usa: admin / admin123';
+                errorDiv.style.display = 'block';
+            }
+        }
+        
+        function showDashboard() {
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('dashboard').style.display = 'block';
+            
+            // Mostrar nombre de usuario
+            const username = localStorage.getItem('username') || 'Administrador';
+            document.getElementById('userName').textContent = username;
+        }
+        
+        function logout() {
+            localStorage.removeItem('loggedIn');
+            localStorage.removeItem('username');
+            
+            document.getElementById('dashboard').style.display = 'none';
+            document.getElementById('loginScreen').style.display = 'flex';
+            
+            // Limpiar campos
+            document.getElementById('username').value = 'admin';
+            document.getElementById('password').value = 'admin123';
+            
+            // Limpiar mensajes
+            document.getElementById('loginError').style.display = 'none';
+            document.getElementById('loginSuccess').style.display = 'none';
+        }
+        
+        function showMessage(feature) {
+            alert(`🎯 Función "${feature}"\n\nEsta funcionalidad estará disponible próximamente.\n\nPor ahora puedes explorar el dashboard y ver las estadísticas.`);
+        }
+        
+        // Permitir login con Enter
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                login();
+            }
+        });
+        
+        // Prevenir cualquier intento de conexión a servidores
+        console.log('🚀 Sistema funcionando completamente offline');
+        console.log('✅ No hay conexiones a servidores externos');
+        console.log('✅ Todo funciona localmente');
+    </script>
+</body>
+</html> 

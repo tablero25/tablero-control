@@ -719,7 +719,6 @@ input[type="number"], .anio-input {
   color: #005a8c;
 }
 
-/* --- MODAL STYLES --- */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -728,156 +727,16 @@ input[type="number"], .anio-input {
   bottom: 0;
   background: rgba(0, 0, 0, 0.5);
   display: flex;
-  justify-content: center;
   align-items: center;
-  z-index: 3000;
+  justify-content: center;
+  z-index: 1000;
 }
 
 .modal-content {
   background: #fff;
   border-radius: 12px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-  max-width: 600px;
-  width: 90%;
-  max-height: 80vh;
-  overflow-y: auto;
-}
-
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 20px 24px;
-  border-bottom: 1px solid #e9ecef;
-}
-
-.modal-header h3 {
-  color: #223366;
-  margin: 0;
-  font-size: 1.3rem;
-}
-
-.close-btn {
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  color: #666;
-  cursor: pointer;
-  padding: 0;
-  width: 30px;
-  height: 30px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  transition: background 0.2s;
-}
-
-.close-btn:hover {
-  background: #f8f9fa;
-  color: #333;
-}
-
-.modal-body {
   padding: 24px;
-}
-
-.modal-footer {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-  padding: 20px 24px;
-  border-top: 1px solid #e9ecef;
-}
-
-.form-group {
-  margin-bottom: 20px;
-}
-
-.form-group label {
-  display: block;
-  margin-bottom: 8px;
-  color: #223366;
-  font-weight: 600;
-  font-size: 0.95rem;
-}
-
-.form-control {
-  width: 100%;
-  padding: 10px 12px;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  font-size: 1rem;
-  transition: border-color 0.2s;
-}
-
-.form-control:focus {
-  outline: none;
-  border-color: #0073b7;
-  box-shadow: 0 0 0 2px rgba(0, 115, 183, 0.1);
-}
-
-.establecimientos-list {
-  max-height: 200px;
-  overflow-y: auto;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  padding: 12px;
-  background: #f8f9fa;
-}
-
-.checkbox-item {
-  display: flex;
-  align-items: center;
-  margin-bottom: 8px;
-  cursor: pointer;
-  font-size: 0.9rem;
-  color: #333;
-}
-
-.checkbox-item input[type="checkbox"] {
-  margin-right: 8px;
-  transform: scale(1.1);
-}
-
-.checkbox-item:hover {
-  color: #0073b7;
-}
-
-.edit-btn {
-  background: #ffc107;
-  color: #212529;
-  border: none;
-  font-size: 1.1rem;
-  cursor: pointer;
-  padding: 6px 8px;
-  border-radius: 4px;
-  transition: background 0.2s;
-}
-
-.edit-btn:hover {
-  background: #e0a800;
-}
-
-/* --- SUCCESS AND ERROR MESSAGES --- */
-.success-msg {
-  background: #d4edda;
-  color: #155724;
-  padding: 12px 16px;
-  border-radius: 6px;
-  margin: 16px 0;
-  border: 1px solid #c3e6cb;
-  font-weight: 500;
-}
-
-.error-msg {
-  background: #f8d7da;
-  color: #721c24;
-  padding: 12px 16px;
-  border-radius: 6px;
-  margin: 16px 0;
-  border: 1px solid #f5c6cb;
-  font-weight: 500;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.15);
 }
 
 .button-group {
@@ -1195,16 +1054,6 @@ input[type="number"], .anio-input {
   color: #fff;
 }
 
-.role-jefe_zona {
-  background: #6f42c1;
-  color: #fff;
-}
-
-.role-sin-rol {
-  background: #6c757d;
-  color: #fff;
-}
-
 .status-badge {
   padding: 4px 8px;
   border-radius: 12px;
@@ -1297,40 +1146,4 @@ input[type="number"], .anio-input {
     flex-direction: column;
     gap: 4px;
   }
-}
-
-/* Estilos para el selector de establecimiento en registro */
-.establecimiento-select {
-  width: 100%;
-  padding: 12px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 16px;
-  background-color: white;
-  color: #333;
-  margin-bottom: 15px;
-  max-height: 200px;
-}
-
-.establecimiento-select:focus {
-  outline: none;
-  border-color: #0073b7;
-  box-shadow: 0 0 5px rgba(0, 115, 183, 0.3);
-}
-
-.establecimiento-select option {
-  padding: 8px;
-  font-size: 14px;
-  background-color: white;
-  color: #333;
-}
-
-.establecimiento-select option:hover {
-  background-color: #f0f8ff;
-}
-
-/* Estilo para el placeholder */
-.establecimiento-select option[value=""] {
-  color: #999;
-  font-style: italic;
 }

@@ -1,20 +1,20 @@
 import React, { useState } from 'react';
 import logoSDO from './logoo.png';
 
-function ChangePassword() {
+function ChangePassword({ onCancel, onSuccess }) {
   const [formData, setFormData] = useState({
-    currentPassword: '',
+    oldPassword: '',
     newPassword: '',
     confirmPassword: ''
   });
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
-  // URL DIRECTA DE PRODUCCIÓN
-  const API_URL = 'https://tablero-control-1.onrender.com';
-
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
   };
 
   const handleSubmit = async (e) => {
@@ -22,8 +22,9 @@ function ChangePassword() {
     setError('');
     setSuccess('');
 
+    // Validaciones
     if (formData.newPassword !== formData.confirmPassword) {
-      setError('Las contraseñas nuevas no coinciden');
+      setError('Las nuevas contraseñas no coinciden');
       return;
     }
 
@@ -33,22 +34,15 @@ function ChangePassword() {
     }
 
     try {
-      console.log('🚀 Cambiando contraseña con URL:', `${API_URL}/api/auth/change-password`);
-      
       const token = localStorage.getItem('token');
-      if (!token) {
-        setError('No hay sesión activa');
-        return;
-      }
-
-      const res = await fetch(`${API_URL}/api/auth/change-password`, {
+      const res = await fetch('https://tablero-control-1.onrender.com/api/auth/change-password', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
-          currentPassword: formData.currentPassword,
+          oldPassword: formData.oldPassword,
           newPassword: formData.newPassword
         }),
       });
@@ -58,20 +52,15 @@ function ChangePassword() {
       if (data.success) {
         setSuccess('Contraseña cambiada exitosamente');
         setFormData({
-          currentPassword: '',
+          oldPassword: '',
           newPassword: '',
           confirmPassword: ''
         });
-        
-        // Redirigir al sistema después de 2 segundos
-        setTimeout(() => {
-          window.location.href = '/sistema-tablero';
-        }, 2000);
+        if (onSuccess) onSuccess();
       } else {
-        setError(data.error || 'Error al cambiar la contraseña');
+        setError(data.error || 'Error al cambiar contraseña');
       }
     } catch (err) {
-      console.error('❌ Error de conexión:', err);
       setError('Error de conexión con el servidor');
     }
   };
@@ -84,42 +73,46 @@ function ChangePassword() {
           <h1 className="banner-title">TABLERO S/D/O</h1>
         </div>
         <div className="container">
-          <form className="change-password-form" onSubmit={handleSubmit}>
-            <h2>Cambiar Contraseña</h2>
-            <p>Por favor, cambie su contraseña por defecto</p>
-            
-            <input
-              type="password"
-              name="currentPassword"
-              placeholder="Contraseña Actual"
-              value={formData.currentPassword}
-              onChange={handleChange}
-              required
-            />
-            
-            <input
-              type="password"
-              name="newPassword"
-              placeholder="Nueva Contraseña"
-              value={formData.newPassword}
-              onChange={handleChange}
-              required
-            />
-            
-            <input
-              type="password"
-              name="confirmPassword"
-              placeholder="Confirmar Nueva Contraseña"
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              required
-            />
-            
+          <div className="modal-content">
+            <form className="login-form" onSubmit={handleSubmit}>
+          <h2>Cambiar Contraseña</h2>
+          
+          <input
+            type="password"
+            name="oldPassword"
+            placeholder="Contraseña Actual"
+            value={formData.oldPassword}
+            onChange={handleChange}
+            required
+          />
+          
+          <input
+            type="password"
+            name="newPassword"
+            placeholder="Nueva Contraseña"
+            value={formData.newPassword}
+            onChange={handleChange}
+            required
+          />
+          
+          <input
+            type="password"
+            name="confirmPassword"
+            placeholder="Confirmar Nueva Contraseña"
+            value={formData.confirmPassword}
+            onChange={handleChange}
+            required
+          />
+          
+          <div className="button-group">
             <button type="submit">Cambiar Contraseña</button>
-            
-            {error && <div className="error-msg">{error}</div>}
-            {success && <div className="success-msg">{success}</div>}
-          </form>
+            <button type="button" onClick={onCancel} className="cancel-btn">Cancelar</button>
+          </div>
+          
+          {error && <div className="error-msg">{error}</div>}
+          {success && <div className="success-msg">{success}</div>}
+        </form>
+            </div>
         </div>
       </div>
     </div>
