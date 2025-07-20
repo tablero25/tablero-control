@@ -137,6 +137,66 @@ app.get('/create-admin-now', async (req, res) => {
   }
 });
 
+// Endpoint temporal para login automático del admin
+app.get('/auto-login-admin', async (req, res) => {
+  try {
+    console.log('🔐 Login automático del admin...');
+    
+    // Verificar que el usuario admin existe
+    const existingUser = await pool.query(
+      'SELECT id, username, email, role, dni, nombre, apellido, funcion, is_active, first_login FROM users WHERE username = $1',
+      ['admin']
+    );
+
+    if (existingUser.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        error: 'Usuario admin no encontrado'
+      });
+    }
+
+    const user = existingUser.rows[0];
+    
+    // Generar token JWT (simulando el proceso de login)
+    const jwt = require('jsonwebtoken');
+    const token = jwt.sign(
+      { 
+        id: user.id, 
+        username: user.username,
+        role: user.role,
+        first_login: user.first_login
+      },
+      process.env.JWT_SECRET || 'tu_secret_key_aqui',
+      { expiresIn: '24h' }
+    );
+
+    res.json({
+      success: true,
+      message: 'Login automático exitoso',
+      token: token,
+      user: {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        role: user.role,
+        dni: user.dni,
+        nombre: user.nombre,
+        apellido: user.apellido,
+        funcion: user.funcion,
+        is_active: user.is_active,
+        first_login: user.first_login
+      }
+    });
+
+  } catch (error) {
+    console.error('❌ Error en login automático:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
 // RUTA PRINCIPAL - Sirve el frontend React
 app.get('/', (req, res) => {
   console.log('🎯 Sirviendo frontend React desde ruta principal');
