@@ -52,6 +52,32 @@ app.get('/dashboard', (req, res) => {
   res.sendFile(path.join(__dirname, 'build/index.html'));
 });
 
+app.get('/change-password', (req, res) => {
+  console.log('🔐 Sirviendo página de cambio de contraseña');
+  res.sendFile(path.join(__dirname, 'build/index.html'));
+});
+
+app.get('/configuracion', (req, res) => {
+  console.log('⚙️ Sirviendo página de configuración');
+  res.sendFile(path.join(__dirname, 'build/index.html'));
+});
+
+app.get('/usuarios', (req, res) => {
+  console.log('👥 Sirviendo página de usuarios');
+  res.sendFile(path.join(__dirname, 'build/index.html'));
+});
+
+app.get('/establecimientos', (req, res) => {
+  console.log('🏥 Sirviendo página de establecimientos');
+  res.sendFile(path.join(__dirname, 'build/index.html'));
+});
+
+// Ruta catch-all para todas las rutas del frontend
+app.get('*', (req, res) => {
+  console.log(`🎯 Sirviendo frontend para ruta: ${req.path}`);
+  res.sendFile(path.join(__dirname, 'build/index.html'));
+});
+
 // Ruta de prueba simple
 app.get('/api/test', (req, res) => {
   res.json({
