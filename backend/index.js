@@ -8,6 +8,63 @@ const XLSX = require('xlsx');
 // Importar rutas de autenticación
 const authRoutes = require('./authRoutes');
 
+const app = express();
+app.use(cors());
+app.use(express.json());
+
+// Servir archivos estáticos del frontend React
+app.use(express.static(path.join(__dirname, 'build')));
+
+// Ruta de health check
+app.get('/health', (req, res) => {
+  res.json({ 
+    status: 'OK', 
+    message: 'Sistema funcionando correctamente',
+    timestamp: new Date().toISOString(),
+    version: '1.0.0'
+  });
+});
+
+// RUTA PRINCIPAL - Sirve el frontend React
+app.get('/', (req, res) => {
+  console.log('🎯 Sirviendo frontend React desde ruta principal');
+  res.sendFile(path.join(__dirname, 'build/index.html'));
+});
+
+// RUTAS DEL FRONTEND - Todas las rutas que no sean /api/* van al frontend React
+app.get('/login', (req, res) => {
+  console.log('🔐 Sirviendo página de login');
+  res.sendFile(path.join(__dirname, 'build/index.html'));
+});
+
+app.get('/register', (req, res) => {
+  console.log('📝 Sirviendo página de registro');
+  res.sendFile(path.join(__dirname, 'build/index.html'));
+});
+
+app.get('/confirm', (req, res) => {
+  console.log('✅ Sirviendo página de confirmación');
+  res.sendFile(path.join(__dirname, 'build/index.html'));
+});
+
+app.get('/dashboard', (req, res) => {
+  console.log('📊 Sirviendo dashboard');
+  res.sendFile(path.join(__dirname, 'build/index.html'));
+});
+
+// Ruta de prueba simple
+app.get('/api/test', (req, res) => {
+  res.json({
+    status: 'OK',
+    message: 'API de prueba funcionando correctamente',
+    timestamp: new Date().toISOString(),
+    version: '1.0.0'
+  });
+});
+
+// Usar rutas de autenticación
+app.use('/api/auth', authRoutes);
+
 // Formatos de Excel soportados por la librería xlsx
 const EXCEL_FORMATS = [
   '.xlsx',  // Excel Open XML Workbook
@@ -126,12 +183,7 @@ function detectarAnioDeArchivo(rutaArchivo) {
   }
 }
 
-const app = express();
-app.use(cors());
-app.use(express.json());
-
-// Rutas de autenticación
-app.use('/api/auth', authRoutes);
+// Rutas de autenticación ya configuradas arriba
 
 // Configuración temporal de multer - guardaremos en carpeta temporal primero
 const storage = multer.diskStorage({
@@ -1665,6 +1717,7 @@ app.get('/guardia/descargar/:establecimiento/:anio/:mes', (req, res) => {
   res.download(ruta, archivo);
 });
 
-app.listen(5001, () => {
-  console.log('Backend Excel server running on http://localhost:5001');
+const PORT = process.env.PORT || 5001;
+app.listen(PORT, () => {
+  console.log(`Backend Excel server running on port ${PORT}`);
 }); 
