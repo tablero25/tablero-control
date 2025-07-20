@@ -1856,8 +1856,9 @@ function App() {
       .then(data => {
         if (data.success) {
           setUser(data.user);
-          if (data.user.first_login) {
-            setShowChangePassword(true);
+          // Si es primer login y no estamos en change-password, redirigir
+          if (data.user.first_login && window.location.pathname !== '/change-password') {
+            window.location.href = '/change-password';
           }
         } else {
           localStorage.removeItem('token');
@@ -1974,14 +1975,21 @@ function App() {
         } />
         
         <Route path="/change-password" element={
-          showChangePassword ? (
+          user && user.first_login ? (
             <ChangePassword 
-              onCancel={() => setShowChangePassword(false)}
-              onSuccess={() => {
-                setShowChangePassword(false);
+              onCancel={() => {
                 setUser({...user, first_login: false});
                 window.location.href = '/sistema-tablero';
               }}
+              onSuccess={() => {
+                setUser({...user, first_login: false});
+                window.location.href = '/sistema-tablero';
+              }}
+            />
+          ) : user ? (
+            <ChangePassword 
+              onCancel={() => window.location.href = '/sistema-tablero'}
+              onSuccess={() => window.location.href = '/sistema-tablero'}
             />
           ) : (
             <Login />
