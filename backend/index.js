@@ -1928,7 +1928,7 @@ app.listen(PORT, () => {
 });
 
 // Endpoint temporal para actualizar base de datos (SOLO PARA DESARROLLO)
-app.get('/update-database', async (req, res) => {
+app.get('/api/update-database', async (req, res) => {
   try {
     console.log('🔧 Actualizando base de datos desde endpoint...');
     
