@@ -188,6 +188,213 @@ app.get('/fix/final-solution', (req, res) => {
   `);
 });
 
+// 🚨 RUTA DE EMERGENCIA
+app.get('/emergency', (req, res) => {
+  console.log('🚨 Sirviendo página de emergencia');
+  res.setHeader('Content-Type', 'text/html; charset=utf-8');
+  res.send(`
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EMERGENCIA - Solución Definitiva</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(45deg, #ff0000, #000000, #ff0000);
+            color: white;
+            min-height: 100vh;
+            animation: emergencyPulse 0.5s infinite;
+        }
+        @keyframes emergencyPulse {
+            0% { background: linear-gradient(45deg, #ff0000, #000000, #ff0000); }
+            50% { background: linear-gradient(45deg, #000000, #ff0000, #000000); }
+            100% { background: linear-gradient(45deg, #ff0000, #000000, #ff0000); }
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(0,0,0,0.9);
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            border: 5px solid #ff0000;
+            box-shadow: 0 0 50px rgba(255,0,0,0.8);
+        }
+        h1 {
+            font-size: 3em;
+            margin-bottom: 30px;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.8);
+            animation: emergencyGlow 1s ease-in-out infinite alternate;
+        }
+        @keyframes emergencyGlow {
+            from { text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px #ff0000, 0 0 40px #ff0000; }
+            to { text-shadow: 0 0 20px #fff, 0 0 30px #fff, 0 0 40px #ff0000, 0 0 50px #ff0000; }
+        }
+        .emergency-button {
+            background: linear-gradient(45deg, #ff0000, #000000, #ff0000);
+            color: white;
+            border: none;
+            padding: 30px 60px;
+            font-size: 2em;
+            font-weight: bold;
+            border-radius: 20px;
+            cursor: pointer;
+            margin: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            transition: all 0.3s ease;
+            animation: emergencyButtonPulse 0.3s infinite;
+        }
+        @keyframes emergencyButtonPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        .emergency-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.9);
+        }
+        .status {
+            font-size: 1.5em;
+            margin: 20px 0;
+            padding: 20px;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.1);
+        }
+        .credentials {
+            background: rgba(0,255,0,0.2);
+            border: 3px solid #00ff00;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            font-size: 1.3em;
+        }
+        .warning {
+            background: rgba(255, 0, 0, 0.4);
+            border: 3px solid #ff0000;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚨 EMERGENCIA 🚨</h1>
+        
+        <div class="warning">
+            <strong>PROBLEMA CRÍTICO:</strong> El navegador está usando una versión extremadamente antigua cacheada.
+        </div>
+        
+        <div class="credentials">
+            <strong>🔑 CREDENCIALES DE ACCESO:</strong><br>
+            <strong>Usuario:</strong> admin<br>
+            <strong>Contraseña:</strong> admin123
+        </div>
+        
+        <div id="status" class="status">Preparando solución de emergencia...</div>
+        
+        <button class="emergency-button" onclick="emergencyFix()">
+            🚨 ACTIVAR SOLUCIÓN DE EMERGENCIA 🚨
+        </button>
+        
+        <div class="warning">
+            <strong>INSTRUCCIONES:</strong><br>
+            1. Haz clic en el botón de arriba<br>
+            2. Espera a que se complete la limpieza<br>
+            3. Usa las credenciales para iniciar sesión
+        </div>
+    </div>
+
+    <script>
+        const statusDiv = document.getElementById('status');
+        
+        async function emergencyFix() {
+            statusDiv.innerHTML = '🚨 INICIANDO SOLUCIÓN DE EMERGENCIA...';
+            
+            try {
+                // 1. Limpiar Service Workers
+                if ('serviceWorker' in navigator) {
+                    const registrations = await navigator.serviceWorker.getRegistrations();
+                    for (let registration of registrations) {
+                        await registration.unregister();
+                    }
+                    statusDiv.innerHTML = '✅ Service Workers eliminados...';
+                }
+                
+                // 2. Limpiar Cache API
+                if ('caches' in window) {
+                    const cacheNames = await caches.keys();
+                    await Promise.all(cacheNames.map(name => caches.delete(name)));
+                    statusDiv.innerHTML = '✅ Cache API limpiada...';
+                }
+                
+                // 3. Limpiar almacenamiento
+                localStorage.clear();
+                sessionStorage.clear();
+                statusDiv.innerHTML = '✅ Almacenamiento limpiado...';
+                
+                // 4. Interceptar fetch de emergencia
+                const originalFetch = window.fetch;
+                window.fetch = function(url, options) {
+                    if (typeof url === 'string') {
+                        if (url.includes('localhost')) {
+                            const newUrl = url.replace(/http:\\/\\/localhost:\\d+/, 'https://tablero-control-1.onrender.com');
+                            console.log('🚨 URL interceptada:', url, '→', newUrl);
+                            url = newUrl;
+                        }
+                        if (url.startsWith('/api/')) {
+                            const newUrl = 'https://tablero-control-1.onrender.com' + url;
+                            console.log('🚨 URL relativa interceptada:', url, '→', newUrl);
+                            url = newUrl;
+                        }
+                    }
+                    return originalFetch(url, options);
+                };
+                
+                statusDiv.innerHTML = '✅ Interceptación configurada...';
+                
+                // 5. Configurar credenciales automáticamente
+                localStorage.setItem('emergency_fix', 'true');
+                localStorage.setItem('emergency_timestamp', Date.now());
+                
+                statusDiv.innerHTML = '✅ SOLUCIÓN DE EMERGENCIA COMPLETADA';
+                
+                // 6. Redirección con múltiples parámetros
+                setTimeout(() => {
+                    const timestamp = Date.now();
+                    const random = Math.random();
+                    const params = \`?emergency=true&fix=true&t=\${timestamp}&r=\${random}&nocache=true&version=emergency&final=true&solution=emergency\`;
+                    window.location.replace('/' + params);
+                }, 2000);
+                
+            } catch (error) {
+                statusDiv.innerHTML = '❌ Error en solución de emergencia: ' + error.message;
+                
+                // Redirección de emergencia
+                setTimeout(() => {
+                    window.location.replace('/?emergency=true&error=true&t=' + Date.now());
+                }, 3000);
+            }
+        }
+        
+        // Auto-activación después de 5 segundos
+        setTimeout(() => {
+            if (statusDiv.innerHTML.includes('Preparando')) {
+                emergencyFix();
+            }
+        }, 5000);
+    </script>
+</body>
+</html>
+  `);
+});
+
 app.use(cors());
 app.use(express.json());
 
