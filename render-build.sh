@@ -2,39 +2,28 @@
 
 echo "🚀 Iniciando build para Render..."
 
-# Instalar dependencias del frontend
-echo "📦 Instalando dependencias del frontend..."
-cd frontend
-npm install
-
 # Construir el frontend
-echo "🔨 Construyendo frontend..."
+echo "📦 Construyendo frontend..."
+cd frontend
 npm run build
-
-# Verificar que el build se creó
-if [ ! -d "build" ]; then
-    echo "❌ Error: El build del frontend no se creó"
-    exit 1
-fi
-
-# Copiar archivos personalizados al build
-echo "📁 Copiando archivos personalizados al build..."
-cp public/debug.html build/
-cp public/force-config.js build/
-cp public/fix-api.js build/
-
-# Copiar build al backend
-echo "📁 Copiando build al backend..."
 cd ..
-cp -r frontend/build backend/
+
+# Crear directorio de build del backend si no existe
+mkdir -p backend/build
+
+# Copiar el build del frontend al backend
+echo "📁 Copiando build del frontend..."
+cp -r frontend/build/* backend/build/
+
+# Copiar archivos del backend
+echo "📁 Copiando archivos del backend..."
+cp backend/package.json backend/build/
+cp backend/index.js backend/build/
+cp backend/authRoutes.js backend/build/
+
+# Crear directorio data si no existe
+mkdir -p backend/build/data
 
 echo "✅ Build completado exitosamente!"
-echo "📊 Contenido del build:"
-ls -la backend/build/
-
-# Instalar dependencias del backend
-echo "📦 Instalando dependencias del backend..."
-cd backend
-npm install
-
-echo "🎉 Todo listo para Render!" 
+echo "📂 Archivos en backend/build/:"
+ls -la backend/build/ 

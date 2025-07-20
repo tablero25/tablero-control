@@ -6,23 +6,16 @@ function Login({ onLogin, onShowRegister }) {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
-  // Usar configuración global establecida por index.html
-  const getApiUrl = (endpoint) => {
-    const apiBaseUrl = window.API_BASE_URL || 'https://tablero-control-1.onrender.com';
-    const timestamp = Date.now();
-    const url = `${apiBaseUrl}${endpoint}?v=${timestamp}`;
-    console.log('🔗 Login.js - getApiUrl generada:', url);
-    return url;
-  };
+  // URL DIRECTA DE PRODUCCIÓN
+  const API_URL = 'https://tablero-control-1.onrender.com';
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     try {
-      console.log('🚀 Login.js - Iniciando login...');
-      console.log('🌐 API_BASE_URL actual:', window.API_BASE_URL);
+      console.log('🚀 Iniciando login con URL:', `${API_URL}/api/auth/login`);
       
-      const res = await fetch(getApiUrl('/api/auth/login'), {
+      const res = await fetch(`${API_URL}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password }),
@@ -39,7 +32,7 @@ function Login({ onLogin, onShowRegister }) {
         setError(data.error || 'Error de autenticación');
       }
     } catch (err) {
-      console.error('❌ Login.js - Error de conexión:', err);
+      console.error('❌ Error de conexión:', err);
       setError('Error de conexión con el servidor');
     }
   };

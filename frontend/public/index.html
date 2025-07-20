@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
   <head>
     <meta charset="utf-8" />
     <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
@@ -7,43 +7,19 @@
     <meta name="theme-color" content="#000000" />
     <meta
       name="description"
-      content="Sistema de Tableros de Control - Indicadores de Gestión"
+      content="Tableros de Control - Indicadores de Gestión"
     />
     <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+    <title>Tableros de Control - S/D/O</title>
     
-    <!-- Cache Control Headers -->
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
-    
-    <title>Tableros de Control - Indicadores de Gestión</title>
-    
-    <!-- NUEVO SCRIPT SIMPLE PARA CORREGIR APIs -->
-    <script src="%PUBLIC_URL%/fix-api.js"></script>
-    
-    <!-- Script para limpiar cache y forzar recarga -->
-    <script>
-      // Limpiar cache de manera agresiva
-      if ('caches' in window) {
-        caches.keys().then(function(names) {
-          for (let name of names) {
-            caches.delete(name);
-          }
-        });
-      }
-      
-      // Limpiar localStorage y sessionStorage
-      localStorage.clear();
-      sessionStorage.clear();
-      
-      // Log para debugging
-      console.log('🧹 Cache limpiado automáticamente');
-      console.log('📍 Hostname actual:', window.location.hostname);
-    </script>
+    <!-- Cache Control -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
   </head>
   <body>
-    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <noscript>Necesitas habilitar JavaScript para ejecutar esta aplicación.</noscript>
     <div id="root"></div>
   </body>
 </html>
