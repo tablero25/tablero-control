@@ -18,6 +18,28 @@ app.use(express.json());
 // Servir archivos estáticos del frontend React (copiado por render-build.sh)
 app.use(express.static(path.join(__dirname, 'build')));
 
+// RUTAS ESPECÍFICAS PARA ARCHIVOS PERSONALIZADOS
+app.get('/debug.html', (req, res) => {
+  console.log('🔧 Sirviendo página de debug personalizada');
+  const debugPath = path.join(__dirname, 'build', 'debug.html');
+  if (fs.existsSync(debugPath)) {
+    res.sendFile(debugPath);
+  } else {
+    res.status(404).json({ error: 'Página de debug no encontrada' });
+  }
+});
+
+app.get('/force-config.js', (req, res) => {
+  console.log('⚙️ Sirviendo script de configuración forzada');
+  const configPath = path.join(__dirname, 'build', 'force-config.js');
+  if (fs.existsSync(configPath)) {
+    res.setHeader('Content-Type', 'application/javascript');
+    res.sendFile(configPath);
+  } else {
+    res.status(404).json({ error: 'Script de configuración no encontrado' });
+  }
+});
+
 // Ruta de health check
 app.get('/health', (req, res) => {
   res.json({ 

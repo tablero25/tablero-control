@@ -17,6 +17,11 @@ if [ ! -d "build" ]; then
     exit 1
 fi
 
+# Copiar archivos personalizados al build
+echo "📁 Copiando archivos personalizados al build..."
+cp public/debug.html build/
+cp public/force-config.js build/
+
 # Copiar build al backend
 echo "📁 Copiando build al backend..."
 cd ..
