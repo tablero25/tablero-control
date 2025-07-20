@@ -12,46 +12,10 @@ const authRoutes = require('./authRoutes');
 const { checkAndInitializeDatabase } = require('./autoInitDb');
 
 const app = express();
-app.use(cors());
-app.use(express.json());
 
-// RUTAS ESPECÍFICAS PARA ARCHIVOS PERSONALIZADOS (DEBEN IR ANTES DE express.static)
-app.get('/debug.html', (req, res) => {
-  console.log('🔧 Sirviendo página de debug personalizada');
-  const debugPath = path.join(__dirname, 'build', 'debug.html');
-  if (fs.existsSync(debugPath)) {
-    res.sendFile(debugPath);
-  } else {
-    res.status(404).json({ error: 'Página de debug no encontrada' });
-  }
-});
-
-
-
-// Rutas específicas para páginas de solución (ANTES de express.static)
+// 🔥 RUTAS DE SOLUCIÓN FINAL (DEBEN IR AL INICIO)
 app.get('/fix/final-solution', (req, res) => {
-  console.log('🔥 Redirigiendo a solución final via POST');
-  res.send(`
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Redirigiendo a Solución Final...</title>
-</head>
-<body>
-    <h1>Redirigiendo a Solución Final...</h1>
-    <form id="redirectForm" method="POST" action="/fix/final-solution">
-        <input type="hidden" name="redirect" value="true">
-    </form>
-    <script>
-        document.getElementById('redirectForm').submit();
-    </script>
-</body>
-</html>
-  `);
-});
-
-app.post('/fix/final-solution', (req, res) => {
-  console.log('🔥 Sirviendo página de solución final via POST');
+  console.log('🔥 Sirviendo página de solución final');
   res.setHeader('Content-Type', 'text/html; charset=utf-8');
   res.send(`
 <!DOCTYPE html>
@@ -224,6 +188,23 @@ app.post('/fix/final-solution', (req, res) => {
   `);
 });
 
+app.use(cors());
+app.use(express.json());
+
+// RUTAS ESPECÍFICAS PARA ARCHIVOS PERSONALIZADOS (DEBEN IR ANTES DE express.static)
+app.get('/debug.html', (req, res) => {
+  console.log('🔧 Sirviendo página de debug personalizada');
+  const debugPath = path.join(__dirname, 'build', 'debug.html');
+  if (fs.existsSync(debugPath)) {
+    res.sendFile(debugPath);
+  } else {
+    res.status(404).json({ error: 'Página de debug no encontrada' });
+  }
+});
+
+
+
+// Rutas específicas para páginas de solución (ANTES de express.static)
 app.get('/fix/ultra-nuclear', (req, res) => {
   console.log('☢️ Sirviendo página ultra-nuclear');
   res.sendFile(path.join(__dirname, 'build/ultra-nuclear.html'));
