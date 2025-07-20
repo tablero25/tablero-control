@@ -1,10 +1,10 @@
 const { Pool } = require('pg');
 
 const pool = new Pool({
-  user: 'postgres',
+  user: 'luxiot',
   host: 'localhost',
-  database: 'tablero_db',
-  password: '123456',
+  database: 'sdo_tablero',
+  password: 'Sistema2025',
   port: 5432,
 });
 

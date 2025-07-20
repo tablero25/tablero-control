@@ -8,25 +8,8 @@ const {
   requireRole,
   getUserEstablecimientos 
 } = require('./auth');
-const { sendConfirmationEmail } = require('./emailConfig');
-const { generateConfirmationToken, generateExpirationDate, isTokenExpired } = require('./tokenUtils');
 
 const router = express.Router();
-
-// 🔑 USUARIO DE PRUEBA HARDCODEADO
-const TEST_USER = {
-  id: 999,
-  username: 'admin',
-  password_hash: '$2b$10$rQZ8K9vX2mN3pL4qR5sT6uV7wX8yZ9aA0bB1cC2dE3fF4gG5hH6iI7jJ8kK9lL0mM1nN2oO3pP4qQ5rR6sS7tT8uU9vV0wW1xX2yY3zZ',
-  email: 'admin@test.com',
-  role: 'admin',
-  dni: '12345678',
-  nombre: 'Administrador',
-  apellido: 'Sistema',
-  funcion: 'Administrador',
-  first_login: false,
-  is_active: true
-};
 
 // Ruta de prueba
 router.get('/test', (req, res) => {
@@ -42,31 +25,7 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ error: 'Usuario y contraseña requeridos' });
     }
 
-    // 🔑 VERIFICAR USUARIO DE PRUEBA PRIMERO
-    if (username === 'admin' && password === 'admin123') {
-      console.log('✅ Login exitoso con usuario de prueba');
-      
-      const token = generateToken(TEST_USER);
-      
-      return res.json({
-        success: true,
-        token,
-        user: {
-          id: TEST_USER.id,
-          username: TEST_USER.username,
-          email: TEST_USER.email,
-          role: TEST_USER.role,
-          dni: TEST_USER.dni,
-          nombre: TEST_USER.nombre,
-          apellido: TEST_USER.apellido,
-          funcion: TEST_USER.funcion,
-          first_login: TEST_USER.first_login
-        },
-        establecimientos: []
-      });
-    }
-
-    // Buscar usuario en base de datos (case-insensitive)
+    // Buscar usuario (case-insensitive)
     const userResult = await pool.query(
       'SELECT * FROM users WHERE LOWER(username) = LOWER($1) AND is_active = true',
       [username]
@@ -132,11 +91,14 @@ router.get('/verify', authenticateToken, async (req, res) => {
 // Registro público de usuarios
 router.post('/register', async (req, res) => {
   try {
-    const { dni, nombre, apellido, funcion, email, username, establecimiento } = req.body;
+    const { dni, nombre, apellido, funcion, username } = req.body;
     
-    if (!dni || !nombre || !apellido || !funcion || !email || !username || !establecimiento) {
+    if (!dni || !nombre || !apellido || !funcion || !username) {
       return res.status(400).json({ error: 'Todos los campos son requeridos' });
     }
+
+    // Generar email automático basado en el DNI
+    const email = `${dni}@sdo.gob.ar`;
 
     // Verificar si el DNI, username o email ya existe
     const existingUser = await pool.query(
@@ -145,173 +107,25 @@ router.post('/register', async (req, res) => {
     );
 
     if (existingUser.rows.length > 0) {
-      return res.status(400).json({ error: 'DNI, usuario o email ya existe' });
-    }
-
-    // Verificar que el establecimiento existe o crearlo si no existe
-    let establecimientoResult = await pool.query(
-      'SELECT id, nombre FROM establecimientos WHERE nombre = $1 AND activo = true',
-      [establecimiento]
-    );
-
-    let establecimientoId;
-    if (establecimientoResult.rows.length === 0) {
-      // Si no existe, crear el establecimiento
-      const nuevaEstablecimiento = await pool.query(
-        'INSERT INTO establecimientos (nombre, zona, activo) VALUES ($1, $2, $3) RETURNING id, nombre',
-        [establecimiento, 'SIN ZONA', true]
-      );
-      establecimientoId = nuevaEstablecimiento.rows[0].id;
-    } else {
-      establecimientoId = establecimientoResult.rows[0].id;
+      return res.status(400).json({ error: 'DNI o usuario ya existe' });
     }
 
     // Usar DNI como contraseña
     const hashedPassword = await hashPassword(dni);
 
-    // Generar token de confirmación
-    const confirmationToken = generateConfirmationToken();
-    const expirationDate = generateExpirationDate();
-
-    // Crear usuario con rol ESTABLECIMIENTO pero INACTIVO hasta confirmar email
+    // Crear usuario con rol ESTABLECIMIENTO por defecto
     const newUser = await pool.query(
-      'INSERT INTO users (dni, nombre, apellido, funcion, username, password_hash, role, email, is_active, first_login, confirmation_token, confirmation_expires) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING id, username, dni, nombre, apellido, funcion, role',
-      [dni, nombre, apellido, funcion, username, hashedPassword, 'ESTABLECIMIENTO', email, false, true, confirmationToken, expirationDate]
+      'INSERT INTO users (dni, nombre, apellido, funcion, username, password_hash, role, email) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id, username, dni, nombre, apellido, funcion, role',
+      [dni, nombre, apellido, funcion, username, hashedPassword, 'ESTABLECIMIENTO', email]
     );
-
-    // Asignar establecimiento al usuario
-    await pool.query(
-      'INSERT INTO user_establecimientos (user_id, establecimiento_id, is_primary, assigned_by) VALUES ($1, $2, $3, $4)',
-      [newUser.rows[0].id, establecimientoId, true, newUser.rows[0].id]
-    );
-
-    // Enviar email de confirmación
-    try {
-      const emailResult = await sendConfirmationEmail(email, username, confirmationToken);
-      console.log('Email de confirmación enviado:', emailResult.previewUrl);
-    } catch (emailError) {
-      console.error('Error enviando email de confirmación:', emailError);
-      // No fallar el registro si el email falla, solo loguear el error
-    }
 
     res.json({
       success: true,
-      user: newUser.rows[0],
-      establecimiento: establecimiento,
-      message: 'Usuario registrado exitosamente. Revisa tu email para confirmar tu cuenta.',
-      emailSent: true
+      user: newUser.rows[0]
     });
 
   } catch (error) {
     console.error('Error registrando usuario:', error);
-    res.status(500).json({ error: 'Error interno del servidor' });
-  }
-});
-
-// Confirmar usuario por email
-router.get('/confirm/:token', async (req, res) => {
-  try {
-    const { token } = req.params;
-    
-    if (!token) {
-      return res.status(400).json({ error: 'Token de confirmación requerido' });
-    }
-
-    // Buscar usuario con el token
-    const userResult = await pool.query(
-      'SELECT * FROM users WHERE confirmation_token = $1',
-      [token]
-    );
-
-    if (userResult.rows.length === 0) {
-      return res.status(404).json({ error: 'Token de confirmación inválido' });
-    }
-
-    const user = userResult.rows[0];
-
-    // Verificar si el token ha expirado
-    if (isTokenExpired(user.confirmation_expires)) {
-      return res.status(400).json({ error: 'Token de confirmación expirado' });
-    }
-
-    // Verificar si el usuario ya está activo
-    if (user.is_active) {
-      return res.status(400).json({ error: 'Usuario ya está confirmado' });
-    }
-
-    // Activar usuario y limpiar token
-    await pool.query(
-      'UPDATE users SET is_active = TRUE, confirmation_token = NULL, confirmation_expires = NULL WHERE id = $1',
-      [user.id]
-    );
-
-    res.json({
-      success: true,
-      message: 'Usuario confirmado exitosamente. Ya puedes iniciar sesión.',
-      user: {
-        username: user.username,
-        email: user.email
-      }
-    });
-
-  } catch (error) {
-    console.error('Error confirmando usuario:', error);
-    res.status(500).json({ error: 'Error interno del servidor' });
-  }
-});
-
-// Reenviar email de confirmación
-router.post('/resend-confirmation', async (req, res) => {
-  try {
-    const { email } = req.body;
-    
-    if (!email) {
-      return res.status(400).json({ error: 'Email requerido' });
-    }
-
-    // Buscar usuario por email
-    const userResult = await pool.query(
-      'SELECT * FROM users WHERE email = $1',
-      [email]
-    );
-
-    if (userResult.rows.length === 0) {
-      return res.status(404).json({ error: 'Usuario no encontrado' });
-    }
-
-    const user = userResult.rows[0];
-
-    // Verificar si el usuario ya está activo
-    if (user.is_active) {
-      return res.status(400).json({ error: 'Usuario ya está confirmado' });
-    }
-
-    // Generar nuevo token de confirmación
-    const confirmationToken = generateConfirmationToken();
-    const expirationDate = generateExpirationDate();
-
-    // Actualizar token en la base de datos
-    await pool.query(
-      'UPDATE users SET confirmation_token = $1, confirmation_expires = $2 WHERE id = $3',
-      [confirmationToken, expirationDate, user.id]
-    );
-
-    // Enviar nuevo email de confirmación
-    try {
-      const emailResult = await sendConfirmationEmail(user.email, user.username, confirmationToken);
-      console.log('Email de confirmación reenviado:', emailResult.previewUrl);
-    } catch (emailError) {
-      console.error('Error enviando email de confirmación:', emailError);
-      return res.status(500).json({ error: 'Error enviando email de confirmación' });
-    }
-
-    res.json({
-      success: true,
-      message: 'Email de confirmación reenviado exitosamente'
-    });
-
-  } catch (error) {
-    console.error('Error reenviando confirmación:', error);
     res.status(500).json({ error: 'Error interno del servidor' });
   }
 });
@@ -583,104 +397,6 @@ router.put('/users/:userId/confirm', authenticateToken, requireRole(['ADMIN']), 
     res.json({ success: true, message: 'Usuario confirmado correctamente' });
   } catch (error) {
     console.error('Error confirmando usuario:', error);
-    res.status(500).json({ error: 'Error interno del servidor' });
-  }
-});
-
-// Actualizar rol y establecimientos de usuario (solo ADMIN)
-router.put('/users/:userId/update-role', authenticateToken, requireRole(['ADMIN']), async (req, res) => {
-  try {
-    const { userId } = req.params;
-    const { role, establecimientos } = req.body;
-    
-    // Verificar que el usuario existe
-    const userResult = await pool.query('SELECT id, username FROM users WHERE id = $1', [userId]);
-    if (userResult.rows.length === 0) {
-      return res.status(404).json({ error: 'Usuario no encontrado' });
-    }
-
-    const user = userResult.rows[0];
-
-    // Validar rol
-    const validRoles = ['ADMIN', 'SUPERVISOR', 'ESTABLECIMIENTO', 'JEFE_ZONA'];
-    if (!validRoles.includes(role)) {
-      return res.status(400).json({ error: 'Rol inválido' });
-    }
-
-    // Validar establecimientos según el rol
-    if (role === 'ESTABLECIMIENTO' && (!establecimientos || establecimientos.length !== 1)) {
-      return res.status(400).json({ error: 'Los usuarios de establecimiento deben tener exactamente un establecimiento asignado' });
-    }
-
-    if (role === 'JEFE_ZONA' && (!establecimientos || establecimientos.length === 0)) {
-      return res.status(400).json({ error: 'Los jefes de zona deben tener al menos un establecimiento asignado' });
-    }
-
-    // Iniciar transacción
-    const client = await pool.connect();
-    try {
-      await client.query('BEGIN');
-
-      // Actualizar rol del usuario
-      await client.query(
-        'UPDATE users SET role = $1 WHERE id = $2',
-        [role, userId]
-      );
-
-      // Eliminar establecimientos existentes
-      await client.query(
-        'DELETE FROM user_establecimientos WHERE user_id = $1',
-        [userId]
-      );
-
-      // Asignar nuevos establecimientos según el rol
-      if (role === 'ADMIN' || role === 'SUPERVISOR') {
-        // ADMIN y SUPERVISOR ven todos los establecimientos automáticamente
-        // No necesitan asignaciones específicas en la tabla
-      } else if (establecimientos && establecimientos.length > 0) {
-        // Para ESTABLECIMIENTO y JEFE_ZONA, asignar los establecimientos específicos
-        for (const establecimiento of establecimientos) {
-          await client.query(
-            'INSERT INTO user_establecimientos (user_id, establecimiento_id, assigned_by) VALUES ($1, (SELECT id FROM establecimientos WHERE nombre = $2), $3)',
-            [userId, establecimiento, req.user.id]
-          );
-        }
-      }
-
-      await client.query('COMMIT');
-
-      res.json({
-        success: true,
-        message: `Rol y establecimientos de ${user.username} actualizados correctamente`
-      });
-
-    } catch (error) {
-      await client.query('ROLLBACK');
-      throw error;
-    } finally {
-      client.release();
-    }
-
-  } catch (error) {
-    console.error('Error actualizando rol y establecimientos:', error);
-    res.status(500).json({ error: 'Error interno del servidor' });
-  }
-});
-
-// Obtener establecimientos (público para registro)
-router.get('/establecimientos', async (req, res) => {
-  try {
-    const result = await pool.query(
-      'SELECT id, nombre, zona FROM establecimientos WHERE activo = true ORDER BY nombre'
-    );
-
-    res.json({
-      success: true,
-      establecimientos: result.rows
-    });
-
-  } catch (error) {
-    console.error('Error obteniendo establecimientos:', error);
     res.status(500).json({ error: 'Error interno del servidor' });
   }
 });

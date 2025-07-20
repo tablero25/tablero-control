@@ -6,37 +6,16 @@ function Login({ onLogin, onShowRegister }) {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
-  // URL DIRECTA DE PRODUCCIÓN - FORZADA
-  const API_URL = 'https://tablero-control-1.onrender.com';
-  
-  // Verificar que estamos usando la URL correcta
-  console.log('🔧 Login component - API_URL:', API_URL);
-  console.log('🔧 Login component - Current location:', window.location.href);
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    
-    // URL FINAL - FORZADA
-    const finalUrl = `${API_URL}/api/auth/login`;
-    console.log('🚀 Iniciando login con URL FINAL:', finalUrl);
-    
     try {
-      const res = await fetch(finalUrl, {
+      const res = await fetch('https://tablero-control-1.onrender.com/api/auth/login', {
         method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Cache-Control': 'no-cache',
-          'Pragma': 'no-cache'
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password }),
       });
-      
-      console.log('📡 Respuesta del servidor:', res.status, res.statusText);
-      
       const data = await res.json();
-      console.log('📦 Datos recibidos:', data);
-      
       if (data.success) {
         localStorage.setItem('token', data.token);
         if (data.user.first_login) {
@@ -48,12 +27,6 @@ function Login({ onLogin, onShowRegister }) {
         setError(data.error || 'Error de autenticación');
       }
     } catch (err) {
-      console.error('❌ Error de conexión:', err);
-      console.error('❌ Error details:', {
-        message: err.message,
-        stack: err.stack,
-        url: finalUrl
-      });
       setError('Error de conexión con el servidor');
     }
   };
