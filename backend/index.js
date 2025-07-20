@@ -104,6 +104,33 @@ app.get('/api/test', (req, res) => {
   });
 });
 
+// Ruta de diagnóstico para problemas de conexión
+app.get('/api/diagnose', (req, res) => {
+  res.json({
+    status: 'OK',
+    message: 'Diagnóstico del sistema',
+    timestamp: new Date().toISOString(),
+    environment: {
+      NODE_ENV: process.env.NODE_ENV || 'development',
+      PORT: process.env.PORT || 5001,
+      DATABASE_URL: process.env.DATABASE_URL ? 'Configurado' : 'No configurado',
+      JWT_SECRET: process.env.JWT_SECRET ? 'Configurado' : 'No configurado'
+    },
+    server: {
+      hostname: req.hostname,
+      url: req.url,
+      method: req.method,
+      headers: req.headers.host,
+      userAgent: req.headers['user-agent']
+    },
+    frontend: {
+      buildPath: path.join(__dirname, 'build'),
+      buildExists: fs.existsSync(path.join(__dirname, 'build')),
+      indexExists: fs.existsSync(path.join(__dirname, 'build/index.html'))
+    }
+  });
+});
+
 // Ruta de salud del sistema
 app.get('/api/health', (req, res) => {
   res.json({
