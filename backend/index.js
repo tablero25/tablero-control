@@ -72,12 +72,6 @@ app.get('/establecimientos', (req, res) => {
   res.sendFile(path.join(__dirname, 'build/index.html'));
 });
 
-// Ruta catch-all para todas las rutas del frontend
-app.get('*', (req, res) => {
-  console.log(`🎯 Sirviendo frontend para ruta: ${req.path}`);
-  res.sendFile(path.join(__dirname, 'build/index.html'));
-});
-
 // Ruta de prueba simple
 app.get('/api/test', (req, res) => {
   res.json({
@@ -90,6 +84,12 @@ app.get('/api/test', (req, res) => {
 
 // Usar rutas de autenticación
 app.use('/api/auth', authRoutes);
+
+// Ruta catch-all para todas las rutas del frontend
+app.get('*', (req, res) => {
+  console.log(`🎯 Sirviendo frontend para ruta: ${req.path}`);
+  res.sendFile(path.join(__dirname, 'build/index.html'));
+});
 
 // Formatos de Excel soportados por la librería xlsx
 const EXCEL_FORMATS = [
