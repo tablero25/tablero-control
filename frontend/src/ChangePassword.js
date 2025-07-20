@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import logoSDO from './logoo.png';
-import API_BASE_URL from './config';
+import API_BASE_URL, { getApiUrl } from './config';
 
 function ChangePassword({ onCancel, onSuccess, isFirstLogin = false }) {
   const [formData, setFormData] = useState({
@@ -41,7 +41,7 @@ function ChangePassword({ onCancel, onSuccess, isFirstLogin = false }) {
 
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch(`${API_BASE_URL}/api/auth/change-password`, {
+      const res = await fetch(getApiUrl('/api/auth/change-password'), {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
