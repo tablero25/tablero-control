@@ -6,7 +6,7 @@ async function testEmailConfirmation() {
   try {
     // 1. Probar registro de usuario
     console.log('1️⃣ Registrando un usuario de prueba...');
-    const registerResponse = await fetch('http://localhost:5001/api/auth/register', {
+    const registerResponse = await fetch('https://tablero-control-1.onrender.com/api/auth/register', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -29,7 +29,7 @@ async function testEmailConfirmation() {
       
       // 2. Probar login sin confirmar (debería fallar)
       console.log('\n2️⃣ Intentando login sin confirmar (debería fallar)...');
-      const loginResponse = await fetch('http://localhost:5001/api/auth/login', {
+      const loginResponse = await fetch('https://tablero-control-1.onrender.com/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -49,7 +49,7 @@ async function testEmailConfirmation() {
 
       // 3. Probar reenvío de email de confirmación
       console.log('\n3️⃣ Probando reenvío de email de confirmación...');
-      const resendResponse = await fetch('http://localhost:5001/api/auth/resend-confirmation', {
+      const resendResponse = await fetch('https://tablero-control-1.onrender.com/api/auth/resend-confirmation', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

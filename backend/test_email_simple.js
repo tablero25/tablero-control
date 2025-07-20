@@ -6,7 +6,7 @@ async function testEmailSimple() {
   try {
     // Registrar un usuario
     console.log('1️⃣ Registrando usuario de prueba...');
-    const registerResponse = await fetch('http://localhost:5001/api/auth/register', {
+    const registerResponse = await fetch('https://tablero-control-1.onrender.com/api/auth/register', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

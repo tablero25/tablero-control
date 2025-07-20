@@ -16,7 +16,7 @@ async function testEmailUnique() {
     console.log(`📧 Email: ${email}`);
     console.log(`🏥 Establecimiento: 25 San Carlos`);
     
-    const registerResponse = await fetch('http://localhost:5001/api/auth/register', {
+    const registerResponse = await fetch('https://tablero-control-1.onrender.com/api/auth/register', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
