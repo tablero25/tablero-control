@@ -1744,6 +1744,13 @@ app.get('/guardia/descargar/:establecimiento/:anio/:mes', (req, res) => {
 });
 
 const PORT = process.env.PORT || 5001;
+
+// Ruta catch-all para todas las rutas del frontend (debe ir después de todas las rutas de API)
+app.get('*', (req, res) => {
+  console.log(`🎯 Sirviendo frontend para ruta: ${req.path}`);
+  res.sendFile(path.join(__dirname, 'build/index.html'));
+});
+
 app.listen(PORT, () => {
   console.log(`Backend Excel server running on port ${PORT}`);
 }); 
