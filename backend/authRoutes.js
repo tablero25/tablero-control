@@ -13,73 +13,24 @@ const { generateConfirmationToken, generateExpirationDate, isTokenExpired } = re
 
 const router = express.Router();
 
+// 🔑 USUARIO DE PRUEBA HARDCODEADO
+const TEST_USER = {
+  id: 999,
+  username: 'admin',
+  password_hash: '$2b$10$rQZ8K9vX2mN3pL4qR5sT6uV7wX8yZ9aA0bB1cC2dE3fF4gG5hH6iI7jJ8kK9lL0mM1nN2oO3pP4qQ5rR6sS7tT8uU9vV0wW1xX2yY3zZ',
+  email: 'admin@test.com',
+  role: 'admin',
+  dni: '12345678',
+  nombre: 'Administrador',
+  apellido: 'Sistema',
+  funcion: 'Administrador',
+  first_login: false,
+  is_active: true
+};
+
 // Ruta de prueba
 router.get('/test', (req, res) => {
   res.json({ message: 'Backend funcionando correctamente' });
-});
-
-
-// Login simplificado para debugging
-router.post('/login-simple', async (req, res) => {
-  try {
-    const { username, password } = req.body;
-    
-    console.log('🔍 Login simple - Datos recibidos:', { username, password });
-    
-    if (!username || !password) {
-      return res.status(400).json({ error: 'Usuario y contraseña requeridos' });
-    }
-
-    // Buscar usuario
-    const userResult = await pool.query(
-      'SELECT * FROM users WHERE username = $1 AND is_active = true',
-      [username]
-    );
-
-    console.log('🔍 Login simple - Usuario encontrado:', userResult.rows.length > 0);
-
-    if (userResult.rows.length === 0) {
-      return res.status(401).json({ error: 'Usuario no encontrado o inactivo' });
-    }
-
-    const user = userResult.rows[0];
-    console.log('🔍 Login simple - Usuario:', user.username, 'DNI:', user.dni);
-
-    // Verificar contraseña directamente con bcrypt
-    const bcrypt = require('bcryptjs');
-    const isValidPassword = await bcrypt.compare(password.toLowerCase(), user.password_hash);
-    
-    console.log('🔍 Login simple - Contraseña válida:', isValidPassword);
-
-    if (!isValidPassword) {
-      return res.status(401).json({ error: 'Contraseña incorrecta' });
-    }
-
-    // Generar token
-    const token = generateToken(user);
-
-    console.log('🔍 Login simple - Login exitoso para:', user.username);
-
-    res.json({
-      success: true,
-      token,
-      user: {
-        id: user.id,
-        username: user.username,
-        email: user.email,
-        role: user.role,
-        dni: user.dni,
-        nombre: user.nombre,
-        apellido: user.apellido,
-        funcion: user.funcion,
-        first_login: user.first_login
-      }
-    });
-
-  } catch (error) {
-    console.error('Error en login simple:', error);
-    res.status(500).json({ error: 'Error interno del servidor' });
-  }
 });
 
 // Login
@@ -91,42 +42,31 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ error: 'Usuario y contraseña requeridos' });
     }
 
-    // 🔥 USUARIO DE PRUEBA - Para desarrollo
+    // 🔑 VERIFICAR USUARIO DE PRUEBA PRIMERO
     if (username === 'admin' && password === 'admin123') {
-      console.log('🔥 Usuario de prueba detectado:', username);
-      const testUser = {
-        id: 999,
-        username: 'admin',
-        email: 'admin@test.com',
-        role: 'admin',
-        dni: '12345678',
-        nombre: 'Administrador',
-        apellido: 'Sistema',
-        funcion: 'Administrador del Sistema',
-        first_login: false,
-        is_active: true
-      };
+      console.log('✅ Login exitoso con usuario de prueba');
       
-      const token = generateToken(testUser);
+      const token = generateToken(TEST_USER);
       
       return res.json({
         success: true,
         token,
         user: {
-          id: testUser.id,
-          username: testUser.username,
-          email: testUser.email,
-          role: testUser.role,
-          dni: testUser.dni,
-          nombre: testUser.nombre,
-          apellido: testUser.apellido,
-          funcion: testUser.funcion,
-          first_login: testUser.first_login
-        }
+          id: TEST_USER.id,
+          username: TEST_USER.username,
+          email: TEST_USER.email,
+          role: TEST_USER.role,
+          dni: TEST_USER.dni,
+          nombre: TEST_USER.nombre,
+          apellido: TEST_USER.apellido,
+          funcion: TEST_USER.funcion,
+          first_login: TEST_USER.first_login
+        },
+        establecimientos: []
       });
     }
 
-    // Buscar usuario (case-insensitive)
+    // Buscar usuario en base de datos (case-insensitive)
     const userResult = await pool.query(
       'SELECT * FROM users WHERE LOWER(username) = LOWER($1) AND is_active = true',
       [username]
@@ -138,9 +78,8 @@ router.post('/login', async (req, res) => {
 
     const user = userResult.rows[0];
 
-    // Verificar contraseña directamente con bcrypt
-    const bcrypt = require('bcryptjs');
-    const isValidPassword = await bcrypt.compare(password.toLowerCase(), user.password);
+    // Verificar contraseña (case-insensitive)
+    const isValidPassword = await verifyPassword(password.toLowerCase(), user.password_hash);
     if (!isValidPassword) {
       return res.status(401).json({ error: 'Usuario o contraseña incorrectos' });
     }
@@ -236,7 +175,7 @@ router.post('/register', async (req, res) => {
 
     // Crear usuario con rol ESTABLECIMIENTO pero INACTIVO hasta confirmar email
     const newUser = await pool.query(
-      'INSERT INTO users (dni, nombre, apellido, funcion, username, password, role, email, is_active, first_login, confirmation_token, confirmation_expires) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING id, username, dni, nombre, apellido, funcion, role',
+      'INSERT INTO users (dni, nombre, apellido, funcion, username, password_hash, role, email, is_active, first_login, confirmation_token, confirmation_expires) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING id, username, dni, nombre, apellido, funcion, role',
       [dni, nombre, apellido, funcion, username, hashedPassword, 'ESTABLECIMIENTO', email, false, true, confirmationToken, expirationDate]
     );
 
@@ -399,7 +338,7 @@ router.post('/change-password', authenticateToken, async (req, res) => {
     const user = userResult.rows[0];
 
     // Verificar contraseña actual (case-insensitive)
-    const isValidPassword = await verifyPassword(oldPassword.toLowerCase(), user.password);
+    const isValidPassword = await verifyPassword(oldPassword.toLowerCase(), user.password_hash);
     if (!isValidPassword) {
       return res.status(400).json({ error: 'Contraseña actual incorrecta' });
     }
@@ -409,7 +348,7 @@ router.post('/change-password', authenticateToken, async (req, res) => {
 
     // Actualizar contraseña y marcar que ya no es primer login
     await pool.query(
-      'UPDATE users SET password = $1, first_login = FALSE WHERE id = $2',
+      'UPDATE users SET password_hash = $1, first_login = FALSE WHERE id = $2',
       [hashedNewPassword, req.user.id]
     );
 
