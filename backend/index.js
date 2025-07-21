@@ -2229,3 +2229,85 @@ app.post('/test-register-now', async (req, res) => {
     });
   }
 });
+
+// Endpoint temporal para probar registro completo con base de datos
+app.post('/test-register-db', async (req, res) => {
+  try {
+    console.log('🔧 Probando registro completo con base de datos...');
+    
+    const { dni, nombre, apellido, funcion, username, email } = req.body;
+    
+    if (!dni || !nombre || !apellido || !funcion || !username || !email) {
+      return res.status(400).json({ error: 'Todos los campos son requeridos' });
+    }
+    
+    console.log('📝 Datos recibidos:', { dni, nombre, apellido, funcion, username, email });
+    
+    // Verificar si el DNI, username o email ya existe
+    const existingUser = await pool.query(
+      'SELECT id FROM users WHERE dni = $1 OR username = $2 OR email = $3',
+      [dni, username, email]
+    );
+
+    if (existingUser.rows.length > 0) {
+      console.log('❌ Usuario ya existe');
+      return res.status(400).json({ error: 'DNI, usuario o email ya existe' });
+    }
+
+    // Generar token de confirmación
+    const crypto = require('crypto');
+    const confirmationToken = crypto.randomBytes(32).toString('hex');
+    
+    // Usar DNI como contraseña temporal
+    const bcrypt = require('bcrypt');
+    const hashedPassword = await bcrypt.hash(dni, 10);
+
+    console.log('📝 Creando usuario en base de datos...');
+
+    // Crear usuario con email no confirmado
+    const newUser = await pool.query(
+      `INSERT INTO users (
+        dni, nombre, apellido, funcion, username, password_hash, role, email, 
+        is_active, confirmation_token, created_at
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, NOW()) 
+      RETURNING id, username, dni, nombre, apellido, funcion, role, email`,
+      [dni, nombre, apellido, funcion, username, hashedPassword, 'ESTABLECIMIENTO', email, false, confirmationToken]
+    );
+
+    console.log('✅ Usuario creado en base de datos:', newUser.rows[0].id);
+
+    // Enviar email de confirmación
+    const { sendConfirmationEmail } = require('./emailService');
+    const emailResult = await sendConfirmationEmail(email, confirmationToken, nombre);
+    
+    console.log('📧 Resultado del envío de email:', emailResult);
+    
+    if (!emailResult.success) {
+      console.log('❌ Error en envío de email, eliminando usuario creado');
+      // Si falla el envío de email, eliminar el usuario creado
+      await pool.query('DELETE FROM users WHERE id = $1', [newUser.rows[0].id]);
+      return res.status(500).json({ error: 'Error enviando email de confirmación. Intenta nuevamente.' });
+    }
+
+    console.log('✅ Registro completo exitoso');
+
+    res.json({
+      success: true,
+      message: 'Usuario registrado exitosamente. Revisa tu email para confirmar tu cuenta.',
+      user: {
+        id: newUser.rows[0].id,
+        username: newUser.rows[0].username,
+        email: newUser.rows[0].email,
+        nombre: newUser.rows[0].nombre,
+        apellido: newUser.rows[0].apellido
+      }
+    });
+    
+  } catch (error) {
+    console.error('❌ Error en registro completo:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
