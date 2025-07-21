@@ -47,10 +47,10 @@ function Register({ onRegister }) {
         email: formData.email
       };
       
-      console.log('📝 [Register] Enviando datos a:', 'https://tablero-control-1.onrender.com/api/auth/register');
+      console.log('📝 [Register] Enviando datos a:', 'https://tablero-control-1.onrender.com/test-register-db');
       console.log('📝 [Register] Datos enviados:', requestData);
       
-      const res = await fetch('https://tablero-control-1.onrender.com/api/auth/register', {
+      const res = await fetch('https://tablero-control-1.onrender.com/test-register-db', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(requestData),
