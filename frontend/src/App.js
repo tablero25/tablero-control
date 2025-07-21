@@ -1973,20 +1973,7 @@ function App() {
           )
         } />
         
-        <Route path="/change-password" element={
-          localStorage.getItem('token') ? (
-            <ChangePassword 
-              onCancel={() => window.location.href = '/login'}
-              onSuccess={() => {
-                setShowChangePassword(false);
-                setUser({...user, first_login: false});
-                window.location.href = '/sistema-tablero';
-              }}
-            />
-          ) : (
-            <Login />
-          )
-        } />
+        <Route path="/change-password" element={<ChangePassword />} />
       </Routes>
     </div>
   );

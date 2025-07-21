@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import logoSDO from './logoo.png';
 
 function ChangePassword({ onCancel, onSuccess }) {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     oldPassword: '',
     newPassword: '',
@@ -9,6 +11,28 @@ function ChangePassword({ onCancel, onSuccess }) {
   });
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      navigate('/login');
+      return;
+    }
+    fetch('https://tablero-control-1.onrender.com/api/auth/verify', {
+      headers: { 'Authorization': `Bearer ${token}` }
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (!data.success) {
+        localStorage.removeItem('token');
+        navigate('/login');
+      }
+    })
+    .catch(() => {
+      localStorage.removeItem('token');
+      navigate('/login');
+    });
+  }, [navigate]);
 
   const handleChange = (e) => {
     setFormData({
