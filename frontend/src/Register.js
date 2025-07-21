@@ -34,7 +34,7 @@ function Register({ onRegister }) {
     setSuccess('');
 
     try {
-      const res = await fetch('http://tablero-control-1.onrender.com:5001/api/auth/register', {
+              const res = await fetch('https://tablero-control-1.onrender.com/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

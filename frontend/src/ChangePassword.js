@@ -35,7 +35,7 @@ function ChangePassword({ onCancel, onSuccess }) {
 
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch('http://tablero-control-1.onrender.com:5001/api/auth/change-password', {
+      const res = await fetch('https://tablero-control-1.onrender.com/api/auth/change-password', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',

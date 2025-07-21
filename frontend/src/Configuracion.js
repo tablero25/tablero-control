@@ -40,7 +40,7 @@ function Configuracion({ onClose }) {
     setLoading(true);
     setError('');
     try {
-      const response = await fetchWithAuth('http://tablero-control-1.onrender.com:5001/api/auth/users');
+      const response = await fetchWithAuth('https://tablero-control-1.onrender.com/api/auth/users');
       const data = await response.json();
       
       if (data.success) {
