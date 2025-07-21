@@ -1974,9 +1974,9 @@ function App() {
         } />
         
         <Route path="/change-password" element={
-          showChangePassword ? (
+          localStorage.getItem('token') ? (
             <ChangePassword 
-              onCancel={() => setShowChangePassword(false)}
+              onCancel={() => window.location.href = '/login'}
               onSuccess={() => {
                 setShowChangePassword(false);
                 setUser({...user, first_login: false});
