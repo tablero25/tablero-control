@@ -8,7 +8,7 @@ function replaceUrlsInFile(filePath) {
     const originalContent = content;
     
     // Reemplazar todas las URLs de localhost con la URL de producción
-    content = content.replace(/http:\/\/localhost:5001/g, 'https://tablero-control-1.onrender.com');
+    content = content.replace(/http:\/\/tablero-control-1.onrender.com/g, 'https://tablero-control-1.onrender.com');
     
     if (content !== originalContent) {
       fs.writeFileSync(filePath, content, 'utf8');
