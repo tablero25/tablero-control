@@ -2410,3 +2410,30 @@ app.post('/test-email-multiple', async (req, res) => {
     });
   }
 });
+
+const MAX_DB_RETRIES = 10;
+const DB_RETRY_DELAY_MS = 3000;
+
+async function wait(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function connectWithRetry(attempt = 1) {
+  try {
+    await pool.query('SELECT NOW()');
+    console.log(`✅ Conexión a la base de datos exitosa (intento ${attempt})`);
+  } catch (err) {
+    console.error(`❌ Error conectando a la base de datos (intento ${attempt}):`, err.message);
+    if (attempt < MAX_DB_RETRIES) {
+      console.log(`⏳ Reintentando conexión en ${DB_RETRY_DELAY_MS / 1000} segundos...`);
+      await wait(DB_RETRY_DELAY_MS);
+      return connectWithRetry(attempt + 1);
+    } else {
+      console.error('❌ No se pudo conectar a la base de datos después de varios intentos. Abortando.');
+      process.exit(1);
+    }
+  }
+}
+
+// Iniciar reintentos de conexión antes de arrancar el servidor
+connectWithRetry();
