@@ -7,8 +7,7 @@ function Register({ onRegister }) {
     nombre: '',
     apellido: '',
     funcion: '',
-    username: '',
-    email: ''
+    username: ''
   });
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -34,49 +33,35 @@ function Register({ onRegister }) {
     setError('');
     setSuccess('');
 
-    console.log('📝 [Register] Iniciando registro de usuario');
-    console.log('📝 [Register] Datos del formulario:', formData);
-
     try {
-      const requestData = {
-        dni: formData.dni,
-        nombre: formData.nombre,
-        apellido: formData.apellido,
-        funcion: formData.funcion,
-        username: formData.username,
-        email: formData.email
-      };
-      
-      console.log('📝 [Register] Enviando datos a:', 'https://tablero-control-1.onrender.com/api/auth/register');
-      console.log('📝 [Register] Datos enviados:', requestData);
-      
-      const res = await fetch('https://tablero-control-1.onrender.com/api/auth/register', {
+      const res = await fetch('http://tablero-control-1.onrender.com:5001/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(requestData),
+        body: JSON.stringify({
+          dni: formData.dni,
+          nombre: formData.nombre,
+          apellido: formData.apellido,
+          funcion: formData.funcion,
+          username: formData.username
+        }),
       });
       
-      console.log('📝 [Register] Respuesta del servidor:', res.status, res.statusText);
-      
       const data = await res.json();
-      console.log('📝 [Register] Datos de respuesta:', data);
       
       if (data.success) {
-        setSuccess(data.message || 'Usuario registrado exitosamente. Revisa tu email para confirmar tu cuenta.');
+        setSuccess('Usuario registrado exitosamente. Puede iniciar sesión.');
         setFormData({
           dni: '',
           nombre: '',
           apellido: '',
           funcion: '',
-          username: '',
-          email: ''
+          username: ''
         });
         if (onRegister) onRegister();
       } else {
         setError(data.error || 'Error al registrar usuario');
       }
     } catch (err) {
-      console.error('❌ [Register] Error de conexión:', err);
       setError('Error de conexión con el servidor');
     }
   };
@@ -124,15 +109,6 @@ function Register({ onRegister }) {
           name="funcion"
           placeholder="Función"
           value={formData.funcion}
-          onChange={handleChange}
-          required
-        />
-        
-        <input
-          type="email"
-          name="email"
-          placeholder="Email"
-          value={formData.email}
           onChange={handleChange}
           required
         />

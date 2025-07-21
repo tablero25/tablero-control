@@ -10,7 +10,7 @@ function Login({ onLogin, onShowRegister }) {
     e.preventDefault();
     setError('');
     try {
-      const res = await fetch('https://tablero-control-1.onrender.com/api/auth/login', {
+      const res = await fetch('http://tablero-control-1.onrender.com:5001/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password }),

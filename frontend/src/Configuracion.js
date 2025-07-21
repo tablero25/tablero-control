@@ -40,7 +40,7 @@ function Configuracion({ onClose }) {
     setLoading(true);
     setError('');
     try {
-      const response = await fetchWithAuth('https://tablero-control-1.onrender.com/api/auth/users');
+      const response = await fetchWithAuth('http://tablero-control-1.onrender.com:5001/api/auth/users');
       const data = await response.json();
       
       if (data.success) {
@@ -76,7 +76,7 @@ function Configuracion({ onClose }) {
   // Bloquear/Desbloquear usuario
   const handleToggleStatus = async (userId) => {
     try {
-      const response = await fetchWithAuth(`https://tablero-control-1.onrender.com/api/auth/users/${userId}/toggle-status`, {
+      const response = await fetchWithAuth(`http://localhost:5001/api/auth/users/${userId}/toggle-status`, {
         method: 'PUT'
       });
       const data = await response.json();
@@ -100,7 +100,7 @@ function Configuracion({ onClose }) {
     }
 
     try {
-      const response = await fetchWithAuth(`https://tablero-control-1.onrender.com/api/auth/users/${userId}`, {
+      const response = await fetchWithAuth(`http://localhost:5001/api/auth/users/${userId}`, {
         method: 'DELETE'
       });
       const data = await response.json();
@@ -123,7 +123,7 @@ function Configuracion({ onClose }) {
     }
 
     try {
-      const response = await fetchWithAuth(`https://tablero-control-1.onrender.com/api/auth/users/${userId}/reset-password`, {
+      const response = await fetchWithAuth(`http://localhost:5001/api/auth/users/${userId}/reset-password`, {
         method: 'PUT'
       });
       const data = await response.json();
@@ -147,7 +147,7 @@ function Configuracion({ onClose }) {
     }
 
     try {
-      const response = await fetchWithAuth(`https://tablero-control-1.onrender.com/api/auth/users/${userId}/confirm`, {
+      const response = await fetchWithAuth(`http://localhost:5001/api/auth/users/${userId}/confirm`, {
         method: 'PUT'
       });
       const data = await response.json();

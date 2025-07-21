@@ -8,7 +8,6 @@ import Login from './Login';
 import Register from './Register';
 import ChangePassword from './ChangePassword';
 import Configuracion from './Configuracion';
-import UpdateDatabase from './UpdateDatabase';
 
 // Suprimir warnings de ResizeObserver en desarrollo
 if (process.env.NODE_ENV === 'development') {
@@ -223,14 +222,14 @@ function IndicadoresCamasEstablecimiento() {
 
   // Cargar lista de archivos/años al entrar
   useEffect(() => {
-            fetchWithAuth(`https://tablero-control-1.onrender.com/archivos/${encodeURIComponent(nombreEstablecimiento)}`)
+            fetchWithAuth(`http://tablero-control-1.onrender.com:5001/archivos/${encodeURIComponent(nombreEstablecimiento)}`)
       .then(res => res.json())
       .then(data => setArchivos((data.archivos || []).map(a => typeof a === 'string' ? { archivo: a } : a)));
   }, [nombreEstablecimiento, guardado]);
 
   // Cargar archivos específicos del año seleccionado
   useEffect(() => {
-            fetchWithAuth(`https://tablero-control-1.onrender.com/archivos/${encodeURIComponent(nombreEstablecimiento)}/${anio}`)
+            fetchWithAuth(`http://localhost:5001/archivos/${encodeURIComponent(nombreEstablecimiento)}/${anio}`)
       .then(res => res.json())
       .then(data => {
         const archivosAdaptados = (data.archivos || []).map(a => typeof a === 'string' ? { archivo: a } : a);
@@ -248,7 +247,7 @@ function IndicadoresCamasEstablecimiento() {
   useEffect(() => {
     if (archivoSeleccionado) {
       // Cargar datos del archivo guardado
-              fetchWithAuth(`https://tablero-control-1.onrender.com/leer/${encodeURIComponent(nombreEstablecimiento)}/${anio}/${archivoSeleccionado}`)
+              fetchWithAuth(`http://localhost:5001/leer/${encodeURIComponent(nombreEstablecimiento)}/${anio}/${archivoSeleccionado}`)
         .then(res => res.json())
         .then(data => {
           if (data.success) {
@@ -393,7 +392,7 @@ function IndicadoresCamasEstablecimiento() {
   };
 
   const actualizarArchivos = (establecimiento, anio) => {
-            fetchWithAuth(`https://tablero-control-1.onrender.com/archivos/${encodeURIComponent(establecimiento)}/${anio}`)
+            fetchWithAuth(`http://localhost:5001/archivos/${encodeURIComponent(establecimiento)}/${anio}`)
       .then(res => res.json())
       .then(data => setArchivos(data.archivos || []));
   };
@@ -417,7 +416,7 @@ function IndicadoresCamasEstablecimiento() {
     console.log('FormData creado con archivo:', archivo.name);
     
     try {
-      const url = `https://tablero-control-1.onrender.com/guardar/${encodeURIComponent(nombreEstablecimiento)}/${anio}`;
+      const url = `http://localhost:5001/guardar/${encodeURIComponent(nombreEstablecimiento)}/${anio}`;
       console.log('Enviando a URL:', url);
       
       const response = await fetchWithAuth(url, {
@@ -762,7 +761,7 @@ function AtencionMedicaEstablecimiento() {
         for (const mes of mesesSeleccionados) {
           const formData = new FormData();
           formData.append('file', archivo);
-          const url = `https://tablero-control-1.onrender.com/atencion-profesional/guardar/${encodeURIComponent(nombreEstablecimiento)}/${anio}/${encodeURIComponent(mes)}`;
+          const url = `http://localhost:5001/atencion-profesional/guardar/${encodeURIComponent(nombreEstablecimiento)}/${anio}/${encodeURIComponent(mes)}`;
           const response = await fetchWithAuth(url, {
             method: 'POST',
             body: formData
@@ -781,7 +780,7 @@ function AtencionMedicaEstablecimiento() {
         for (const mes of mesesSeleccionados) {
           const formData = new FormData();
           formData.append('file', archivoGuardia);
-          const url = `https://tablero-control-1.onrender.com/guardia/guardar/${encodeURIComponent(nombreEstablecimiento)}/${anio}/${encodeURIComponent(mes)}`;
+          const url = `http://localhost:5001/guardia/guardar/${encodeURIComponent(nombreEstablecimiento)}/${anio}/${encodeURIComponent(mes)}`;
           const response = await fetchWithAuth(url, {
             method: 'POST',
             body: formData
@@ -851,7 +850,7 @@ function AtencionMedicaEstablecimiento() {
       // Procesar cada mes seleccionado
       for (const mes of meses) {
         // Extraer total de atención profesional para este mes
-        const urlProfesional = `https://tablero-control-1.onrender.com/atencion-profesional/descargar/${encodeURIComponent(nombreEstablecimiento)}/${anio}/${encodeURIComponent(mes)}`;
+        const urlProfesional = `http://localhost:5001/atencion-profesional/descargar/${encodeURIComponent(nombreEstablecimiento)}/${anio}/${encodeURIComponent(mes)}`;
         const responseProfesional = await fetchWithAuth(urlProfesional);
         if (responseProfesional.ok) {
           const blobProfesional = await responseProfesional.blob();
@@ -861,7 +860,7 @@ function AtencionMedicaEstablecimiento() {
         }
 
         // Extraer total de guardia para este mes
-        const urlGuardia = `https://tablero-control-1.onrender.com/guardia/descargar/${encodeURIComponent(nombreEstablecimiento)}/${anio}/${encodeURIComponent(mes)}`;
+        const urlGuardia = `http://localhost:5001/guardia/descargar/${encodeURIComponent(nombreEstablecimiento)}/${anio}/${encodeURIComponent(mes)}`;
         const responseGuardia = await fetchWithAuth(urlGuardia);
         if (responseGuardia.ok) {
           const blobGuardia = await responseGuardia.blob();
@@ -1483,7 +1482,7 @@ function RankingDiagnosticoCategoria() {
 
     try {
       // Llamar al backend para analizar archivos por meses
-      const response = await fetchWithAuth(`https://tablero-control-1.onrender.com/ranking/analizar/${encodeURIComponent(nombreEstablecimiento)}/${encodeURIComponent(categoriaSeleccionada)}/${anio}`, {
+      const response = await fetchWithAuth(`http://localhost:5001/ranking/analizar/${encodeURIComponent(nombreEstablecimiento)}/${encodeURIComponent(categoriaSeleccionada)}/${anio}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -1549,7 +1548,7 @@ function RankingDiagnosticoCategoria() {
         try {
           // Usar el año detectado si ya tenemos uno, sino usar un año temporal
           const anioAUsar = añoDetectado || anio || new Date().getFullYear();
-          const url = `https://tablero-control-1.onrender.com/ranking/guardar/${encodeURIComponent(nombreEstablecimiento)}/${encodeURIComponent(categoriaSeleccionada)}/${anioAUsar}`;
+          const url = `http://localhost:5001/ranking/guardar/${encodeURIComponent(nombreEstablecimiento)}/${encodeURIComponent(categoriaSeleccionada)}/${anioAUsar}`;
           console.log('URL de guardado:', url);
           
           const response = await fetchWithAuth(url, {
@@ -1848,7 +1847,7 @@ function App() {
     const token = localStorage.getItem('token');
     if (token) {
       // Verificar si el token es válido
-      fetch('https://tablero-control-1.onrender.com/api/auth/verify', {
+      fetch('http://localhost:5001/api/auth/verify', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -1857,9 +1856,8 @@ function App() {
       .then(data => {
         if (data.success) {
           setUser(data.user);
-          // Si es primer login y no estamos en change-password, redirigir
-          if (data.user.first_login && window.location.pathname !== '/change-password') {
-            window.location.href = '/change-password';
+          if (data.user.first_login) {
+            setShowChangePassword(true);
           }
         } else {
           localStorage.removeItem('token');
@@ -1976,52 +1974,19 @@ function App() {
         } />
         
         <Route path="/change-password" element={
-          user && user.first_login ? (
+          showChangePassword ? (
             <ChangePassword 
-              onCancel={() => {
-                setUser({...user, first_login: false});
-                window.location.href = '/sistema-tablero';
-              }}
+              onCancel={() => setShowChangePassword(false)}
               onSuccess={() => {
+                setShowChangePassword(false);
                 setUser({...user, first_login: false});
                 window.location.href = '/sistema-tablero';
               }}
-            />
-          ) : user ? (
-            <ChangePassword 
-              onCancel={() => window.location.href = '/sistema-tablero'}
-              onSuccess={() => window.location.href = '/sistema-tablero'}
             />
           ) : (
             <Login />
           )
         } />
-        
-        {/* Ruta adicional para forzar despliegue */}
-        <Route path="/password" element={
-          user && user.first_login ? (
-            <ChangePassword 
-              onCancel={() => {
-                setUser({...user, first_login: false});
-                window.location.href = '/sistema-tablero';
-              }}
-              onSuccess={() => {
-                setUser({...user, first_login: false});
-                window.location.href = '/sistema-tablero';
-              }}
-            />
-          ) : user ? (
-            <ChangePassword 
-              onCancel={() => window.location.href = '/sistema-tablero'}
-              onSuccess={() => window.location.href = '/sistema-tablero'}
-            />
-          ) : (
-            <Login />
-          )
-        } />
-        
-        {/* Ruta temporal para actualizar base de datos */}
-        <Route path="/update-database" element={<UpdateDatabase />} />
       </Routes>
     </div>
   );
