@@ -4,9 +4,44 @@ const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
 const XLSX = require('xlsx');
+const { Pool } = require('pg');
 
 // Importar rutas de autenticación
 const authRoutes = require('./authRoutes');
+
+// Configuración de la base de datos PostgreSQL
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+});
+
+// Probar conexión a la base de datos con reintentos
+const MAX_DB_RETRIES = 10;
+const DB_RETRY_DELAY_MS = 3000;
+
+async function wait(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function connectWithRetry(attempt = 1) {
+  try {
+    await pool.query('SELECT NOW()');
+    console.log(`✅ Conexión a la base de datos exitosa (intento ${attempt})`);
+  } catch (err) {
+    console.error(`❌ Error conectando a la base de datos (intento ${attempt}):`, err.message);
+    if (attempt < MAX_DB_RETRIES) {
+      console.log(`⏳ Reintentando conexión en ${DB_RETRY_DELAY_MS / 1000} segundos...`);
+      await wait(DB_RETRY_DELAY_MS);
+      return connectWithRetry(attempt + 1);
+    } else {
+      console.error('❌ No se pudo conectar a la base de datos después de varios intentos. Abortando.');
+      process.exit(1);
+    }
+  }
+}
+
+// Iniciar conexión a la base de datos
+connectWithRetry();
 
 // Formatos de Excel soportados por la librería xlsx
 const EXCEL_FORMATS = [
