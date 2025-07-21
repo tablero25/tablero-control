@@ -1665,6 +1665,15 @@ app.get('/guardia/descargar/:establecimiento/:anio/:mes', (req, res) => {
   res.download(ruta, archivo);
 });
 
+// Servir archivos estáticos del frontend
+app.use(express.static(path.join(__dirname, 'build')));
+
+// Catch-all handler: enviar de vuelta el archivo index.html de React para todas las rutas no API
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'build', 'index.html'));
+});
+
 app.listen(5001, () => {
-  console.log('Backend Excel server running on http://tablero-control-1.onrender.com:5001');
+  console.log('Backend Excel server running on port 5001');
+  console.log('Frontend available at: https://tablero-control-1.onrender.com');
 }); 
