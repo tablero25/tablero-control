@@ -1,38 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import logoSDO from './logoo.png';
 
 function ChangePassword({ onCancel, onSuccess }) {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
+    username: '',
     oldPassword: '',
     newPassword: '',
     confirmPassword: ''
   });
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      navigate('/login');
-      return;
-    }
-    fetch('https://tablero-control-1.onrender.com/api/auth/verify', {
-      headers: { 'Authorization': `Bearer ${token}` }
-    })
-    .then(res => res.json())
-    .then(data => {
-      if (!data.success) {
-        localStorage.removeItem('token');
-        navigate('/login');
-      }
-    })
-    .catch(() => {
-      localStorage.removeItem('token');
-      navigate('/login');
-    });
-  }, [navigate]);
 
   const handleChange = (e) => {
     setFormData({
@@ -48,7 +27,7 @@ function ChangePassword({ onCancel, onSuccess }) {
 
     // Validaciones
     if (formData.newPassword !== formData.confirmPassword) {
-      setError('Las nuevas contraseñas no coinciden');
+      setError('Las contraseñas nuevas no coinciden');
       return;
     }
 
@@ -58,29 +37,23 @@ function ChangePassword({ onCancel, onSuccess }) {
     }
 
     try {
-      const token = localStorage.getItem('token');
       const res = await fetch('https://tablero-control-1.onrender.com/api/auth/change-password', {
         method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          username: formData.username,
           oldPassword: formData.oldPassword,
           newPassword: formData.newPassword
-        }),
+        })
       });
-      
+
       const data = await res.json();
-      
+
       if (data.success) {
         setSuccess('Contraseña cambiada exitosamente');
-        setFormData({
-          oldPassword: '',
-          newPassword: '',
-          confirmPassword: ''
-        });
-        if (onSuccess) onSuccess();
+        setTimeout(() => {
+          window.location.href = '/login';
+        }, 2000);
       } else {
         setError(data.error || 'Error al cambiar contraseña');
       }
@@ -94,12 +67,21 @@ function ChangePassword({ onCancel, onSuccess }) {
       <div className="tablero-bg">
         <div className="logo-sdo-banner">
           <img src={logoSDO} alt="Logo SDO" />
-          <h1 className="banner-title">TABLERO S/D/O</h1>
+          <h1 className="banner-title">CAMBIO DE CONTRASEÑA</h1>
         </div>
         <div className="container">
           <div className="modal-content">
             <form className="login-form" onSubmit={handleSubmit}>
           <h2>Cambiar Contraseña</h2>
+          
+          <input
+            type="text"
+            name="username"
+            placeholder="Usuario"
+            value={formData.username}
+            onChange={handleChange}
+            required
+          />
           
           <input
             type="password"
