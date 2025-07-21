@@ -42,7 +42,7 @@ app.get('/api-test-email-12345', async (req, res) => {
     const nodemailer = require('nodemailer');
     
     // Configuración del transportador de email
-    const transporter = nodemailer.createTransporter({
+    const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
         user: 'ddpproyectos2025@gmail.com',
