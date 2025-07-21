@@ -1,11 +1,11 @@
 const nodemailer = require('nodemailer');
 
 // Configuración del transportador de email
-const transporter = nodemailer.createTransporter({
+const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: process.env.EMAIL_USER || 'tu_email@gmail.com',
-    pass: process.env.EMAIL_PASS || 'tu_password_de_aplicacion'
+    user: process.env.EMAIL_USER || 'ddpproyectos2025@gmail.com',
+    pass: process.env.EMAIL_PASS || 'qvce lang ajuu ptjl'
   }
 });
 
@@ -15,7 +15,7 @@ const sendConfirmationEmail = async (email, confirmationToken, nombre) => {
     const confirmationUrl = `https://tablero-control-1.onrender.com/confirm?token=${confirmationToken}`;
     
     const mailOptions = {
-      from: process.env.EMAIL_USER || 'tu_email@gmail.com',
+      from: process.env.EMAIL_USER || 'ddpproyectos2025@gmail.com',
       to: email,
       subject: 'Confirmación de Registro - Sistema de Tableros SDO',
       html: `
@@ -78,7 +78,7 @@ const sendWelcomeEmail = async (email, nombre) => {
     const loginUrl = 'https://tablero-control-1.onrender.com';
     
     const mailOptions = {
-      from: process.env.EMAIL_USER || 'tu_email@gmail.com',
+      from: process.env.EMAIL_USER || 'ddpproyectos2025@gmail.com',
       to: email,
       subject: '¡Cuenta Confirmada! - Sistema de Tableros SDO',
       html: `
