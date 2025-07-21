@@ -10,7 +10,7 @@ const config = {
     server: {
       port: 5001,
       cors: {
-        origin: 'http://localhost:3000',
+        origin: 'https://tablero-control-1.onrender.com',
         credentials: true
       }
     },

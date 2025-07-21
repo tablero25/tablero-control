@@ -44,7 +44,7 @@ const sendConfirmationEmail = async (email, username, confirmationToken) => {
   try {
     const transporter = await createTransporter();
     
-    const confirmationUrl = `http://localhost:3000/confirmar-usuario?token=${confirmationToken}`;
+    const confirmationUrl = `https://tablero-control-1.onrender.com/confirmar-usuario?token=${confirmationToken}`;
     
     const mailOptions = {
       from: '"Tableros de Control - SDO" <tu-email@gmail.com>', // CAMBIA: Tu email

@@ -4,7 +4,7 @@ const path = require('path');
 
 const pool = new Pool({
   user: 'luxiot',
-  host: 'localhost',
+  host: 'tablero-control-1.onrender.com',
   database: 'sdo_tablero',
   password: 'Sistema2025',
   port: 5432,

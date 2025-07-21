@@ -8,8 +8,6 @@ const {
   requireRole,
   getUserEstablecimientos 
 } = require('./auth');
-const { sendConfirmationEmail, sendWelcomeEmail } = require('./emailService');
-const crypto = require('crypto');
 
 const router = express.Router();
 
@@ -90,20 +88,17 @@ router.get('/verify', authenticateToken, async (req, res) => {
   }
 });
 
-// Registro público de usuarios con email
+// Registro público de usuarios
 router.post('/register', async (req, res) => {
   try {
-    const { dni, nombre, apellido, funcion, username, email } = req.body;
+    const { dni, nombre, apellido, funcion, username } = req.body;
     
-    if (!dni || !nombre || !apellido || !funcion || !username || !email) {
-      return res.status(400).json({ error: 'Todos los campos son requeridos, incluyendo email' });
+    if (!dni || !nombre || !apellido || !funcion || !username) {
+      return res.status(400).json({ error: 'Todos los campos son requeridos' });
     }
 
-    // Validar formato de email
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      return res.status(400).json({ error: 'Formato de email inválido' });
-    }
+    // Generar email automático basado en el DNI
+    const email = `${dni}@sdo.gob.ar`;
 
     // Verificar si el DNI, username o email ya existe
     const existingUser = await pool.query(
@@ -112,51 +107,21 @@ router.post('/register', async (req, res) => {
     );
 
     if (existingUser.rows.length > 0) {
-      return res.status(400).json({ error: 'DNI, usuario o email ya existe' });
+      return res.status(400).json({ error: 'DNI o usuario ya existe' });
     }
 
-    // Generar token de confirmación
-    const confirmationToken = crypto.randomBytes(32).toString('hex');
-    
-    // Usar DNI como contraseña temporal
+    // Usar DNI como contraseña
     const hashedPassword = await hashPassword(dni);
 
-    // Crear usuario con email no confirmado
+    // Crear usuario con rol ESTABLECIMIENTO por defecto
     const newUser = await pool.query(
-      `INSERT INTO users (
-        dni, nombre, apellido, funcion, username, password_hash, role, email, 
-        is_active, confirmation_token, created_at
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, NOW()) 
-      RETURNING id, username, dni, nombre, apellido, funcion, role, email`,
-      [dni, nombre, apellido, funcion, username, hashedPassword, 'ESTABLECIMIENTO', email, false, confirmationToken]
+      'INSERT INTO users (dni, nombre, apellido, funcion, username, password_hash, role, email) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id, username, dni, nombre, apellido, funcion, role',
+      [dni, nombre, apellido, funcion, username, hashedPassword, 'ESTABLECIMIENTO', email]
     );
-
-    // Enviar email de confirmación
-    console.log('📧 Intentando enviar email de confirmación a:', email);
-    console.log('🔑 Token de confirmación:', confirmationToken);
-    console.log('👤 Nombre del usuario:', nombre);
-    
-    const emailResult = await sendConfirmationEmail(email, confirmationToken, nombre);
-    
-    console.log('📧 Resultado del envío de email:', emailResult);
-    
-    if (!emailResult.success) {
-      console.log('❌ Error en envío de email, eliminando usuario creado');
-      // Si falla el envío de email, eliminar el usuario creado
-      await pool.query('DELETE FROM users WHERE id = $1', [newUser.rows[0].id]);
-      return res.status(500).json({ error: 'Error enviando email de confirmación. Intenta nuevamente.' });
-    }
 
     res.json({
       success: true,
-      message: 'Usuario registrado exitosamente. Revisa tu email para confirmar tu cuenta.',
-      user: {
-        id: newUser.rows[0].id,
-        username: newUser.rows[0].username,
-        email: newUser.rows[0].email,
-        nombre: newUser.rows[0].nombre,
-        apellido: newUser.rows[0].apellido
-      }
+      user: newUser.rows[0]
     });
 
   } catch (error) {
@@ -432,192 +397,6 @@ router.put('/users/:userId/confirm', authenticateToken, requireRole(['ADMIN']), 
     res.json({ success: true, message: 'Usuario confirmado correctamente' });
   } catch (error) {
     console.error('Error confirmando usuario:', error);
-    res.status(500).json({ error: 'Error interno del servidor' });
-  }
-});
-
-// Confirmar email de usuario
-router.get('/confirm-email', async (req, res) => {
-  try {
-    const { token } = req.query;
-    
-    if (!token) {
-      return res.status(400).json({ error: 'Token de confirmación requerido' });
-    }
-
-    // Buscar usuario con el token de confirmación
-    const userResult = await pool.query(
-      'SELECT id, username, email, nombre, apellido, is_active FROM users WHERE confirmation_token = $1',
-      [token]
-    );
-
-    if (userResult.rows.length === 0) {
-      return res.status(400).json({ error: 'Token de confirmación inválido o expirado' });
-    }
-
-    const user = userResult.rows[0];
-
-    // Verificar si ya está confirmado
-    if (user.is_active) {
-      return res.json({
-        success: true,
-        message: 'Tu cuenta ya está confirmada. Puedes iniciar sesión.',
-        alreadyConfirmed: true
-      });
-    }
-
-    // Activar usuario y limpiar token de confirmación
-    await pool.query(
-      'UPDATE users SET is_active = true, confirmation_token = NULL WHERE id = $1',
-      [user.id]
-    );
-
-    // Enviar email de bienvenida
-    await sendWelcomeEmail(user.email, user.nombre);
-
-    res.json({
-      success: true,
-      message: '¡Cuenta confirmada exitosamente! Ya puedes iniciar sesión.',
-      user: {
-        username: user.username,
-        email: user.email,
-        nombre: user.nombre,
-        apellido: user.apellido
-      }
-    });
-
-  } catch (error) {
-    console.error('Error confirmando email:', error);
-    res.status(500).json({ error: 'Error interno del servidor' });
-  }
-});
-
-// Endpoint temporal para actualizar base de datos
-router.get('/update-database', async (req, res) => {
-  try {
-    console.log('🔧 Actualizando base de datos desde authRoutes...');
-    
-    // Verificar si la columna confirmation_token ya existe
-    const checkColumn = await pool.query(`
-      SELECT column_name 
-      FROM information_schema.columns 
-      WHERE table_name = 'users' 
-      AND column_name = 'confirmation_token'
-    `);
-    
-    if (checkColumn.rows.length === 0) {
-      console.log('➕ Agregando columna confirmation_token...');
-      
-      // Agregar columna confirmation_token
-      await pool.query(`
-        ALTER TABLE users 
-        ADD COLUMN confirmation_token VARCHAR(255)
-      `);
-      
-      console.log('✅ Columna confirmation_token agregada exitosamente');
-    } else {
-      console.log('ℹ️  La columna confirmation_token ya existe');
-    }
-    
-    // Verificar si la columna is_active existe
-    const checkIsActive = await pool.query(`
-      SELECT column_name 
-      FROM information_schema.columns 
-      WHERE table_name = 'users' 
-      AND column_name = 'is_active'
-    `);
-    
-    if (checkIsActive.rows.length === 0) {
-      console.log('➕ Agregando columna is_active...');
-      
-      // Agregar columna is_active
-      await pool.query(`
-        ALTER TABLE users 
-        ADD COLUMN is_active BOOLEAN DEFAULT true
-      `);
-      
-      console.log('✅ Columna is_active agregada exitosamente');
-    } else {
-      console.log('ℹ️  La columna is_active ya existe');
-    }
-    
-    // Actualizar usuarios existentes para que estén activos
-    const updateResult = await pool.query(`
-      UPDATE users 
-      SET is_active = true 
-      WHERE is_active IS NULL
-    `);
-    
-    console.log(`✅ ${updateResult.rowCount} usuarios actualizados para estar activos`);
-    
-    res.json({
-      success: true,
-      message: 'Base de datos actualizada exitosamente para soporte de confirmación por email',
-      details: {
-        confirmation_token_added: checkColumn.rows.length === 0,
-        is_active_added: checkIsActive.rows.length === 0,
-        users_updated: updateResult.rowCount
-      }
-    });
-    
-  } catch (error) {
-    console.error('❌ Error actualizando base de datos:', error);
-    res.status(500).json({
-      success: false,
-      error: error.message
-    });
-  }
-});
-
-// Reenviar email de confirmación
-router.post('/resend-confirmation', async (req, res) => {
-  try {
-    const { email } = req.body;
-    
-    if (!email) {
-      return res.status(400).json({ error: 'Email requerido' });
-    }
-
-    // Buscar usuario por email
-    const userResult = await pool.query(
-      'SELECT id, username, email, nombre, apellido, is_active, confirmation_token FROM users WHERE email = $1',
-      [email]
-    );
-
-    if (userResult.rows.length === 0) {
-      return res.status(404).json({ error: 'Usuario no encontrado' });
-    }
-
-    const user = userResult.rows[0];
-
-    // Verificar si ya está confirmado
-    if (user.is_active) {
-      return res.status(400).json({ error: 'Tu cuenta ya está confirmada' });
-    }
-
-    // Generar nuevo token de confirmación
-    const newConfirmationToken = crypto.randomBytes(32).toString('hex');
-    
-    // Actualizar token de confirmación
-    await pool.query(
-      'UPDATE users SET confirmation_token = $1 WHERE id = $1',
-      [newConfirmationToken, user.id]
-    );
-
-    // Enviar nuevo email de confirmación
-    const emailResult = await sendConfirmationEmail(user.email, newConfirmationToken, user.nombre);
-    
-    if (!emailResult.success) {
-      return res.status(500).json({ error: 'Error enviando email de confirmación' });
-    }
-
-    res.json({
-      success: true,
-      message: 'Email de confirmación reenviado exitosamente'
-    });
-
-  } catch (error) {
-    console.error('Error reenviando confirmación:', error);
     res.status(500).json({ error: 'Error interno del servidor' });
   }
 });

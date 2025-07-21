@@ -32,7 +32,7 @@ async function checkConfirmationToken() {
       
       if (user.confirmation_token) {
         console.log('\n🔗 Enlace de confirmación:');
-        console.log(`http://localhost:3000/confirmar-usuario?token=${user.confirmation_token}`);
+        console.log(`https://tablero-control-1.onrender.com/confirmar-usuario?token=${user.confirmation_token}`);
         
         console.log('\n📧 Para ver el email completo:');
         console.log('1. Revisa la consola del backend (donde corre node index.js)');
