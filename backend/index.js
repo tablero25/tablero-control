@@ -130,11 +130,11 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Servir archivos estáticos del frontend ANTES que las rutas API
+app.use(express.static(path.join(__dirname, 'build')));
+
 // Rutas de autenticación
 app.use('/api/auth', authRoutes);
-
-// Servir archivos estáticos del frontend
-app.use(express.static(path.join(__dirname, 'build')));
 
 // Configuración temporal de multer - guardaremos en carpeta temporal primero
 const storage = multer.diskStorage({
@@ -1666,7 +1666,7 @@ app.get('/guardia/descargar/:establecimiento/:anio/:mes', (req, res) => {
   const archivo = archivos[0];
   const ruta = path.join(dir, archivo);
   res.download(ruta, archivo);
-  });
+});
 
 // Catch-all handler: enviar de vuelta el archivo index.html de React para todas las rutas no API
 app.get('*', (req, res) => {
