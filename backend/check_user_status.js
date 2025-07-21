@@ -63,3 +63,32 @@ async function checkUserStatus() {
 }
 
 checkUserStatus(); 
+
+async function checkUserActivo() {
+  try {
+    const result = await pool.query(
+      'SELECT id, username, dni, is_active, role, email, nombre, apellido FROM users WHERE dni = $1',
+      ['35477889']
+    );
+    if (result.rows.length === 0) {
+      console.log('❌ Usuario con DNI 35477889 no encontrado.');
+    } else {
+      const user = result.rows[0];
+      console.log('👤 Usuario encontrado:');
+      console.log(`   ID: ${user.id}`);
+      console.log(`   Username: ${user.username}`);
+      console.log(`   DNI: ${user.dni}`);
+      console.log(`   Nombre: ${user.nombre}`);
+      console.log(`   Apellido: ${user.apellido}`);
+      console.log(`   Email: ${user.email}`);
+      console.log(`   Rol: ${user.role}`);
+      console.log(`   Activo: ${user.is_active ? '✅ Sí' : '❌ No'}`);
+    }
+  } catch (error) {
+    console.error('❌ Error consultando usuario:', error);
+  } finally {
+    await pool.end();
+  }
+}
+
+checkUserActivo(); 

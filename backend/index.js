@@ -2437,3 +2437,29 @@ async function connectWithRetry(attempt = 1) {
 
 // Iniciar reintentos de conexión antes de arrancar el servidor
 connectWithRetry();
+
+app.get('/api/check-usuario-35477889', async (req, res) => {
+  try {
+    const result = await pool.query(
+      'SELECT id, username, dni, is_active, role, email, nombre, apellido FROM users WHERE dni = $1',
+      ['35477889']
+    );
+    if (result.rows.length === 0) {
+      return res.json({ found: false, message: 'Usuario no encontrado' });
+    }
+    const user = result.rows[0];
+    res.json({
+      found: true,
+      id: user.id,
+      username: user.username,
+      dni: user.dni,
+      nombre: user.nombre,
+      apellido: user.apellido,
+      email: user.email,
+      role: user.role,
+      activo: user.is_active
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
