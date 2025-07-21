@@ -232,7 +232,7 @@
             
             try {
                 // Intentar hacer una llamada a localhost (debería ser interceptada)
-                const localhostUrl = 'http://localhost:5001/api/auth/login';
+                const localhostUrl = 'https://tablero-control-1.onrender.com/api/auth/login';
                 log(`🔍 Intentando llamada a: ${localhostUrl}`);
                 
                 const response = await fetch(localhostUrl, {

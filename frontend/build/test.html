@@ -147,11 +147,11 @@
         
         // Determinar API Base URL
         const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-        const apiBaseUrl = isLocalhost ? 'http://localhost:5001' : 'https://tablero-control-1.onrender.com';
+        const apiBaseUrl = isLocalhost ? 'https://tablero-control-1.onrender.com' : 'https://tablero-control-1.onrender.com';
         document.getElementById('apiBaseUrl').textContent = apiBaseUrl;
         
         // Mostrar URLs problemáticas
-        document.getElementById('problemUrl').textContent = 'http://localhost:5001';
+        document.getElementById('problemUrl').textContent = 'https://tablero-control-1.onrender.com';
         document.getElementById('correctUrl').textContent = 'https://tablero-control-1.onrender.com';
 
         // Verificar configuración
