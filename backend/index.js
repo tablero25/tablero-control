@@ -35,7 +35,7 @@ app.get('/health', (req, res) => {
 });
 
 // Endpoint temporal para probar email
-app.get('/test-email-now', async (req, res) => {
+app.get('/api-test-email-12345', async (req, res) => {
   try {
     console.log('🔧 Probando envío de email...');
     
