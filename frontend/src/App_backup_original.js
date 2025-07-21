@@ -170,7 +170,7 @@ function IndicadoresCamasEstablecimiento() {
 
   // Cargar lista de archivos/años al entrar
   useEffect(() => {
-          fetch(`http://localhost:5000/archivos/${encodeURIComponent(nombreEstablecimiento)}`)
+          fetch(`https://tablero-control-1.onrender.com/archivos/${encodeURIComponent(nombreEstablecimiento)}`)
       .then(res => res.json())
       .then(data => setArchivos((data.archivos || []).map(a => typeof a === 'string' ? { archivo: a } : a)));
   }, [nombreEstablecimiento, guardado]);
