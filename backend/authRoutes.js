@@ -132,9 +132,16 @@ router.post('/register', async (req, res) => {
     );
 
     // Enviar email de confirmación
+    console.log('📧 Intentando enviar email de confirmación a:', email);
+    console.log('🔑 Token de confirmación:', confirmationToken);
+    console.log('👤 Nombre del usuario:', nombre);
+    
     const emailResult = await sendConfirmationEmail(email, confirmationToken, nombre);
     
+    console.log('📧 Resultado del envío de email:', emailResult);
+    
     if (!emailResult.success) {
+      console.log('❌ Error en envío de email, eliminando usuario creado');
       // Si falla el envío de email, eliminar el usuario creado
       await pool.query('DELETE FROM users WHERE id = $1', [newUser.rows[0].id]);
       return res.status(500).json({ error: 'Error enviando email de confirmación. Intenta nuevamente.' });
