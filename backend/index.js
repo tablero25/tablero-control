@@ -128,13 +128,37 @@ function detectarAnioDeArchivo(rutaArchivo) {
 
 const app = express();
 
-// PRIMERA PRIORIDAD: Servir archivos estáticos (JS, CSS, imágenes)
-app.use('/static', express.static(path.join(__dirname, 'build', 'static')));
-app.use('/favicon.ico', express.static(path.join(__dirname, 'build', 'favicon.ico')));
-app.use('/logo192.png', express.static(path.join(__dirname, 'build', 'logo192.png')));
-app.use('/logo512.png', express.static(path.join(__dirname, 'build', 'logo512.png')));
-app.use('/manifest.json', express.static(path.join(__dirname, 'build', 'manifest.json')));
-app.use('/robots.txt', express.static(path.join(__dirname, 'build', 'robots.txt')));
+// SOLUCIÓN DEFINITIVA: Middleware específico para archivos estáticos con Content-Type correcto
+app.get('/static/js/:filename', (req, res) => {
+  const filename = req.params.filename;
+  const filePath = path.join(__dirname, 'build', 'static', 'js', filename);
+  if (fs.existsSync(filePath)) {
+    res.setHeader('Content-Type', 'application/javascript');
+    res.sendFile(filePath);
+  } else {
+    res.status(404).send('File not found');
+  }
+});
+
+app.get('/static/css/:filename', (req, res) => {
+  const filename = req.params.filename;
+  const filePath = path.join(__dirname, 'build', 'static', 'css', filename);
+  if (fs.existsSync(filePath)) {
+    res.setHeader('Content-Type', 'text/css');
+    res.sendFile(filePath);
+  } else {
+    res.status(404).send('File not found');
+  }
+});
+
+app.get('/favicon.ico', (req, res) => {
+  res.sendFile(path.join(__dirname, 'build', 'favicon.ico'));
+});
+
+app.get('/manifest.json', (req, res) => {
+  res.setHeader('Content-Type', 'application/json');
+  res.sendFile(path.join(__dirname, 'build', 'manifest.json'));
+});
 
 app.use(cors());
 app.use(express.json());
