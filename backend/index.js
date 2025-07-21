@@ -2143,3 +2143,89 @@ app.get('/api/update-database', async (req, res) => {
     });
   }
 });
+
+// Endpoint temporal para probar registro completo
+app.post('/test-register-now', async (req, res) => {
+  try {
+    console.log('🔧 Probando registro completo...');
+    
+    const { email, nombre } = req.body;
+    
+    if (!email || !nombre) {
+      return res.status(400).json({ error: 'Email y nombre requeridos' });
+    }
+    
+    const nodemailer = require('nodemailer');
+    const crypto = require('crypto');
+    
+    // Configuración del transportador de email
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: 'ddpproyectos2025@gmail.com',
+        pass: 'qvce lang ajuu ptjl'
+      }
+    });
+    
+    const confirmationToken = crypto.randomBytes(32).toString('hex');
+    const confirmationUrl = `https://tablero-control-1.onrender.com/confirm?token=${confirmationToken}`;
+    
+    const mailOptions = {
+      from: 'ddpproyectos2025@gmail.com',
+      to: email,
+      subject: 'Confirmación de Registro - Sistema de Tableros SDO',
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f5f5f5;">
+          <div style="background-color: #ffffff; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+            <div style="text-align: center; margin-bottom: 30px;">
+              <h1 style="color: #2c3e50; margin: 0;">Sistema de Tableros SDO</h1>
+              <p style="color: #7f8c8d; margin: 10px 0;">Secretaría de Desarrollo Organizacional</p>
+            </div>
+            
+            <div style="margin-bottom: 30px;">
+              <h2 style="color: #2c3e50; margin-bottom: 20px;">¡Bienvenido/a, ${nombre}!</h2>
+              <p style="color: #34495e; line-height: 1.6; margin-bottom: 20px;">
+                Gracias por registrarte en el Sistema de Tableros de Control de la Secretaría de Desarrollo Organizacional.
+                Para completar tu registro y activar tu cuenta, por favor confirma tu dirección de email.
+              </p>
+            </div>
+            
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${confirmationUrl}" 
+                 style="background-color: #3498db; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">
+                Confirmar Mi Cuenta
+              </a>
+            </div>
+            
+            <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #ecf0f1;">
+              <p style="color: #7f8c8d; font-size: 14px; margin-bottom: 10px;">
+                Si el botón no funciona, puedes copiar y pegar este enlace en tu navegador:
+              </p>
+              <p style="color: #3498db; font-size: 14px; word-break: break-all;">
+                ${confirmationUrl}
+              </p>
+            </div>
+          </div>
+        </div>
+      `
+    };
+
+    const result = await transporter.sendMail(mailOptions);
+    console.log('✅ Email de confirmación enviado exitosamente:', result.messageId);
+    
+    res.json({
+      success: true,
+      message: 'Email de confirmación enviado exitosamente',
+      messageId: result.messageId,
+      email: email,
+      token: confirmationToken
+    });
+    
+  } catch (error) {
+    console.error('❌ Error enviando email de confirmación:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
