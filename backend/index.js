@@ -127,11 +127,17 @@ function detectarAnioDeArchivo(rutaArchivo) {
 }
 
 const app = express();
+
+// PRIMERA PRIORIDAD: Servir archivos estáticos (JS, CSS, imágenes)
+app.use('/static', express.static(path.join(__dirname, 'build', 'static')));
+app.use('/favicon.ico', express.static(path.join(__dirname, 'build', 'favicon.ico')));
+app.use('/logo192.png', express.static(path.join(__dirname, 'build', 'logo192.png')));
+app.use('/logo512.png', express.static(path.join(__dirname, 'build', 'logo512.png')));
+app.use('/manifest.json', express.static(path.join(__dirname, 'build', 'manifest.json')));
+app.use('/robots.txt', express.static(path.join(__dirname, 'build', 'robots.txt')));
+
 app.use(cors());
 app.use(express.json());
-
-// Servir archivos estáticos del frontend ANTES que las rutas API
-app.use(express.static(path.join(__dirname, 'build')));
 
 // Rutas de autenticación
 app.use('/api/auth', authRoutes);
