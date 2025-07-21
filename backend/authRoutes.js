@@ -130,19 +130,19 @@ router.post('/register', async (req, res) => {
   }
 });
 
-// Cambiar contraseña
-router.post('/change-password', authenticateToken, async (req, res) => {
+// Cambiar contraseña (SIN TOKEN - por username)
+router.post('/change-password', async (req, res) => {
   try {
-    const { oldPassword, newPassword } = req.body;
+    const { username, oldPassword, newPassword } = req.body;
     
-    if (!oldPassword || !newPassword) {
-      return res.status(400).json({ error: 'Contraseña actual y nueva son requeridas' });
+    if (!username || !oldPassword || !newPassword) {
+      return res.status(400).json({ error: 'Usuario, contraseña actual y nueva son requeridas' });
     }
 
-    // Obtener usuario actual
+    // Obtener usuario por username
     const userResult = await pool.query(
-      'SELECT * FROM users WHERE id = $1',
-      [req.user.id]
+      'SELECT * FROM users WHERE username = $1',
+      [username]
     );
 
     if (userResult.rows.length === 0) {
@@ -163,7 +163,7 @@ router.post('/change-password', authenticateToken, async (req, res) => {
     // Actualizar contraseña y marcar que ya no es primer login
     await pool.query(
       'UPDATE users SET password_hash = $1, first_login = FALSE WHERE id = $2',
-      [hashedNewPassword, req.user.id]
+      [hashedNewPassword, user.id]
     );
 
     res.json({
