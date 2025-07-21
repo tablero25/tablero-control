@@ -1733,8 +1733,20 @@ app.get('/guardia/descargar/:establecimiento/:anio/:mes', (req, res) => {
   res.download(ruta, archivo);
 });
 
-// Catch-all handler: enviar de vuelta el archivo index.html de React para todas las rutas no API
+// Catch-all handler: SOLO para rutas que NO son archivos estáticos
 app.get('*', (req, res) => {
+  // NO servir index.html para archivos estáticos
+  if (req.url.startsWith('/static/') || 
+      req.url.endsWith('.js') || 
+      req.url.endsWith('.css') || 
+      req.url.endsWith('.map') ||
+      req.url.endsWith('.ico') ||
+      req.url.endsWith('.png') ||
+      req.url.endsWith('.json')) {
+    return res.status(404).send('File not found');
+  }
+  
+  // Solo para rutas de React
   res.sendFile(path.join(__dirname, 'build', 'index.html'));
 });
 
