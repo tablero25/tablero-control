@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test de Configuración - Sistema de Tableros</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .status {
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .warning { background-color: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
+        .info { background-color: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .timestamp {
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 20px;
+        }
+        .code-block {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 10px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Test de Configuración del Sistema</h1>
+        <p class="timestamp">Última actualización: <span id="timestamp"></span></p>
+        
+        <div class="status info">
+            <h3>📋 Información del Sistema</h3>
+            <p><strong>URL Actual:</strong> <span id="currentUrl"></span></p>
+            <p><strong>User Agent:</strong> <span id="userAgent"></span></p>
+            <p><strong>API Base URL:</strong> <span id="apiBaseUrl"></span></p>
+        </div>
+
+        <div class="status warning">
+            <h3>⚠️ Diagnóstico de ERR_CONNECTION_REFUSED</h3>
+            <p>Si ves "ERR_CONNECTION_REFUSED", el problema es que el frontend está intentando conectarse a localhost:5001 en lugar de la URL de producción.</p>
+            <div class="code-block">
+                <strong>Problema detectado:</strong><br>
+                El navegador está intentando acceder a: <span id="problemUrl">localhost:5001</span><br>
+                Pero debería acceder a: <span id="correctUrl">https://tablero-control-1.onrender.com</span>
+            </div>
+        </div>
+
+        <div class="status info">
+            <h3>🧪 Tests de Conexión</h3>
+            <button onclick="testBackend()">Test Backend</button>
+            <button onclick="testAPI()">Test API</button>
+            <button onclick="testConfig()">Test Config.js</button>
+            <button onclick="clearCache()">Limpiar Cache</button>
+            <button onclick="reloadPage()">Recargar Página</button>
+        </div>
+
+        <div id="testResults"></div>
+
+        <div class="status info">
+            <h3>🔗 Enlaces de Prueba</h3>
+            <p><a href="/" target="_blank">🏠 Página Principal</a></p>
+            <p><a href="/login" target="_blank">🔐 Página de Login</a></p>
+            <p><a href="/register" target="_blank">📝 Página de Registro</a></p>
+            <p><a href="/api/test" target="_blank">🔌 Test API Endpoint</a></p>
+        </div>
+
+        <div class="status warning">
+            <h3>💡 Soluciones para ERR_CONNECTION_REFUSED</h3>
+            <ol>
+                <li><strong>Limpiar Cache Completo:</strong>
+                    <ul>
+                        <li>Presiona <strong>Ctrl+Shift+Delete</strong></li>
+                        <li>Selecciona "Todo el tiempo"</li>
+                        <li>Marca todas las opciones</li>
+                        <li>Haz clic en "Limpiar datos"</li>
+                    </ul>
+                </li>
+                <li><strong>Forzar Recarga:</strong>
+                    <ul>
+                        <li>Presiona <strong>Ctrl+F5</strong> o <strong>Ctrl+Shift+R</strong></li>
+                        <li>O usa <strong>F12</strong> → Click derecho en el botón de recarga → "Vaciar cache y recargar"</li>
+                    </ul>
+                </li>
+                <li><strong>Modo Incógnito:</strong>
+                    <ul>
+                        <li>Abre una ventana privada/incógnito</li>
+                        <li>Ve a <strong>https://tablero-control-1.onrender.com</strong></li>
+                    </ul>
+                </li>
+                <li><strong>Verificar Console:</strong>
+                    <ul>
+                        <li>Presiona <strong>F12</strong></li>
+                        <li>Ve a la pestaña "Console"</li>
+                        <li>Busca errores que mencionen "localhost:5001"</li>
+                    </ul>
+                </li>
+            </ol>
+        </div>
+
+        <div class="status info">
+            <h3>🔍 Verificación de Configuración</h3>
+            <div id="configCheck"></div>
+        </div>
+    </div>
+
+    <script>
+        // Mostrar timestamp actual
+        document.getElementById('timestamp').textContent = new Date().toLocaleString('es-ES');
+        
+        // Mostrar información del navegador
+        document.getElementById('currentUrl').textContent = window.location.href;
+        document.getElementById('userAgent').textContent = navigator.userAgent;
+        
+        // Determinar API Base URL
+        const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        const apiBaseUrl = isLocalhost ? 'https://tablero-control-1.onrender.com' : 'https://tablero-control-1.onrender.com';
+        document.getElementById('apiBaseUrl').textContent = apiBaseUrl;
+        
+        // Mostrar URLs problemáticas
+        document.getElementById('problemUrl').textContent = 'https://tablero-control-1.onrender.com';
+        document.getElementById('correctUrl').textContent = 'https://tablero-control-1.onrender.com';
+
+        // Verificar configuración
+        function checkConfig() {
+            const configDiv = document.getElementById('configCheck');
+            configDiv.innerHTML = `
+                <p><strong>Hostname detectado:</strong> ${window.location.hostname}</p>
+                <p><strong>Es localhost:</strong> ${isLocalhost ? 'SÍ' : 'NO'}</p>
+                <p><strong>API Base URL configurado:</strong> ${apiBaseUrl}</p>
+                <p><strong>Problema:</strong> ${isLocalhost ? 'No hay problema (desarrollo local)' : 'El frontend debe usar la URL de producción'}</p>
+            `;
+        }
+
+        async function testBackend() {
+            const resultsDiv = document.getElementById('testResults');
+            resultsDiv.innerHTML = '<div class="status info">🔄 Probando conexión al backend...</div>';
+            
+            try {
+                const response = await fetch('/api/test', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    resultsDiv.innerHTML = `
+                        <div class="status success">
+                            ✅ Backend funcionando correctamente<br>
+                            <strong>Respuesta:</strong> ${JSON.stringify(data)}
+                        </div>
+                    `;
+                } else {
+                    resultsDiv.innerHTML = `
+                        <div class="status error">
+                            ❌ Error en backend: ${response.status} ${response.statusText}
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultsDiv.innerHTML = `
+                    <div class="status error">
+                        ❌ Error de conexión: ${error.message}<br>
+                        <strong>Detalles:</strong> ${error}
+                    </div>
+                `;
+            }
+        }
+
+        async function testAPI() {
+            const resultsDiv = document.getElementById('testResults');
+            resultsDiv.innerHTML = '<div class="status info">🔄 Probando API de autenticación...</div>';
+            
+            try {
+                const response = await fetch(`${apiBaseUrl}/api/auth/test`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    resultsDiv.innerHTML = `
+                        <div class="status success">
+                            ✅ API funcionando correctamente<br>
+                            <strong>Respuesta:</strong> ${JSON.stringify(data)}
+                        </div>
+                    `;
+                } else {
+                    resultsDiv.innerHTML = `
+                        <div class="status error">
+                            ❌ Error en API: ${response.status} ${response.statusText}
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultsDiv.innerHTML = `
+                    <div class="status error">
+                        ❌ Error de conexión a API: ${error.message}<br>
+                        <strong>URL probada:</strong> ${apiBaseUrl}/api/auth/test<br>
+                        <strong>Detalles:</strong> ${error}<br>
+                        <strong>Solución:</strong> Este error indica que el frontend está intentando conectarse a localhost:5001. Limpia el cache del navegador.
+                    </div>
+                `;
+            }
+        }
+
+        async function testConfig() {
+            const resultsDiv = document.getElementById('testResults');
+            resultsDiv.innerHTML = '<div class="status info">🔄 Probando configuración de config.js...</div>';
+            
+            try {
+                // Intentar importar config.js dinámicamente
+                const response = await fetch('/static/js/config.js');
+                if (response.ok) {
+                    resultsDiv.innerHTML = `
+                        <div class="status success">
+                            ✅ Archivo config.js encontrado<br>
+                            <strong>Estado:</strong> Configuración disponible
+                        </div>
+                    `;
+                } else {
+                    resultsDiv.innerHTML = `
+                        <div class="status warning">
+                            ⚠️ Archivo config.js no encontrado<br>
+                            <strong>Estado:</strong> Usando configuración por defecto
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultsDiv.innerHTML = `
+                    <div class="status error">
+                        ❌ Error al verificar config.js: ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        function clearCache() {
+            if ('caches' in window) {
+                caches.keys().then(function(names) {
+                    for (let name of names) {
+                        caches.delete(name);
+                    }
+                });
+            }
+            
+            // Limpiar localStorage y sessionStorage
+            localStorage.clear();
+            sessionStorage.clear();
+            
+            document.getElementById('testResults').innerHTML = `
+                <div class="status success">
+                    ✅ Cache limpiado completamente<br>
+                    <strong>Acciones realizadas:</strong><br>
+                    - Cache del navegador limpiado<br>
+                    - localStorage limpiado<br>
+                    - sessionStorage limpiado<br>
+                    <strong>Ahora recarga la página (Ctrl+F5)</strong>
+                </div>
+            `;
+        }
+
+        function reloadPage() {
+            window.location.reload(true);
+        }
+
+        // Auto-test al cargar la página
+        window.addEventListener('load', function() {
+            checkConfig();
+            setTimeout(testBackend, 1000);
+        });
+    </script>
+</body>
+</html> 
