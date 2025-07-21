@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import logoSDO from './logoo.png';
+// import logoSDO from './logoo.png'; // Comentado temporalmente
 
 function Login({ onLogin, onShowRegister }) {
   const [username, setUsername] = useState('');
@@ -35,7 +35,7 @@ function Login({ onLogin, onShowRegister }) {
     <div className="App">
       <div className="tablero-bg">
         <div className="logo-sdo-banner">
-          <img src={logoSDO} alt="Logo SDO" />
+          <img src="/static/media/logoo.c9263002735465189850.png" alt="Logo SDO" />
           <h1 className="banner-title">TABLERO S/D/O</h1>
         </div>
         <div className="container">

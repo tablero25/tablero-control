@@ -3,7 +3,7 @@ import { Routes, Route, useNavigate, useParams } from 'react-router-dom';
 import './App.css';
 import GaugeChart from 'react-gauge-chart';
 import * as XLSX from 'xlsx';
-import logoSDO from './logoo.png';
+// import logoSDO from './logoo.png'; // Comentado temporalmente
 import Login from './Login';
 import Register from './Register';
 import ChangePassword from './ChangePassword';
@@ -176,24 +176,29 @@ function IndicadoresCamas() {
     <div className="tablero-bg">
       <div style={{textAlign:'center', padding:'30px 0', color:'#fff'}}>
         <h2 style={{fontSize:'2rem', margin:0}}>PRODUCCIÓN INTERNACIÓN</h2>
+        <p>Seleccione un establecimiento para ver los datos o cargue archivos si es la primera vez.</p>
       </div>
       <div className="zonas-grid">
-        {ZONAS.map(zona => (
-          <div key={zona.nombre} className="zona-col">
-            <div className="zona-titulo">{zona.nombre}</div>
-            <div className="zona-establecimientos">
-              {zona.establecimientos.map(est => (
-                <button
-                  key={est}
-                  className="establecimiento-btn"
-                  onClick={() => navigate(`/indicadores-camas/${encodeURIComponent(est)}`)}
-                >
-                  {est}
-                </button>
-              ))}
+        {ZONAS && ZONAS.length > 0 ? (
+          ZONAS.map(zona => (
+            <div key={zona.nombre} className="zona-col">
+              <div className="zona-titulo">{zona.nombre}</div>
+              <div className="zona-establecimientos">
+                {zona.establecimientos.map(est => (
+                  <button
+                    key={est}
+                    className="establecimiento-btn"
+                    onClick={() => navigate(`/indicadores-camas/${encodeURIComponent(est)}`)}
+                  >
+                    {est}
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
-        ))}
+          ))
+        ) : (
+          <div style={{color:'#fff', textAlign:'center', marginTop:40}}>No hay zonas configuradas.</div>
+        )}
       </div>
     </div>
   );
@@ -229,7 +234,7 @@ function IndicadoresCamasEstablecimiento() {
 
   // Cargar archivos específicos del año seleccionado
   useEffect(() => {
-            fetchWithAuth(`http://localhost:5001/archivos/${encodeURIComponent(nombreEstablecimiento)}/${anio}`)
+            fetchWithAuth(`https://tablero-control-1.onrender.com/archivos/${encodeURIComponent(nombreEstablecimiento)}/${anio}`)
       .then(res => res.json())
       .then(data => {
         const archivosAdaptados = (data.archivos || []).map(a => typeof a === 'string' ? { archivo: a } : a);
@@ -247,7 +252,7 @@ function IndicadoresCamasEstablecimiento() {
   useEffect(() => {
     if (archivoSeleccionado) {
       // Cargar datos del archivo guardado
-              fetchWithAuth(`http://localhost:5001/leer/${encodeURIComponent(nombreEstablecimiento)}/${anio}/${archivoSeleccionado}`)
+              fetchWithAuth(`https://tablero-control-1.onrender.com/leer/${encodeURIComponent(nombreEstablecimiento)}/${anio}/${archivoSeleccionado}`)
         .then(res => res.json())
         .then(data => {
           if (data.success) {
@@ -392,7 +397,7 @@ function IndicadoresCamasEstablecimiento() {
   };
 
   const actualizarArchivos = (establecimiento, anio) => {
-            fetchWithAuth(`http://localhost:5001/archivos/${encodeURIComponent(establecimiento)}/${anio}`)
+            fetchWithAuth(`https://tablero-control-1.onrender.com/archivos/${encodeURIComponent(establecimiento)}/${anio}`)
       .then(res => res.json())
       .then(data => setArchivos(data.archivos || []));
   };
@@ -416,7 +421,7 @@ function IndicadoresCamasEstablecimiento() {
     console.log('FormData creado con archivo:', archivo.name);
     
     try {
-      const url = `http://localhost:5001/guardar/${encodeURIComponent(nombreEstablecimiento)}/${anio}`;
+      const url = `https://tablero-control-1.onrender.com/guardar/${encodeURIComponent(nombreEstablecimiento)}/${anio}`;
       console.log('Enviando a URL:', url);
       
       const response = await fetchWithAuth(url, {
@@ -666,24 +671,29 @@ function AtencionMedica() {
     <div className="tablero-bg">
       <div style={{textAlign:'center', padding:'30px 0', color:'#fff'}}>
         <h2 style={{fontSize:'2rem', margin:0}}>PRODUCCIÓN CONSULTA AMBULATORIA</h2>
+        <p>Seleccione un establecimiento para ver los datos o cargue archivos si es la primera vez.</p>
       </div>
       <div className="zonas-grid">
-        {ZONAS.map(zona => (
-          <div key={zona.nombre} className="zona-col">
-            <div className="zona-titulo">{zona.nombre}</div>
-            <div className="zona-establecimientos">
-              {zona.establecimientos.map(est => (
-                <button
-                  key={est}
-                  className="establecimiento-btn"
-                  onClick={() => navigate(`/atencion-medica/${encodeURIComponent(est)}`)}
-                >
-                  {est}
-                </button>
-              ))}
+        {ZONAS && ZONAS.length > 0 ? (
+          ZONAS.map(zona => (
+            <div key={zona.nombre} className="zona-col">
+              <div className="zona-titulo">{zona.nombre}</div>
+              <div className="zona-establecimientos">
+                {zona.establecimientos.map(est => (
+                  <button
+                    key={est}
+                    className="establecimiento-btn"
+                    onClick={() => navigate(`/atencion-medica/${encodeURIComponent(est)}`)}
+                  >
+                    {est}
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
-        ))}
+          ))
+        ) : (
+          <div style={{color:'#fff', textAlign:'center', marginTop:40}}>No hay zonas configuradas.</div>
+        )}
       </div>
     </div>
   );
@@ -761,7 +771,7 @@ function AtencionMedicaEstablecimiento() {
         for (const mes of mesesSeleccionados) {
           const formData = new FormData();
           formData.append('file', archivo);
-          const url = `http://localhost:5001/atencion-profesional/guardar/${encodeURIComponent(nombreEstablecimiento)}/${anio}/${encodeURIComponent(mes)}`;
+          const url = `https://tablero-control-1.onrender.com/atencion-profesional/guardar/${encodeURIComponent(nombreEstablecimiento)}/${anio}/${encodeURIComponent(mes)}`;
           const response = await fetchWithAuth(url, {
             method: 'POST',
             body: formData
@@ -780,7 +790,7 @@ function AtencionMedicaEstablecimiento() {
         for (const mes of mesesSeleccionados) {
           const formData = new FormData();
           formData.append('file', archivoGuardia);
-          const url = `http://localhost:5001/guardia/guardar/${encodeURIComponent(nombreEstablecimiento)}/${anio}/${encodeURIComponent(mes)}`;
+          const url = `https://tablero-control-1.onrender.com/guardia/guardar/${encodeURIComponent(nombreEstablecimiento)}/${anio}/${encodeURIComponent(mes)}`;
           const response = await fetchWithAuth(url, {
             method: 'POST',
             body: formData
@@ -850,7 +860,7 @@ function AtencionMedicaEstablecimiento() {
       // Procesar cada mes seleccionado
       for (const mes of meses) {
         // Extraer total de atención profesional para este mes
-        const urlProfesional = `http://localhost:5001/atencion-profesional/descargar/${encodeURIComponent(nombreEstablecimiento)}/${anio}/${encodeURIComponent(mes)}`;
+        const urlProfesional = `https://tablero-control-1.onrender.com/atencion-profesional/descargar/${encodeURIComponent(nombreEstablecimiento)}/${anio}/${encodeURIComponent(mes)}`;
         const responseProfesional = await fetchWithAuth(urlProfesional);
         if (responseProfesional.ok) {
           const blobProfesional = await responseProfesional.blob();
@@ -860,7 +870,7 @@ function AtencionMedicaEstablecimiento() {
         }
 
         // Extraer total de guardia para este mes
-        const urlGuardia = `http://localhost:5001/guardia/descargar/${encodeURIComponent(nombreEstablecimiento)}/${anio}/${encodeURIComponent(mes)}`;
+        const urlGuardia = `https://tablero-control-1.onrender.com/guardia/descargar/${encodeURIComponent(nombreEstablecimiento)}/${anio}/${encodeURIComponent(mes)}`;
         const responseGuardia = await fetchWithAuth(urlGuardia);
         if (responseGuardia.ok) {
           const blobGuardia = await responseGuardia.blob();
@@ -1272,24 +1282,29 @@ function RankingDiagnostico() {
     <div className="tablero-bg">
       <div style={{textAlign:'center', padding:'30px 0', color:'#fff'}}>
         <h2 style={{fontSize:'2rem', margin:0}}>RANKING DE DIAGNÓSTICO</h2>
+        <p>Seleccione un establecimiento para ver los datos o cargue archivos si es la primera vez.</p>
       </div>
       <div className="zonas-grid">
-        {ZONAS.map(zona => (
-          <div key={zona.nombre} className="zona-col">
-            <div className="zona-titulo">{zona.nombre}</div>
-            <div className="zona-establecimientos">
-              {zona.establecimientos.map(est => (
-                <button
-                  key={est}
-                  className="establecimiento-btn"
-                  onClick={() => navigate(`/ranking-diagnostico/${encodeURIComponent(est)}`)}
-                >
-                  {est}
-                </button>
-              ))}
+        {ZONAS && ZONAS.length > 0 ? (
+          ZONAS.map(zona => (
+            <div key={zona.nombre} className="zona-col">
+              <div className="zona-titulo">{zona.nombre}</div>
+              <div className="zona-establecimientos">
+                {zona.establecimientos.map(est => (
+                  <button
+                    key={est}
+                    className="establecimiento-btn"
+                    onClick={() => navigate(`/ranking-diagnostico/${encodeURIComponent(est)}`)}
+                  >
+                    {est}
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
-        ))}
+          ))
+        ) : (
+          <div style={{color:'#fff', textAlign:'center', marginTop:40}}>No hay zonas configuradas.</div>
+        )}
       </div>
     </div>
   );
@@ -1482,7 +1497,7 @@ function RankingDiagnosticoCategoria() {
 
     try {
       // Llamar al backend para analizar archivos por meses
-      const response = await fetchWithAuth(`http://localhost:5001/ranking/analizar/${encodeURIComponent(nombreEstablecimiento)}/${encodeURIComponent(categoriaSeleccionada)}/${anio}`, {
+      const response = await fetchWithAuth(`https://tablero-control-1.onrender.com/ranking/analizar/${encodeURIComponent(nombreEstablecimiento)}/${encodeURIComponent(categoriaSeleccionada)}/${anio}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -1548,7 +1563,7 @@ function RankingDiagnosticoCategoria() {
         try {
           // Usar el año detectado si ya tenemos uno, sino usar un año temporal
           const anioAUsar = añoDetectado || anio || new Date().getFullYear();
-          const url = `http://localhost:5001/ranking/guardar/${encodeURIComponent(nombreEstablecimiento)}/${encodeURIComponent(categoriaSeleccionada)}/${anioAUsar}`;
+          const url = `https://tablero-control-1.onrender.com/ranking/guardar/${encodeURIComponent(nombreEstablecimiento)}/${encodeURIComponent(categoriaSeleccionada)}/${anioAUsar}`;
           console.log('URL de guardado:', url);
           
           const response = await fetchWithAuth(url, {
@@ -1840,14 +1855,15 @@ function RankingDiagnosticoCategoria() {
 // Componente principal de la aplicación
 function App() {
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [showChangePassword, setShowChangePassword] = useState(false);
 
-  // Verificar token al cargar la aplicación
+  // Verificar token al cargar la aplicación (solo una vez)
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
       // Verificar si el token es válido
-      fetch('http://localhost:5001/api/auth/verify', {
+      fetch('https://tablero-control-1.onrender.com/api/auth/verify', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -1862,18 +1878,36 @@ function App() {
         } else {
           localStorage.removeItem('token');
         }
+        setLoading(false);
       })
       .catch(() => {
         localStorage.removeItem('token');
+        setLoading(false);
       });
+    } else {
+      setLoading(false);
     }
-  }, []);
+  }, []); // Solo se ejecuta una vez al montar el componente
 
   // Botón de logout arriba a la derecha
   const handleLogout = () => {
     localStorage.removeItem('token');
     setUser(null);
   };
+
+  // Mostrar loading solo al inicio de la aplicación
+  if (loading) {
+    return (
+      <div className="App">
+        <div className="tablero-bg">
+          <div style={{textAlign: 'center', padding: '100px 20px', color: '#fff'}}>
+            <h2>Cargando...</h2>
+            <p>Verificando autenticación...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="App">
@@ -1882,6 +1916,58 @@ function App() {
         <Route path="/" element={<Login />} />
         <Route path="/login" element={<Login />} />
         <Route path="/registrarse" element={<Register />} />
+        
+        {/* Rutas directas para las secciones principales */}
+        <Route path="/indicadores-camas" element={
+          user ? (
+            <div>
+              <div className="logout-bar">
+                <span className="user-name">{user?.nombre} {user?.apellido}</span>
+                <button className="config-btn" onClick={() => window.location.href = '/sistema-tablero'}>
+                  Volver al Sistema
+                </button>
+                <button className="logout-btn" onClick={handleLogout}>Cerrar sesión</button>
+              </div>
+              <IndicadoresCamas />
+            </div>
+          ) : (
+            <Login />
+          )
+        } />
+        
+        <Route path="/atencion-medica" element={
+          user ? (
+            <div>
+              <div className="logout-bar">
+                <span className="user-name">{user?.nombre} {user?.apellido}</span>
+                <button className="config-btn" onClick={() => window.location.href = '/sistema-tablero'}>
+                  Volver al Sistema
+                </button>
+                <button className="logout-btn" onClick={handleLogout}>Cerrar sesión</button>
+              </div>
+              <AtencionMedica />
+            </div>
+          ) : (
+            <Login />
+          )
+        } />
+        
+        <Route path="/ranking-diagnostico" element={
+          user ? (
+            <div>
+              <div className="logout-bar">
+                <span className="user-name">{user?.nombre} {user?.apellido}</span>
+                <button className="config-btn" onClick={() => window.location.href = '/sistema-tablero'}>
+                  Volver al Sistema
+                </button>
+                <button className="logout-btn" onClick={handleLogout}>Cerrar sesión</button>
+              </div>
+              <RankingDiagnostico />
+            </div>
+          ) : (
+            <Login />
+          )
+        } />
         
         {/* Rutas protegidas */}
         <Route path="/sistema-tablero" element={
@@ -1899,7 +1985,7 @@ function App() {
               
               <div className="tablero-bg">
                 <div className="logo-sdo-banner">
-                  <img src={logoSDO} alt="Logo SDO" />
+                  <img src="/static/media/logoo.c9263002735465189850.png" alt="Logo SDO" />
                   <h1 className="banner-title">SISTEMA DE TABLEROS DE CONTROL</h1>
                 </div>
 
@@ -1974,6 +2060,35 @@ function App() {
         } />
         
         <Route path="/change-password" element={<ChangePassword />} />
+        {/* Rutas directas para los detalles de cada sección */}
+        <Route path="/indicadores-camas/:nombre" element={
+          user ? (
+            <IndicadoresCamasEstablecimiento />
+          ) : (
+            <Login />
+          )
+        } />
+        <Route path="/atencion-medica/:nombre" element={
+          user ? (
+            <AtencionMedicaEstablecimiento />
+          ) : (
+            <Login />
+          )
+        } />
+        <Route path="/ranking-diagnostico/:nombre" element={
+          user ? (
+            <RankingDiagnosticoEstablecimiento />
+          ) : (
+            <Login />
+          )
+        } />
+        <Route path="/ranking-diagnostico/:nombre/:categoria" element={
+          user ? (
+            <RankingDiagnosticoCategoria />
+          ) : (
+            <Login />
+          )
+        } />
       </Routes>
     </div>
   );
