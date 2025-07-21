@@ -12,7 +12,13 @@ const transporter = nodemailer.createTransport({
 // Función para enviar email de confirmación
 const sendConfirmationEmail = async (email, confirmationToken, nombre) => {
   try {
+    console.log('📧 [emailService] Iniciando envío de email de confirmación');
+    console.log('📧 [emailService] Email destino:', email);
+    console.log('📧 [emailService] Token:', confirmationToken);
+    console.log('📧 [emailService] Nombre:', nombre);
+    
     const confirmationUrl = `https://tablero-control-1.onrender.com/confirm?token=${confirmationToken}`;
+    console.log('📧 [emailService] URL de confirmación:', confirmationUrl);
     
     const mailOptions = {
       from: 'ddpproyectos2025@gmail.com',
@@ -62,12 +68,16 @@ const sendConfirmationEmail = async (email, confirmationToken, nombre) => {
       `
     };
 
+    console.log('📧 [emailService] Intentando enviar email...');
     const result = await transporter.sendMail(mailOptions);
-    console.log('✅ Email de confirmación enviado a:', email);
+    console.log('✅ [emailService] Email de confirmación enviado exitosamente a:', email);
+    console.log('✅ [emailService] Message ID:', result.messageId);
     return { success: true, messageId: result.messageId };
     
   } catch (error) {
-    console.error('❌ Error enviando email de confirmación:', error);
+    console.error('❌ [emailService] Error enviando email de confirmación:', error);
+    console.error('❌ [emailService] Detalles del error:', error.message);
+    console.error('❌ [emailService] Stack trace:', error.stack);
     return { success: false, error: error.message };
   }
 };
