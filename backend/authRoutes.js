@@ -16,6 +16,47 @@ router.get('/test', (req, res) => {
   res.json({ message: 'Backend funcionando correctamente' });
 });
 
+// Ruta de debug para verificar estructura de tabla
+router.get('/debug-table', async (req, res) => {
+  try {
+    // Verificar columnas de la tabla users
+    const columnsResult = await pool.query(`
+      SELECT 
+        column_name, 
+        data_type, 
+        is_nullable
+      FROM information_schema.columns 
+      WHERE table_name = 'users' 
+      AND table_schema = 'public'
+      ORDER BY ordinal_position
+    `);
+    
+    // Verificar usuarios existentes
+    const usersResult = await pool.query(`
+      SELECT 
+        id, 
+        username, 
+        email, 
+        role,
+        nombre,
+        apellido,
+        funcion
+      FROM users 
+      LIMIT 3
+    `);
+    
+    res.json({
+      success: true,
+      columns: columnsResult.rows,
+      users: usersResult.rows
+    });
+    
+  } catch (error) {
+    console.error('Error en debug-table:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Login
 router.post('/login', async (req, res) => {
   try {
