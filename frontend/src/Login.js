@@ -34,6 +34,8 @@ function Login({ onLogin, onShowRegister }) {
   return (
     <div className="App">
       <div className="tablero-bg">
+        <img src={require('./logoo.png')} alt="" className="logo-login-centered" />
+        <h2 className="subtitle-org-login">SECRETARIA DE DESARROLADOR ORGANIZACIONAL</h2>
         <div className="container">
           <form className="login-form" onSubmit={handleSubmit}>
         <h2>Iniciar Sesión</h2>
