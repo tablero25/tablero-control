@@ -1908,7 +1908,7 @@ function App() {
     <div className="App">
       <img src={logoSDO} alt="" className="logo-sdo-fixed" />
       <div className="header-layout">
-        <h1 className="banner-title">SISTEMA DE TABLEROS DE CONTROL</h1>
+        
       </div>
       <div className="main-content">
         {/* Aquí van los tres cuadros/panel principal, centrados debajo del título */}
