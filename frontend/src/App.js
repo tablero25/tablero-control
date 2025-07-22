@@ -3,7 +3,7 @@ import { Routes, Route, useNavigate, useParams } from 'react-router-dom';
 import './App.css';
 import GaugeChart from 'react-gauge-chart';
 import * as XLSX from 'xlsx';
-// import logoSDO from './logoo.png'; // Comentado temporalmente
+import logoSDO from './logoo.png'; // Comentado temporalmente
 import Login from './Login';
 import Register from './Register';
 import ChangePassword from './ChangePassword';
@@ -1911,6 +1911,7 @@ function App() {
 
   return (
     <div className="App">
+      <img src={logoSDO} alt="Logo SDO" className="logo-sdo-fixed" />
       <Routes>
         {/* Rutas públicas */}
         <Route path="/" element={<Login />} />
