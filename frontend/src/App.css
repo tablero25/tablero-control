@@ -1115,7 +1115,7 @@ input[type="number"], .anio-input {
   letter-spacing: 1px;
   text-align: center;
   font-family: 'Montserrat', 'Roboto', 'Segoe UI', 'Arial', sans-serif;
-  margin: 0 auto 24px auto;
+  margin: 340px auto 24px auto;
   width: 100%;
   position: relative;
 }
@@ -1130,13 +1130,16 @@ input[type="number"], .anio-input {
   padding-top: 24px;
 }
 .logo-login-centered {
-  display: block;
-  margin: 32px auto 8px auto;
+  position: fixed;
+  top: 24px;
+  left: 24px;
   width: 700px;
   height: 300px;
   object-fit: contain;
   background: none;
   border: none;
+  margin: 0;
+  z-index: 2000;
 }
 .subtitle-org-login {
   color: #fff;
