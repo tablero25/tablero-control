@@ -21,12 +21,12 @@
   position: fixed;
   top: 0;
   left: 0;
-  height: 280px;
+  height: 380px;
   width: auto;
   max-width: none;
-  max-height: 280px;
-  min-width: 280px;
-  min-height: 280px;
+  max-height: 380px;
+  min-width: 380px;
+  min-height: 380px;
   object-fit: contain;
   margin: 0;
   z-index: 2000;
