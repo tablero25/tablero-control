@@ -9,6 +9,9 @@ const { Pool } = require('pg');
 // Importar rutas de autenticación
 const authRoutes = require('./authRoutes');
 
+// Importar rutas de establecimientos
+const establecimientosRoutes = require('./routes/establecimientos');
+
 // Configuración de la base de datos PostgreSQL
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
@@ -176,6 +179,9 @@ app.use('/manifest.json', express.static(path.join(__dirname, 'build', 'manifest
 
 // Rutas de autenticación
 app.use('/api/auth', authRoutes);
+
+// Rutas de establecimientos
+app.use('/', establecimientosRoutes);
 
 // Configuración temporal de multer - guardaremos en carpeta temporal primero
 const storage = multer.diskStorage({

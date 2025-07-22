@@ -401,4 +401,34 @@ router.put('/users/:userId/confirm', authenticateToken, requireRole(['ADMIN']), 
   }
 });
 
+// Actualizar perfil de usuario (usuario autenticado puede actualizar su propio perfil)
+router.put('/update-profile', authenticateToken, async (req, res) => {
+  try {
+    const { nombre, apellido, funcion, email } = req.body;
+    const userId = req.user.id;
+
+    // Verificar que el usuario existe
+    const userResult = await pool.query('SELECT id FROM users WHERE id = $1', [userId]);
+    if (userResult.rows.length === 0) {
+      return res.status(404).json({ error: 'Usuario no encontrado' });
+    }
+
+    // Actualizar perfil
+    const updateResult = await pool.query(
+      'UPDATE users SET nombre = $1, apellido = $2, funcion = $3, email = $4 WHERE id = $5 RETURNING id, username, email, role, dni, nombre, apellido, funcion',
+      [nombre, apellido, funcion, email, userId]
+    );
+
+    res.json({
+      success: true,
+      message: 'Perfil actualizado correctamente',
+      user: updateResult.rows[0]
+    });
+
+  } catch (error) {
+    console.error('Error actualizando perfil:', error);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
+});
+
 module.exports = router; 
