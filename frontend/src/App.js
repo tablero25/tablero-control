@@ -3,7 +3,6 @@ import { Routes, Route, useNavigate, useParams } from 'react-router-dom';
 import './App.css';
 import GaugeChart from 'react-gauge-chart';
 import * as XLSX from 'xlsx';
-import logoSDO from './logoo.png'; // Comentado temporalmente
 import Login from './Login';
 import Register from './Register';
 import ChangePassword from './ChangePassword';
@@ -41,11 +40,6 @@ const SafeGaugeChart = ({ percent, ...props }) => {
     </div>
   );
 };
-
-// Componente del logo de Salta
-// const SaltaLogo = () => (
-//   <img src={logoSDO} alt="Logo SDO" style={{height: '40px'}} />
-// );
 
 // Lista de meses del año
 const MESES = [
@@ -1912,7 +1906,6 @@ function App() {
   return (
     <div className="App">
       <div className="header-layout">
-        <img src={logoSDO} alt="Logo SDO" className="logo-sdo-fixed" />
         <h1 className="banner-title" style={{textAlign: 'center', marginTop: 0}}>SISTEMA DE TABLEROS DE CONTROL</h1>
       </div>
       <div className="main-content">
@@ -1991,7 +1984,6 @@ function App() {
                 
                 <div className="tablero-bg">
                   <div className="logo-sdo-banner">
-                    <img src="/static/media/logoo.c9263002735465189850.png" alt="Logo SDO" />
                     <h1 className="banner-title">SISTEMA DE TABLEROS DE CONTROL</h1>
                   </div>
 
