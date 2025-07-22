@@ -1906,7 +1906,6 @@ function App() {
   return (
     <div className="App">
       <div className="header-layout">
-        <h1 className="banner-title" style={{textAlign: 'center', marginTop: 0}}>SISTEMA DE TABLEROS DE CONTROL</h1>
       </div>
       <div className="main-content">
         {/* Aquí van los tres cuadros/panel principal, centrados debajo del título */}
@@ -1984,7 +1983,7 @@ function App() {
                 
                 <div className="tablero-bg">
                   <div className="logo-sdo-banner">
-                    <h1 className="banner-title">SISTEMA DE TABLEROS DE CONTROL</h1>
+                    <h1 className="banner-title">TABLERO DE CONTROL - INDICADORES DE GESTION</h1>
                   </div>
 
                   <div className="container">
