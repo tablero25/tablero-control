@@ -1083,9 +1083,8 @@ input[type="number"], .anio-input {
 .header-layout {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
   justify-content: flex-start;
-  position: relative;
   width: 100vw;
   min-width: 100%;
   background: #0073b7;
@@ -1093,20 +1092,19 @@ input[type="number"], .anio-input {
   padding-bottom: 0;
 }
 .logo-sdo-fixed {
-  position: relative;
-  top: 0;
-  left: 0;
-  height: 240px;
+  position: fixed;
+  top: 24px;
+  left: 24px;
+  height: 120px;
   z-index: 1000;
   background: none;
   object-fit: contain;
   border-radius: 0;
   padding: 0;
-  margin-left: 32px;
 }
 .banner-title {
   color: #fff;
-  font-size: 2.8rem;
+  font-size: 2rem;
   font-weight: bold;
   letter-spacing: 1px;
   text-align: center;

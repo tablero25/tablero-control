@@ -7,6 +7,7 @@ import Login from './Login';
 import Register from './Register';
 import ChangePassword from './ChangePassword';
 import Configuracion from './Configuracion';
+import logoSDO from './logoo.png';
 
 // Suprimir warnings de ResizeObserver en desarrollo
 if (process.env.NODE_ENV === 'development') {
@@ -1905,7 +1906,9 @@ function App() {
 
   return (
     <div className="App">
+      <img src={logoSDO} alt="" className="logo-sdo-fixed" />
       <div className="header-layout">
+        <h1 className="banner-title">SISTEMA DE TABLEROS DE CONTROL</h1>
       </div>
       <div className="main-content">
         {/* Aquí van los tres cuadros/panel principal, centrados debajo del título */}
