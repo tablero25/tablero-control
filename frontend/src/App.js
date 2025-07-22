@@ -1911,186 +1911,192 @@ function App() {
 
   return (
     <div className="App">
-      <img src={logoSDO} alt="Logo SDO" className="logo-sdo-fixed" />
-      <Routes>
-        {/* Rutas públicas */}
-        <Route path="/" element={<Login />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/registrarse" element={<Register />} />
-        
-        {/* Rutas directas para las secciones principales */}
-        <Route path="/indicadores-camas" element={
-          user ? (
-            <div>
-              <div className="logout-bar">
-                <span className="user-name">{user?.nombre} {user?.apellido}</span>
-                <button className="config-btn" onClick={() => window.location.href = '/sistema-tablero'}>
-                  Volver al Sistema
-                </button>
-                <button className="logout-btn" onClick={handleLogout}>Cerrar sesión</button>
-              </div>
-              <IndicadoresCamas />
-            </div>
-          ) : (
-            <Login />
-          )
-        } />
-        
-        <Route path="/atencion-medica" element={
-          user ? (
-            <div>
-              <div className="logout-bar">
-                <span className="user-name">{user?.nombre} {user?.apellido}</span>
-                <button className="config-btn" onClick={() => window.location.href = '/sistema-tablero'}>
-                  Volver al Sistema
-                </button>
-                <button className="logout-btn" onClick={handleLogout}>Cerrar sesión</button>
-              </div>
-              <AtencionMedica />
-            </div>
-          ) : (
-            <Login />
-          )
-        } />
-        
-        <Route path="/ranking-diagnostico" element={
-          user ? (
-            <div>
-              <div className="logout-bar">
-                <span className="user-name">{user?.nombre} {user?.apellido}</span>
-                <button className="config-btn" onClick={() => window.location.href = '/sistema-tablero'}>
-                  Volver al Sistema
-                </button>
-                <button className="logout-btn" onClick={handleLogout}>Cerrar sesión</button>
-              </div>
-              <RankingDiagnostico />
-            </div>
-          ) : (
-            <Login />
-          )
-        } />
-        
-        {/* Rutas protegidas */}
-        <Route path="/sistema-tablero" element={
-          user ? (
-            <div>
-              <div className="logout-bar">
-                <span className="user-name">{user?.nombre} {user?.apellido}</span>
-                {user?.role === 'ADMIN' && (
-                  <button className="config-btn" onClick={() => window.location.href = '/configuracion'}>
-                    Configuración
+      <div className="header-layout">
+        <img src={logoSDO} alt="Logo SDO" className="logo-sdo-fixed" />
+        <h1 className="banner-title" style={{textAlign: 'center', marginTop: 0}}>SISTEMA DE TABLEROS DE CONTROL</h1>
+      </div>
+      <div className="main-content">
+        {/* Aquí van los tres cuadros/panel principal, centrados debajo del título */}
+        <Routes>
+          {/* Rutas públicas */}
+          <Route path="/" element={<Login />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/registrarse" element={<Register />} />
+          
+          {/* Rutas directas para las secciones principales */}
+          <Route path="/indicadores-camas" element={
+            user ? (
+              <div>
+                <div className="logout-bar">
+                  <span className="user-name">{user?.nombre} {user?.apellido}</span>
+                  <button className="config-btn" onClick={() => window.location.href = '/sistema-tablero'}>
+                    Volver al Sistema
                   </button>
-                )}
-                <button className="logout-btn" onClick={handleLogout}>Cerrar sesión</button>
-              </div>
-              
-              <div className="tablero-bg">
-                <div className="logo-sdo-banner">
-                  <img src="/static/media/logoo.c9263002735465189850.png" alt="Logo SDO" />
-                  <h1 className="banner-title">SISTEMA DE TABLEROS DE CONTROL</h1>
+                  <button className="logout-btn" onClick={handleLogout}>Cerrar sesión</button>
                 </div>
+                <IndicadoresCamas />
+              </div>
+            ) : (
+              <Login />
+            )
+          } />
+          
+          <Route path="/atencion-medica" element={
+            user ? (
+              <div>
+                <div className="logout-bar">
+                  <span className="user-name">{user?.nombre} {user?.apellido}</span>
+                  <button className="config-btn" onClick={() => window.location.href = '/sistema-tablero'}>
+                    Volver al Sistema
+                  </button>
+                  <button className="logout-btn" onClick={handleLogout}>Cerrar sesión</button>
+                </div>
+                <AtencionMedica />
+              </div>
+            ) : (
+              <Login />
+            )
+          } />
+          
+          <Route path="/ranking-diagnostico" element={
+            user ? (
+              <div>
+                <div className="logout-bar">
+                  <span className="user-name">{user?.nombre} {user?.apellido}</span>
+                  <button className="config-btn" onClick={() => window.location.href = '/sistema-tablero'}>
+                    Volver al Sistema
+                  </button>
+                  <button className="logout-btn" onClick={handleLogout}>Cerrar sesión</button>
+                </div>
+                <RankingDiagnostico />
+              </div>
+            ) : (
+              <Login />
+            )
+          } />
+          
+          {/* Rutas protegidas */}
+          <Route path="/sistema-tablero" element={
+            user ? (
+              <div>
+                <div className="logout-bar">
+                  <span className="user-name">{user?.nombre} {user?.apellido}</span>
+                  {user?.role === 'ADMIN' && (
+                    <button className="config-btn" onClick={() => window.location.href = '/configuracion'}>
+                      Configuración
+                    </button>
+                  )}
+                  <button className="logout-btn" onClick={handleLogout}>Cerrar sesión</button>
+                </div>
+                
+                <div className="tablero-bg">
+                  <div className="logo-sdo-banner">
+                    <img src="/static/media/logoo.c9263002735465189850.png" alt="Logo SDO" />
+                    <h1 className="banner-title">SISTEMA DE TABLEROS DE CONTROL</h1>
+                  </div>
 
-                <div className="container">
-                  <Routes>
-                    <Route path="/" element={<Home />} />
-                    <Route path="/indicadores-camas" element={<IndicadoresCamas />} />
-                    <Route path="/indicadores-camas/:nombre" element={<IndicadoresCamasEstablecimiento />} />
-                    <Route path="/atencion-medica" element={<AtencionMedica />} />
-                    <Route path="/atencion-medica/:nombre" element={<AtencionMedicaEstablecimiento />} />
-                    <Route path="/ranking-diagnostico" element={<RankingDiagnostico />} />
-                    <Route path="/ranking-diagnostico/:nombre" element={<RankingDiagnosticoEstablecimiento />} />
-                    <Route path="/ranking-diagnostico/:nombre/:categoria" element={<RankingDiagnosticoCategoria />} />
-                  </Routes>
+                  <div className="container">
+                    <Routes>
+                      <Route path="/" element={<Home />} />
+                      <Route path="/indicadores-camas" element={<IndicadoresCamas />} />
+                      <Route path="/indicadores-camas/:nombre" element={<IndicadoresCamasEstablecimiento />} />
+                      <Route path="/atencion-medica" element={<AtencionMedica />} />
+                      <Route path="/atencion-medica/:nombre" element={<AtencionMedicaEstablecimiento />} />
+                      <Route path="/ranking-diagnostico" element={<RankingDiagnostico />} />
+                      <Route path="/ranking-diagnostico/:nombre" element={<RankingDiagnosticoEstablecimiento />} />
+                      <Route path="/ranking-diagnostico/:nombre/:categoria" element={<RankingDiagnosticoCategoria />} />
+                    </Routes>
+                  </div>
                 </div>
               </div>
-            </div>
-          ) : (
-            <Login />
-          )
-        } />
-        
-        <Route path="/configuracion" element={
-          user && user.role === 'ADMIN' ? (
-            <div>
-              <div className="logout-bar">
-                <span className="user-name">{user?.nombre} {user?.apellido}</span>
-                <button className="config-btn" onClick={() => window.location.href = '/sistema-tablero'}>
-                  Sistema de Tablero
-                </button>
-                <button className="logout-btn" onClick={handleLogout}>Cerrar sesión</button>
+            ) : (
+              <Login />
+            )
+          } />
+          
+          <Route path="/configuracion" element={
+            user && user.role === 'ADMIN' ? (
+              <div>
+                <div className="logout-bar">
+                  <span className="user-name">{user?.nombre} {user?.apellido}</span>
+                  <button className="config-btn" onClick={() => window.location.href = '/sistema-tablero'}>
+                    Sistema de Tablero
+                  </button>
+                  <button className="logout-btn" onClick={handleLogout}>Cerrar sesión</button>
+                </div>
+                <Configuracion onClose={() => window.location.href = '/sistema-tablero'} />
               </div>
-              <Configuracion onClose={() => window.location.href = '/sistema-tablero'} />
-            </div>
-          ) : (
-            <Login />
-          )
-        } />
-        
-        <Route path="/gestion-usuarios" element={
-          user && user.role === 'ADMIN' ? (
-            <div>
-              <div className="logout-bar">
-                <span className="user-name">{user?.nombre} {user?.apellido}</span>
-                <button className="config-btn" onClick={() => window.location.href = '/configuracion'}>
-                  Volver a Configuración
-                </button>
-                <button className="logout-btn" onClick={handleLogout}>Cerrar sesión</button>
+            ) : (
+              <Login />
+            )
+          } />
+          
+          <Route path="/gestion-usuarios" element={
+            user && user.role === 'ADMIN' ? (
+              <div>
+                <div className="logout-bar">
+                  <span className="user-name">{user?.nombre} {user?.apellido}</span>
+                  <button className="config-btn" onClick={() => window.location.href = '/configuracion'}>
+                    Volver a Configuración
+                  </button>
+                  <button className="logout-btn" onClick={handleLogout}>Cerrar sesión</button>
+                </div>
+                <Configuracion onClose={() => window.location.href = '/configuracion'} />
               </div>
-              <Configuracion onClose={() => window.location.href = '/configuracion'} />
-            </div>
-          ) : (
-            <Login />
-          )
-        } />
-        
-        <Route path="/perfiles" element={
-          user && user.role === 'ADMIN' ? (
-            <div>
-              <div className="logout-bar">
-                <span className="user-name">{user?.nombre} {user?.apellido}</span>
-                <button className="config-btn" onClick={() => window.location.href = '/configuracion'}>
-                  Volver a Configuración
-                </button>
-                <button className="logout-btn" onClick={handleLogout}>Cerrar sesión</button>
+            ) : (
+              <Login />
+            )
+          } />
+          
+          <Route path="/perfiles" element={
+            user && user.role === 'ADMIN' ? (
+              <div>
+                <div className="logout-bar">
+                  <span className="user-name">{user?.nombre} {user?.apellido}</span>
+                  <button className="config-btn" onClick={() => window.location.href = '/configuracion'}>
+                    Volver a Configuración
+                  </button>
+                  <button className="logout-btn" onClick={handleLogout}>Cerrar sesión</button>
+                </div>
+                <Configuracion onClose={() => window.location.href = '/configuracion'} />
               </div>
-              <Configuracion onClose={() => window.location.href = '/configuracion'} />
-            </div>
-          ) : (
-            <Login />
-          )
-        } />
-        
-        <Route path="/change-password" element={<ChangePassword />} />
-        {/* Rutas directas para los detalles de cada sección */}
-        <Route path="/indicadores-camas/:nombre" element={
-          user ? (
-            <IndicadoresCamasEstablecimiento />
-          ) : (
-            <Login />
-          )
-        } />
-        <Route path="/atencion-medica/:nombre" element={
-          user ? (
-            <AtencionMedicaEstablecimiento />
-          ) : (
-            <Login />
-          )
-        } />
-        <Route path="/ranking-diagnostico/:nombre" element={
-          user ? (
-            <RankingDiagnosticoEstablecimiento />
-          ) : (
-            <Login />
-          )
-        } />
-        <Route path="/ranking-diagnostico/:nombre/:categoria" element={
-          user ? (
-            <RankingDiagnosticoCategoria />
-          ) : (
-            <Login />
-          )
-        } />
-      </Routes>
+            ) : (
+              <Login />
+            )
+          } />
+          
+          <Route path="/change-password" element={<ChangePassword />} />
+          {/* Rutas directas para los detalles de cada sección */}
+          <Route path="/indicadores-camas/:nombre" element={
+            user ? (
+              <IndicadoresCamasEstablecimiento />
+            ) : (
+              <Login />
+            )
+          } />
+          <Route path="/atencion-medica/:nombre" element={
+            user ? (
+              <AtencionMedicaEstablecimiento />
+            ) : (
+              <Login />
+            )
+          } />
+          <Route path="/ranking-diagnostico/:nombre" element={
+            user ? (
+              <RankingDiagnosticoEstablecimiento />
+            ) : (
+              <Login />
+            )
+          } />
+          <Route path="/ranking-diagnostico/:nombre/:categoria" element={
+            user ? (
+              <RankingDiagnosticoCategoria />
+            ) : (
+              <Login />
+            )
+          } />
+        </Routes>
+      </div>
     </div>
   );
 }

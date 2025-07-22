@@ -1080,22 +1080,48 @@ input[type="number"], .anio-input {
   }
 }
 
+.header-layout {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  position: relative;
+  width: 100vw;
+  min-width: 100%;
+  background: #0073b7;
+  padding-top: 24px;
+  padding-bottom: 0;
+}
 .logo-sdo-fixed {
-  position: fixed;
-  top: 24px;
-  left: 24px;
-  height: 120px;
+  position: relative;
+  top: 0;
+  left: 0;
+  height: 180px;
   z-index: 1000;
   background: none;
   object-fit: contain;
   border-radius: 0;
   padding: 0;
+  margin-left: 32px;
 }
-@media (max-width: 600px) {
-  .logo-sdo-fixed {
-    height: 70px;
-    top: 10px;
-    left: 10px;
-    padding: 0;
-  }
+.banner-title {
+  color: #fff;
+  font-size: 2.8rem;
+  font-weight: bold;
+  letter-spacing: 1px;
+  text-align: center;
+  font-family: 'Montserrat', 'Roboto', 'Segoe UI', 'Arial', sans-serif;
+  margin: 0 auto 24px auto;
+  width: 100%;
+  position: relative;
+}
+.main-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100vw;
+  min-height: 60vh;
+  background: #0073b7;
+  padding-top: 24px;
 }
