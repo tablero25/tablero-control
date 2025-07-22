@@ -1101,7 +1101,7 @@ input[type="number"], .anio-input {
   max-width: 300px;
   min-height: 60px;
   max-height: 80px;
-  z-index: 1000;
+  z-index: 2000;
   background: #0073b7;
   object-fit: contain;
   border-radius: 0;
