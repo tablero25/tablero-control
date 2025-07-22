@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import logoSDO from './logoo.png';
 
 function ChangePassword({ onCancel, onSuccess }) {
   const navigate = useNavigate();
@@ -66,7 +65,6 @@ function ChangePassword({ onCancel, onSuccess }) {
     <div className="App">
       <div className="tablero-bg">
         <div className="logo-sdo-banner">
-          <img src={logoSDO} alt="Logo SDO" />
           <h1 className="banner-title">CAMBIO DE CONTRASEÑA</h1>
         </div>
         <div className="container">

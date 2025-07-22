@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import logoSDO from './logoo.png';
 
 function UpdateDatabase() {
   const [status, setStatus] = useState('Iniciando actualización...');

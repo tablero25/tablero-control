@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import logoSDO from './logoo.png';
 
 function RolesPage() {
   const [users, setUsers] = useState([]);
@@ -79,7 +78,7 @@ function RolesPage() {
       <div className="App">
         <div className="tablero-bg">
           <div className="logo-sdo-banner">
-            <img src={logoSDO} alt="Logo SDO" />
+            <img src="https://tablero-control-1.onrender.com/logoo.png" alt="Logo SDO" />
             <h1 className="banner-title">TABLERO S/D/O</h1>
           </div>
           <div className="container">
@@ -96,7 +95,7 @@ function RolesPage() {
     <div className="App">
       <div className="tablero-bg">
         <div className="logo-sdo-banner">
-          <img src={logoSDO} alt="Logo SDO" />
+          <img src="https://tablero-control-1.onrender.com/logoo.png" alt="Logo SDO" />
           <h1 className="banner-title">TABLERO S/D/O</h1>
         </div>
         <div className="container">

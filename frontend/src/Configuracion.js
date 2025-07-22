@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import logoSDO from './logoo.png';
 
 // Utilidad para fetch con token
 function fetchWithAuth(url, options = {}) {
@@ -169,7 +168,7 @@ function Configuracion({ onClose }) {
       <div className="App">
         <div className="tablero-bg">
           <div className="logo-sdo-banner">
-            <img src={logoSDO} alt="Logo SDO" />
+            <img src="./logoo.png" alt="Logo SDO" />
             <h1 className="banner-title">CONFIGURACIÓN DEL SISTEMA</h1>
           </div>
           <div className="container">
@@ -438,7 +437,7 @@ function Configuracion({ onClose }) {
     <div className="App">
       <div className="tablero-bg">
         <div className="logo-sdo-banner">
-          <img src={logoSDO} alt="Logo SDO" />
+          <img src="./logoo.png" alt="Logo SDO" />
           <h1 className="banner-title">CONFIGURACIÓN DEL SISTEMA</h1>
         </div>
         <div className="container">

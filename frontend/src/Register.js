@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import logoSDO from './logoo.png';
 
 function Register({ onRegister }) {
   const [formData, setFormData] = useState({
@@ -70,7 +69,6 @@ function Register({ onRegister }) {
     <div className="App">
       <div className="tablero-bg">
         <div className="logo-sdo-banner">
-          <img src={logoSDO} alt="Logo SDO" />
           <h1 className="banner-title">TABLERO S/D/O</h1>
         </div>
         <div className="container">
