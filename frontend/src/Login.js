@@ -34,10 +34,6 @@ function Login({ onLogin, onShowRegister }) {
   return (
     <div className="App">
       <div className="tablero-bg">
-        <div className="logo-sdo-banner">
-          <img src="/static/media/logoo.bd0ba9d2346778d4f725.png" alt="Logo SDO" />
-          <h1 className="banner-title">TABLERO S/D/O</h1>
-        </div>
         <div className="container">
           <form className="login-form" onSubmit={handleSubmit}>
         <h2>Iniciar Sesión</h2>

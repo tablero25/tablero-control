@@ -2,39 +2,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap');
 
 /* LOGO GRANDE FIJO ARRIBA IZQUIERDA */
-.logo-sdo-banner {
-  width: 100vw;
-  min-width: 100%;
-  background: #0073b7;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: flex-start;
-  height: 380px;
-  box-sizing: border-box;
-  z-index: 1000;
-  padding: 0;
-  position: relative;
-}
-
-.logo-sdo-banner img {
-  position: fixed;
-  top: 0;
-  left: 0;
-  height: 380px;
-  width: auto;
-  max-width: none;
-  max-height: 380px;
-  min-width: 380px;
-  min-height: 380px;
-  object-fit: contain;
-  margin: 0;
-  z-index: 2000;
-  /* Eliminar fondo, bordes y sombra */
-  background: none;
-  border-radius: 0;
-  box-shadow: none;
-}
 
 @media (max-width: 600px) {
   .logo-sdo-banner img {
@@ -180,17 +147,6 @@ input, select, textarea {
   text-align: center;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
 .App-header {
   background-color: #282c34;
   min-height: 100vh;
@@ -224,20 +180,6 @@ input, select, textarea {
   position: relative;
 }
 
-.header-logo-top {
-  align-self: flex-start;
-  margin-bottom: 40px;
-}
-
-.header-logo-top img {
-  height: 200px;
-  min-width: 200px;
-  max-width: 400px;
-  object-fit: contain;
-  image-rendering: -webkit-optimize-contrast;
-  image-rendering: crisp-edges;
-}
-
 .header-title-center {
   color: #fff;
   font-size: 3rem;
@@ -246,32 +188,6 @@ input, select, textarea {
   text-align: center;
   width: 100%;
   margin-top: 40px;
-}
-
-.logo-sdo {
-  height: 110px;
-  min-width: 110px;
-}
-
-.logo-sdo-fixed {
-  position: fixed;
-  top: 24px;
-  left: 24px;
-  height: 160px;
-  z-index: 1000;
-  background: #1976c5;
-  object-fit: contain;
-  border-radius: 12px;
-  padding: 8px;
-}
-
-@media (max-width: 600px) {
-  .logo-sdo-fixed {
-    height: 90px;
-    top: 10px;
-    left: 10px;
-    padding: 4px;
-  }
 }
 
 .container {
@@ -541,10 +457,6 @@ input, select, textarea {
   }
   .header h1 {
     font-size: 2rem;
-  }
-  .logo-sdo {
-    height: 70px;
-    min-width: 70px;
   }
   .container {
     gap: 18px;
