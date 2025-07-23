@@ -7,7 +7,8 @@ function Register({ onRegister }) {
     nombre: '',
     apellido: '',
     funcion: '',
-    username: ''
+    username: '',
+    email: ''
   });
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -34,7 +35,7 @@ function Register({ onRegister }) {
     setSuccess('');
 
     try {
-              const res = await fetch('https://tablero-control-1.onrender.com/api/auth/register', {
+      const res = await fetch('https://tablero-control-1.onrender.com/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -42,20 +43,22 @@ function Register({ onRegister }) {
           nombre: formData.nombre,
           apellido: formData.apellido,
           funcion: formData.funcion,
-          username: formData.username
+          username: formData.username,
+          email: formData.email
         }),
       });
       
       const data = await res.json();
       
       if (data.success) {
-        setSuccess('Usuario registrado exitosamente. Puede iniciar sesión.');
+        setSuccess('Usuario registrado exitosamente. Revisa tu email para confirmar tu cuenta.');
         setFormData({
           dni: '',
           nombre: '',
           apellido: '',
           funcion: '',
-          username: ''
+          username: '',
+          email: ''
         });
         if (onRegister) onRegister();
       } else {
@@ -75,66 +78,76 @@ function Register({ onRegister }) {
         </div>
         <div className="container">
           <form className="login-form register-form" onSubmit={handleSubmit}>
-        <h2>Registro de Usuario</h2>
-        
-        <input
-          type="text"
-          name="dni"
-          placeholder="DNI"
-          value={formData.dni}
-          onChange={handleChange}
-          required
-        />
-        
-        <input
-          type="text"
-          name="nombre"
-          placeholder="Nombre"
-          value={formData.nombre}
-          onChange={handleChange}
-          required
-        />
-        
-        <input
-          type="text"
-          name="apellido"
-          placeholder="Apellido"
-          value={formData.apellido}
-          onChange={handleChange}
-          required
-        />
-        
-        <input
-          type="text"
-          name="funcion"
-          placeholder="Función"
-          value={formData.funcion}
-          onChange={handleChange}
-          required
-        />
-        
-        <input
-          type="text"
-          name="username"
-          placeholder="Usuario (DNI)"
-          value={formData.username}
-          readOnly
-          required
-        />
-        
-        <div style={{textAlign: 'center', color: '#666', fontSize: '0.9rem', marginTop: '10px'}}>
-          <p>Su usuario y contraseña será su DNI</p>
-        </div>
-        
-        <button type="submit">Registrarse</button>
-        
-        {error && <div className="error-msg">{error}</div>}
-        {success && <div className="success-msg">{success}</div>}
-        
-        <div className="login-link">
-          ¿Ya tiene cuenta? <button type="button" onClick={() => window.location.href = '/login'}>Iniciar Sesión</button>
-        </div>
-      </form>
+            <h2>Registro de Usuario</h2>
+            
+            <input
+              type="text"
+              name="dni"
+              placeholder="DNI"
+              value={formData.dni}
+              onChange={handleChange}
+              required
+            />
+            
+            <input
+              type="text"
+              name="nombre"
+              placeholder="Nombre"
+              value={formData.nombre}
+              onChange={handleChange}
+              required
+            />
+            
+            <input
+              type="text"
+              name="apellido"
+              placeholder="Apellido"
+              value={formData.apellido}
+              onChange={handleChange}
+              required
+            />
+            
+            <input
+              type="text"
+              name="funcion"
+              placeholder="Función"
+              value={formData.funcion}
+              onChange={handleChange}
+              required
+            />
+            
+            <input
+              type="email"
+              name="email"
+              placeholder="Email"
+              value={formData.email}
+              onChange={handleChange}
+              required
+            />
+            
+            <input
+              type="text"
+              name="username"
+              placeholder="Usuario (DNI)"
+              value={formData.username}
+              readOnly
+              required
+            />
+            
+            <div style={{textAlign: 'center', color: '#666', fontSize: '0.9rem', marginTop: '10px'}}>
+              <p>Su usuario y contraseña será su DNI</p>
+              <p>Recibirás un email de confirmación</p>
+            </div>
+            
+            <button type="submit">Registrarse</button>
+            
+            {error && <div className="error-msg">{error}</div>}
+            {success && <div className="success-msg">{success}</div>}
+            
+            <div className="login-link">
+              ¿Ya tiene cuenta? <button type="button" onClick={() => window.location.href = '/login'}>Iniciar Sesión</button>
+            </div>
+          </form>
         </div>
       </div>
     </div>

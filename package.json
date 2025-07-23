@@ -15,7 +15,14 @@
     "deploy:render": "npm run build && git add . && git commit -m 'Build for deployment' && git push origin main",
     "test": "echo 'No tests specified'"
   },
-  "keywords": ["tablero", "control", "excel", "fullstack", "react", "node"],
+  "keywords": [
+    "tablero",
+    "control",
+    "excel",
+    "fullstack",
+    "react",
+    "node"
+  ],
   "author": "Sistema de Tableros de Control",
   "license": "MIT",
   "devDependencies": {
@@ -24,5 +31,8 @@
   "engines": {
     "node": ">=18.0.0",
     "npm": ">=8.0.0"
+  },
+  "dependencies": {
+    "nodemailer": "^7.0.5"
   }
-} 
+}

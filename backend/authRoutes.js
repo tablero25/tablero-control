@@ -8,6 +8,7 @@ const {
   requireRole,
   getUserEstablecimientos 
 } = require('./auth');
+const { generateConfirmationToken, sendConfirmationEmail, verifyConfirmationToken } = require('./emailService');
 
 const router = express.Router();
 
@@ -88,17 +89,20 @@ router.get('/verify', authenticateToken, async (req, res) => {
   }
 });
 
-// Registro público de usuarios
+// Registro público de usuarios con confirmación por email
 router.post('/register', async (req, res) => {
   try {
-    const { dni, nombre, apellido, funcion, username } = req.body;
+    const { dni, nombre, apellido, funcion, username, email } = req.body;
     
-    if (!dni || !nombre || !apellido || !funcion || !username) {
-      return res.status(400).json({ error: 'Todos los campos son requeridos' });
+    if (!dni || !nombre || !apellido || !funcion || !username || !email) {
+      return res.status(400).json({ error: 'Todos los campos son requeridos, incluyendo email' });
     }
 
-    // Generar email automático basado en el DNI
-    const email = `${dni}@sdo.gob.ar`;
+    // Validar formato de email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ error: 'Formato de email inválido' });
+    }
 
     // Verificar si el DNI, username o email ya existe
     const existingUser = await pool.query(
@@ -107,26 +111,96 @@ router.post('/register', async (req, res) => {
     );
 
     if (existingUser.rows.length > 0) {
-      return res.status(400).json({ error: 'DNI o usuario ya existe' });
+      return res.status(400).json({ error: 'DNI, usuario o email ya existe' });
     }
+
+    // Generar token de confirmación
+    const confirmationToken = generateConfirmationToken();
+    const confirmationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 horas
 
     // Usar DNI como contraseña
     const hashedPassword = await hashPassword(dni);
 
-    // Crear usuario con rol ESTABLECIMIENTO por defecto
+    // Crear usuario con rol ESTABLECIMIENTO por defecto y pendiente de confirmación
     const newUser = await pool.query(
-      'INSERT INTO users (dni, nombre, apellido, funcion, username, password_hash, role, email) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id, username, dni, nombre, apellido, funcion, role',
-      [dni, nombre, apellido, funcion, username, hashedPassword, 'ESTABLECIMIENTO', email]
+      `INSERT INTO users (dni, nombre, apellido, funcion, username, password_hash, role, email, confirmation_token, confirmation_expires, is_active) 
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) 
+       RETURNING id, username, dni, nombre, apellido, funcion, role, email`,
+      [dni, nombre, apellido, funcion, username, hashedPassword, 'ESTABLECIMIENTO', email, confirmationToken, confirmationExpires, false]
     );
 
-    res.json({
-      success: true,
-      user: newUser.rows[0]
-    });
+    // Enviar email de confirmación
+    const emailSent = await sendConfirmationEmail(email, confirmationToken, nombre);
+
+    if (emailSent) {
+      res.json({
+        success: true,
+        message: 'Usuario registrado exitosamente. Revisa tu email para confirmar tu cuenta.',
+        user: {
+          id: newUser.rows[0].id,
+          username: newUser.rows[0].username,
+          email: newUser.rows[0].email,
+          nombre: newUser.rows[0].nombre,
+          apellido: newUser.rows[0].apellido
+        }
+      });
+    } else {
+      // Si falla el email, eliminar el usuario creado
+      await pool.query('DELETE FROM users WHERE id = $1', [newUser.rows[0].id]);
+      res.status(500).json({ error: 'Error enviando email de confirmación. Intenta de nuevo.' });
+    }
 
   } catch (error) {
     console.error('Error registrando usuario:', error);
     res.status(500).json({ error: 'Error interno del servidor' });
+  }
+});
+
+// Confirmar cuenta con token
+router.get('/confirmar/:token', async (req, res) => {
+  try {
+    const { token } = req.params;
+    
+    console.log('🔍 [CONFIRMAR] Verificando token:', token);
+    
+    // Verificar token
+    const verification = await verifyConfirmationToken(token, pool);
+    
+    if (!verification.valid) {
+      console.log('❌ [CONFIRMAR] Token inválido:', verification.message);
+      return res.status(400).json({ 
+        success: false, 
+        error: verification.message 
+      });
+    }
+    
+    const user = verification.user;
+    console.log('✅ [CONFIRMAR] Token válido para usuario:', user.email);
+    
+    // Activar usuario y limpiar token
+    await pool.query(
+      'UPDATE users SET is_active = true, confirmation_token = NULL, confirmation_expires = NULL WHERE id = $1',
+      [user.id]
+    );
+    
+    console.log('✅ [CONFIRMAR] Usuario activado:', user.email);
+    
+    res.json({
+      success: true,
+      message: 'Cuenta confirmada exitosamente. Ya puedes iniciar sesión.',
+      user: {
+        id: user.id,
+        email: user.email,
+        nombre: user.nombre
+      }
+    });
+    
+  } catch (error) {
+    console.error('❌ [CONFIRMAR] Error confirmando cuenta:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: 'Error interno del servidor' 
+    });
   }
 });
 
