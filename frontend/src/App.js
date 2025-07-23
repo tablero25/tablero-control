@@ -156,13 +156,13 @@ function Home() {
   return (
     <div className="tablero-bg">
       <div className="container">
-        <div className="box" onClick={() => navigate('/indicadores-camas')} style={{cursor:'pointer'}}>
+        <div className="box" onClick={() => navigate('indicadores-camas')} style={{cursor:'pointer'}}>
           <h2>PRODUCCIÓN INTERNACIÓN</h2>
         </div>
-        <div className="box" onClick={() => navigate('/atencion-medica')} style={{cursor:'pointer'}}>
+        <div className="box" onClick={() => navigate('atencion-medica')} style={{cursor:'pointer'}}>
           <h2>PRODUCCIÓN CONSULTA AMBULATORIA</h2>
         </div>
-        <div className="box" onClick={() => navigate('/ranking-diagnostico')} style={{cursor:'pointer'}}>
+        <div className="box" onClick={() => navigate('ranking-diagnostico')} style={{cursor:'pointer'}}>
           <h2>RANKING DE DIAGNÓSTICO</h2>
         </div>
       </div>
@@ -2262,7 +2262,12 @@ function App() {
                     <Route path="/" element={<Home />} />
                     <Route path="/indicadores-camas" element={<IndicadoresCamas user={user} />} />
                     <Route path="/indicadores-camas/:nombre" element={<IndicadoresCamasEstablecimiento />} />
-                    <Route path="/atencion-medica" element={<AtencionMedica user={user} />} />
+                    <Route path="/atencion-medica" element={
+                      (() => {
+                        alert('Ruta anidada atencion-medica ejecutándose - User: ' + JSON.stringify(user));
+                        return <AtencionMedica user={user} />;
+                      })()
+                    } />
                     <Route path="/atencion-medica/:nombre" element={<AtencionMedicaEstablecimiento />} />
                     <Route path="/ranking-diagnostico" element={<RankingDiagnostico user={user} />} />
                     <Route path="/ranking-diagnostico/:nombre" element={<RankingDiagnosticoEstablecimiento />} />
