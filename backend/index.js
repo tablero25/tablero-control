@@ -1731,3 +1731,20 @@ app.listen(5001, () => {
   console.log('Backend Excel server running on port 5001');
   console.log('Frontend available at: https://tablero-control-1.onrender.com');
 }); 
+
+// Middleware para validar acceso a establecimiento
+const validarAccesoEstablecimiento = async (req, res, next) => {
+  try {
+    const user = req.user;
+    const establecimiento = decodeURIComponent(req.params.establecimiento);
+    if (user.role === 'ADMIN' || user.role === 'DIRECTOR') return next();
+    const asignados = await getUserEstablecimientos(user.id);
+    const nombresAsignados = asignados.map(e => e.nombre);
+    if (!nombresAsignados.includes(establecimiento)) {
+      return res.status(403).json({ success: false, error: 'Acceso denegado a este establecimiento.' });
+    }
+    next();
+  } catch (err) {
+    res.status(500).json({ success: false, error: 'Error validando acceso a establecimiento.' });
+  }
+}; 
