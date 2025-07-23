@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import logoSDO from './logoo.png';
 
+// Componente de registro con confirmación por email
 function Register({ onRegister }) {
   const [formData, setFormData] = useState({
     dni: '',
