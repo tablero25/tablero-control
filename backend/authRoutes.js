@@ -549,7 +549,7 @@ router.post('/confirm-email', async (req, res) => {
 router.put('/users/:userId/update-role', authenticateToken, requireRole(['ADMIN']), async (req, res) => {
   try {
     const { userId } = req.params;
-    const { role } = req.body;
+    const { role, establecimientos } = req.body;
 
     // Validar rol
     const validRoles = ['ADMIN', 'DIRECTOR', 'JEFE_ZONA', 'GERENTE', 'ESTABLECIMIENTO'];
@@ -559,7 +559,24 @@ router.put('/users/:userId/update-role', authenticateToken, requireRole(['ADMIN'
 
     // Actualizar rol en la base de datos
     await pool.query('UPDATE users SET role = $1 WHERE id = $2', [role, userId]);
-    res.json({ success: true, message: 'Rol actualizado correctamente' });
+
+    // Si el rol es JEFE_ZONA o GERENTE, actualizar asignaciones de establecimientos
+    if (role === 'JEFE_ZONA' || role === 'GERENTE') {
+      // Eliminar asignaciones previas
+      await pool.query('DELETE FROM user_establecimientos WHERE user_id = $1', [userId]);
+      if (Array.isArray(establecimientos) && establecimientos.length > 0) {
+        for (const estId of establecimientos) {
+          await pool.query(
+            'INSERT INTO user_establecimientos (user_id, establecimiento_id, is_primary) VALUES ($1, $2, $3)',
+            [userId, estId, role === 'GERENTE']
+          );
+        }
+      } else {
+        return res.status(400).json({ error: 'Debes seleccionar al menos un establecimiento.' });
+      }
+    }
+
+    res.json({ success: true, message: 'Rol y establecimientos actualizados correctamente' });
   } catch (error) {
     res.status(500).json({ error: 'Error interno del servidor' });
   }
