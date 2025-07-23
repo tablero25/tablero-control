@@ -488,16 +488,28 @@ router.post('/confirm-email', async (req, res) => {
     }
 
     // Verificar el token de confirmación
-    const decoded = await verifyConfirmationToken(token, pool);
-    if (!decoded.valid) {
+    const decoded = verifyConfirmationToken(token);
+    if (!decoded) {
       return res.status(400).json({ 
         success: false, 
-        message: decoded.message || 'Token de confirmación inválido o expirado' 
+        message: 'Token de confirmación inválido o expirado' 
       });
     }
 
     // Buscar el usuario por el token
-    const user = decoded.user;
+    const userResult = await pool.query(
+      'SELECT id, username, email, is_active, confirmation_token FROM users WHERE confirmation_token = $1',
+      [token]
+    );
+
+    if (userResult.rows.length === 0) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Token de confirmación no encontrado' 
+      });
+    }
+
+    const user = userResult.rows[0];
 
     // Verificar que el usuario no esté ya activo
     if (user.is_active) {
@@ -530,6 +542,26 @@ router.post('/confirm-email', async (req, res) => {
       success: false, 
       message: 'Error interno del servidor' 
     });
+  }
+});
+
+// Actualizar rol de usuario (solo ADMIN)
+router.put('/users/:userId/update-role', authenticateToken, requireRole(['ADMIN']), async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { role } = req.body;
+
+    // Validar rol
+    const validRoles = ['ADMIN', 'DIRECTOR', 'JEFE_ZONA', 'GERENTE', 'ESTABLECIMIENTO'];
+    if (!validRoles.includes(role)) {
+      return res.status(400).json({ error: 'Rol inválido' });
+    }
+
+    // Actualizar rol en la base de datos
+    await pool.query('UPDATE users SET role = $1 WHERE id = $2', [role, userId]);
+    res.json({ success: true, message: 'Rol actualizado correctamente' });
+  } catch (error) {
+    res.status(500).json({ error: 'Error interno del servidor' });
   }
 });
 
