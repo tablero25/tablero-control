@@ -707,6 +707,8 @@ function AtencionMedica({ user }) {
   const navigate = useNavigate();
   let establecimientosPorZona = [];
   
+  // Log muy visible para debug
+  alert('AtencionMedica ejecutándose - User: ' + JSON.stringify(user));
   console.log('AtencionMedica - User:', user);
   console.log('AtencionMedica - User role:', user?.role);
   console.log('AtencionMedica - User establecimientos:', user?.establecimientos);
