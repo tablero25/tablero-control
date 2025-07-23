@@ -488,28 +488,16 @@ router.post('/confirm-email', async (req, res) => {
     }
 
     // Verificar el token de confirmación
-    const decoded = verifyConfirmationToken(token);
-    if (!decoded) {
+    const decoded = await verifyConfirmationToken(token, pool);
+    if (!decoded.valid) {
       return res.status(400).json({ 
         success: false, 
-        message: 'Token de confirmación inválido o expirado' 
+        message: decoded.message || 'Token de confirmación inválido o expirado' 
       });
     }
 
     // Buscar el usuario por el token
-    const userResult = await pool.query(
-      'SELECT id, username, email, is_active, confirmation_token FROM users WHERE confirmation_token = $1',
-      [token]
-    );
-
-    if (userResult.rows.length === 0) {
-      return res.status(400).json({ 
-        success: false, 
-        message: 'Token de confirmación no encontrado' 
-      });
-    }
-
-    const user = userResult.rows[0];
+    const user = decoded.user;
 
     // Verificar que el usuario no esté ya activo
     if (user.is_active) {
