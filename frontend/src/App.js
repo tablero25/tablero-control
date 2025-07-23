@@ -175,28 +175,36 @@ function IndicadoresCamas({ user }) {
   const navigate = useNavigate();
   let establecimientosPorZona = [];
   
+  console.log('=== DEBUG INDICADORES CAMAS ===');
   console.log('IndicadoresCamas - User:', user);
   console.log('IndicadoresCamas - User role:', user?.role);
   console.log('IndicadoresCamas - User establecimientos:', user?.establecimientos);
   
   if (user && (user.role === 'JEFE_ZONA' || user.role === 'GERENTE')) {
+    console.log('IndicadoresCamas - Usuario es JEFE_ZONA o GERENTE, aplicando filtro');
     const asignados = (user.establecimientos || []);
     const asignadosNombres = asignados.map(e =>
       (typeof e === 'string' ? e.toLowerCase().trim() : e.nombre.toLowerCase().trim())
     );
     
     console.log('IndicadoresCamas - Asignados nombres:', asignadosNombres);
+    console.log('IndicadoresCamas - ZONAS disponibles:', ZONAS);
     
     ZONAS.forEach(zona => {
-      const ests = zona.establecimientos.filter(est =>
-        asignadosNombres.includes(est.toLowerCase().trim())
-      );
+      console.log(`IndicadoresCamas - Procesando zona: ${zona.nombre}`);
+      const ests = zona.establecimientos.filter(est => {
+        const estLower = est.toLowerCase().trim();
+        const isIncluded = asignadosNombres.includes(estLower);
+        console.log(`IndicadoresCamas - Establecimiento "${est}" (${estLower}) incluido: ${isIncluded}`);
+        return isIncluded;
+      });
       if (ests.length > 0) {
         establecimientosPorZona.push({ nombre: zona.nombre, establecimientos: ests });
+        console.log(`IndicadoresCamas - Zona ${zona.nombre} agregada con ${ests.length} establecimientos`);
       }
     });
     
-    console.log('IndicadoresCamas - Establecimientos filtrados:', establecimientosPorZona);
+    console.log('IndicadoresCamas - Establecimientos filtrados finales:', establecimientosPorZona);
   } else {
     establecimientosPorZona = ZONAS;
     console.log('IndicadoresCamas - Mostrando todos los establecimientos (ADMIN/DIRECTOR)');
