@@ -582,4 +582,20 @@ router.put('/users/:userId/update-role', authenticateToken, requireRole(['ADMIN'
   }
 });
 
+// Listar todos los establecimientos (público)
+router.get('/establecimientos', async (req, res) => {
+  try {
+    const result = await pool.query(
+      'SELECT id, nombre, zona FROM establecimientos WHERE activo = true ORDER BY nombre'
+    );
+    res.json({
+      success: true,
+      establecimientos: result.rows
+    });
+  } catch (error) {
+    console.error('Error obteniendo establecimientos:', error);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
+});
+
 module.exports = router; 
