@@ -172,20 +172,17 @@ function Home() {
 
 // Pantalla solo selector de establecimiento
 function IndicadoresCamas({ user }) {
-  const navigate = useNavigate();
-  // Obtener lista de establecimientos según rol
-  let establecimientosPorZona = [];
-  if (user && (user.role === 'JEFE_ZONA' || user.role === 'GERENTE')) {
-    // Agrupar los establecimientos asignados por zona
-    const asignados = (user.establecimientos || []);
-    // Si los asignados son objetos con nombre, usar nombre; si son strings, usar directamente
-    const asignadosNombres = asignados.map(e => (typeof e === 'string' ? e : e.nombre));
-    ZONAS.forEach(zona => {
-      const ests = zona.establecimientos.filter(est => asignadosNombres.includes(est));
-      if (ests.length > 0) {
-        establecimientosPorZona.push({ nombre: zona.nombre, establecimientos: ests });
-      }
-    });
+  const asignadosNombres = asignados.map(e =>
+    (typeof e === 'string' ? e.toLowerCase().trim() : e.nombre.toLowerCase().trim())
+  );
+  ZONAS.forEach(zona => {
+    const ests = zona.establecimientos.filter(est =>
+      asignadosNombres.includes(est.toLowerCase().trim())
+    );
+    if (ests.length > 0) {
+      establecimientosPorZona.push({ nombre: zona.nombre, establecimientos: ests });
+    }
+  });
   } else {
     establecimientosPorZona = ZONAS;
   }
@@ -686,18 +683,8 @@ function IndicadoresCamasEstablecimiento() {
 }
 
 // Pantalla solo selector de establecimiento para ATENCION MEDICA
-function AtencionMedica({ user }) {
-  const navigate = useNavigate();
-  let establecimientosPorZona = [];
-  if (user && (user.role === 'JEFE_ZONA' || user.role === 'GERENTE')) {
-    const asignados = (user.establecimientos || []);
-    const asignadosNombres = asignados.map(e => (typeof e === 'string' ? e : e.nombre));
-    ZONAS.forEach(zona => {
-      const ests = zona.establecimientos.filter(est => asignadosNombres.includes(est));
-      if (ests.length > 0) {
-        establecimientosPorZona.push({ nombre: zona.nombre, establecimientos: ests });
-      }
-    });
+
+});
   } else {
     establecimientosPorZona = ZONAS;
   }
@@ -1311,17 +1298,17 @@ function AtencionMedicaEstablecimiento() {
 
 // Pantalla principal de ranking de diagnóstico
 function RankingDiagnostico({ user }) {
-  const navigate = useNavigate();
-  let establecimientosPorZona = [];
-  if (user && (user.role === 'JEFE_ZONA' || user.role === 'GERENTE')) {
-    const asignados = (user.establecimientos || []);
-    const asignadosNombres = asignados.map(e => (typeof e === 'string' ? e : e.nombre));
-    ZONAS.forEach(zona => {
-      const ests = zona.establecimientos.filter(est => asignadosNombres.includes(est));
-      if (ests.length > 0) {
-        establecimientosPorZona.push({ nombre: zona.nombre, establecimientos: ests });
-      }
-    });
+const asignadosNombres = asignados.map(e =>
+  (typeof e === 'string' ? e.toLowerCase().trim() : e.nombre.toLowerCase().trim())
+);
+ZONAS.forEach(zona => {
+  const ests = zona.establecimientos.filter(est =>
+    asignadosNombres.includes(est.toLowerCase().trim())
+  );
+  if (ests.length > 0) {
+    establecimientosPorZona.push({ nombre: zona.nombre, establecimientos: ests });
+  }
+});
   } else {
     establecimientosPorZona = ZONAS;
   }
