@@ -2210,7 +2210,10 @@ function App() {
                 </button>
                 <button className="logout-btn" onClick={handleLogout}>Cerrar sesión</button>
               </div>
-              <AtencionMedica user={user} />
+              {(() => {
+                alert('Ruta atencion-medica ejecutándose - User: ' + JSON.stringify(user));
+                return <AtencionMedica user={user} />;
+              })()}
             </div>
           ) : (
             <Login />
