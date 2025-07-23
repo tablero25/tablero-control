@@ -171,8 +171,24 @@ function Home() {
 }
 
 // Pantalla solo selector de establecimiento
-function IndicadoresCamas() {
+function IndicadoresCamas({ user }) {
   const navigate = useNavigate();
+  // Obtener lista de establecimientos según rol
+  let establecimientosPorZona = [];
+  if (user && (user.role === 'JEFE_ZONA' || user.role === 'GERENTE')) {
+    // Agrupar los establecimientos asignados por zona
+    const asignados = (user.establecimientos || []);
+    // Si los asignados son objetos con nombre, usar nombre; si son strings, usar directamente
+    const asignadosNombres = asignados.map(e => (typeof e === 'string' ? e : e.nombre));
+    ZONAS.forEach(zona => {
+      const ests = zona.establecimientos.filter(est => asignadosNombres.includes(est));
+      if (ests.length > 0) {
+        establecimientosPorZona.push({ nombre: zona.nombre, establecimientos: ests });
+      }
+    });
+  } else {
+    establecimientosPorZona = ZONAS;
+  }
   return (
     <div className="tablero-bg">
       <div style={{textAlign:'center', padding:'30px 0', color:'#fff'}}>
@@ -180,8 +196,8 @@ function IndicadoresCamas() {
         <p>Seleccione un establecimiento para ver los datos o cargue archivos si es la primera vez.</p>
       </div>
       <div className="zonas-grid">
-        {ZONAS && ZONAS.length > 0 ? (
-          ZONAS.map(zona => (
+        {establecimientosPorZona && establecimientosPorZona.length > 0 ? (
+          establecimientosPorZona.map(zona => (
             <div key={zona.nombre} className="zona-col">
               <div className="zona-titulo">{zona.nombre}</div>
               <div className="zona-establecimientos">
@@ -666,8 +682,21 @@ function IndicadoresCamasEstablecimiento() {
 }
 
 // Pantalla solo selector de establecimiento para ATENCION MEDICA
-function AtencionMedica() {
+function AtencionMedica({ user }) {
   const navigate = useNavigate();
+  let establecimientosPorZona = [];
+  if (user && (user.role === 'JEFE_ZONA' || user.role === 'GERENTE')) {
+    const asignados = (user.establecimientos || []);
+    const asignadosNombres = asignados.map(e => (typeof e === 'string' ? e : e.nombre));
+    ZONAS.forEach(zona => {
+      const ests = zona.establecimientos.filter(est => asignadosNombres.includes(est));
+      if (ests.length > 0) {
+        establecimientosPorZona.push({ nombre: zona.nombre, establecimientos: ests });
+      }
+    });
+  } else {
+    establecimientosPorZona = ZONAS;
+  }
   return (
     <div className="tablero-bg">
       <div style={{textAlign:'center', padding:'30px 0', color:'#fff'}}>
@@ -675,8 +704,8 @@ function AtencionMedica() {
         <p>Seleccione un establecimiento para ver los datos o cargue archivos si es la primera vez.</p>
       </div>
       <div className="zonas-grid">
-        {ZONAS && ZONAS.length > 0 ? (
-          ZONAS.map(zona => (
+        {establecimientosPorZona && establecimientosPorZona.length > 0 ? (
+          establecimientosPorZona.map(zona => (
             <div key={zona.nombre} className="zona-col">
               <div className="zona-titulo">{zona.nombre}</div>
               <div className="zona-establecimientos">
@@ -1277,8 +1306,21 @@ function AtencionMedicaEstablecimiento() {
 }
 
 // Pantalla principal de ranking de diagnóstico
-function RankingDiagnostico() {
+function RankingDiagnostico({ user }) {
   const navigate = useNavigate();
+  let establecimientosPorZona = [];
+  if (user && (user.role === 'JEFE_ZONA' || user.role === 'GERENTE')) {
+    const asignados = (user.establecimientos || []);
+    const asignadosNombres = asignados.map(e => (typeof e === 'string' ? e : e.nombre));
+    ZONAS.forEach(zona => {
+      const ests = zona.establecimientos.filter(est => asignadosNombres.includes(est));
+      if (ests.length > 0) {
+        establecimientosPorZona.push({ nombre: zona.nombre, establecimientos: ests });
+      }
+    });
+  } else {
+    establecimientosPorZona = ZONAS;
+  }
   return (
     <div className="tablero-bg">
       <div style={{textAlign:'center', padding:'30px 0', color:'#fff'}}>
@@ -1286,8 +1328,8 @@ function RankingDiagnostico() {
         <p>Seleccione un establecimiento para ver los datos o cargue archivos si es la primera vez.</p>
       </div>
       <div className="zonas-grid">
-        {ZONAS && ZONAS.length > 0 ? (
-          ZONAS.map(zona => (
+        {establecimientosPorZona && establecimientosPorZona.length > 0 ? (
+          establecimientosPorZona.map(zona => (
             <div key={zona.nombre} className="zona-col">
               <div className="zona-titulo">{zona.nombre}</div>
               <div className="zona-establecimientos">
@@ -1853,6 +1895,173 @@ function RankingDiagnosticoCategoria() {
   );
 }
 
+// Definir UsuariosLista antes de App
+function UsuariosLista({ user, token }) {
+  const [usuarios, setUsuarios] = useState([]);
+  const [editUser, setEditUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch('https://tablero-control-1.onrender.com/api/auth/users', {
+      headers: { 'Authorization': `Bearer ${token}` }
+    })
+      .then(res => res.json())
+      .then(data => {
+        setUsuarios(data.users || []);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, [token]);
+
+  const handleSaveRole = (newRole, establecimientos) => {
+    fetch(`https://tablero-control-1.onrender.com/api/auth/users/${editUser.id}/update-role`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+      body: JSON.stringify({ role: newRole, establecimientos })
+    })
+      .then(res => res.json())
+      .then(() => {
+        setEditUser(null);
+        // Refrescar lista
+        setLoading(true);
+        fetch('https://tablero-control-1.onrender.com/api/auth/users', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        })
+          .then(res => res.json())
+          .then(data => {
+            setUsuarios(data.users || []);
+            setLoading(false);
+          });
+      });
+  };
+
+  if (loading) return <div style={{color:'#fff',padding:40}}>Cargando usuarios...</div>;
+
+  return (
+    <div className="usuarios-lista" style={{padding:40}}>
+      <h2>Usuarios</h2>
+      <table style={{width:'100%',background:'#fff',borderRadius:8}}>
+        <thead>
+          <tr>
+            <th>Usuario</th>
+            <th>Nombre</th>
+            <th>Rol</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {usuarios.map(u => (
+            <tr key={u.id}>
+              <td>{u.username}</td>
+              <td>{u.nombre} {u.apellido}</td>
+              <td>{u.role}</td>
+              <td>
+                <button onClick={() => setEditUser(u)} title="Editar rol" style={{background:'none',border:'none',cursor:'pointer',fontSize:'1.2rem'}}>
+                  ✏️
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      {editUser && <EditarRolModal user={editUser} onClose={() => setEditUser(null)} onSave={handleSaveRole} />}
+    </div>
+  );
+}
+
+// Definir Perfil antes de App
+function Perfil({ user, token }) {
+  return (
+    <div className="perfil-container" style={{padding: 40, color: '#333'}}>
+      <h2>Mi Perfil</h2>
+      <p><strong>Usuario:</strong> {user.username}</p>
+      <p><strong>Nombre:</strong> {user.nombre} {user.apellido}</p>
+      <p><strong>Rol:</strong> {user.role}</p>
+      {/* Si es ADMIN, mostrar la tabla de usuarios debajo */}
+      {user.role === 'ADMIN' && (
+        <div style={{marginTop: 40}}>
+          <UsuariosLista user={user} token={token} />
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Definir EditarRolModal antes de UsuariosLista y Perfil
+function EditarRolModal({ user, onClose, onSave }) {
+  const [rol, setRol] = useState(user.role);
+  const [establecimientos, setEstablecimientos] = useState([]);
+  const [selectedEst, setSelectedEst] = useState(user.establecimientos || []);
+  const [loadingEst, setLoadingEst] = useState(false);
+
+  useEffect(() => {
+    if (rol === 'JEFE_ZONA' || rol === 'GERENTE') {
+      setLoadingEst(true);
+      fetch('https://tablero-control-1.onrender.com/api/auth/establecimientos')
+        .then(res => res.json())
+        .then(data => {
+          setEstablecimientos(data.establecimientos || []);
+          setLoadingEst(false);
+        });
+    }
+  }, [rol]);
+
+  const handleCheck = (id) => {
+    if (rol === 'JEFE_ZONA') {
+      setSelectedEst(selectedEst.includes(id) ? selectedEst.filter(e => e !== id) : [...selectedEst, id]);
+    } else if (rol === 'GERENTE') {
+      setSelectedEst([id]);
+    }
+  };
+
+  const handleSave = () => {
+    if ((rol === 'JEFE_ZONA' && selectedEst.length === 0) || (rol === 'GERENTE' && selectedEst.length !== 1)) {
+      alert('Selecciona los establecimientos correspondientes.');
+      return;
+    }
+    onSave(rol, selectedEst);
+  };
+
+  return (
+    <div className="modal-bg" style={{position:'fixed',top:0,left:0,right:0,bottom:0,background:'rgba(0,0,0,0.3)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:1000}}>
+      <div className="modal-content" style={{background:'#fff',padding:30,borderRadius:8,minWidth:300}}>
+        <h3>Editar Rol de {user.username}</h3>
+        <select value={rol} onChange={e => { setRol(e.target.value); setSelectedEst([]); }} style={{width:'100%',padding:8,margin:'16px 0'}}>
+          <option value="ADMIN">ADMIN</option>
+          <option value="DIRECTOR">DIRECTOR</option>
+          <option value="JEFE_ZONA">JEFE_ZONA</option>
+          <option value="GERENTE">GERENTE</option>
+          <option value="ESTABLECIMIENTO">ESTABLECIMIENTO</option>
+        </select>
+        {(rol === 'JEFE_ZONA' || rol === 'GERENTE') && (
+          <div style={{margin:'16px 0'}}>
+            <label><strong>Establecimientos:</strong></label>
+            {loadingEst ? <div>Cargando establecimientos...</div> : (
+              <div style={{maxHeight:200,overflowY:'auto',border:'1px solid #eee',padding:8,borderRadius:4}}>
+                {establecimientos.map(est => (
+                  <div key={est.id}>
+                    <label>
+                      <input
+                        type={rol === 'JEFE_ZONA' ? 'checkbox' : 'radio'}
+                        checked={selectedEst.includes(est.id)}
+                        onChange={() => handleCheck(est.id)}
+                      /> {est.nombre}
+                    </label>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+        <div style={{display:'flex',gap:10,justifyContent:'flex-end'}}>
+          <button onClick={onClose}>Cancelar</button>
+          <button onClick={handleSave}>Guardar</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // Componente principal de la aplicación
 function App() {
   const [user, setUser] = useState(null);
@@ -1930,7 +2139,7 @@ function App() {
                 </button>
                 <button className="logout-btn" onClick={handleLogout}>Cerrar sesión</button>
               </div>
-              <IndicadoresCamas />
+              <IndicadoresCamas user={user} />
             </div>
           ) : (
             <Login />
@@ -1947,7 +2156,7 @@ function App() {
                 </button>
                 <button className="logout-btn" onClick={handleLogout}>Cerrar sesión</button>
               </div>
-              <AtencionMedica />
+              <AtencionMedica user={user} />
             </div>
           ) : (
             <Login />
@@ -1964,7 +2173,7 @@ function App() {
                 </button>
                 <button className="logout-btn" onClick={handleLogout}>Cerrar sesión</button>
               </div>
-              <RankingDiagnostico />
+              <RankingDiagnostico user={user} />
             </div>
           ) : (
             <Login />
@@ -1994,11 +2203,11 @@ function App() {
                 <div className="container">
                   <Routes>
                     <Route path="/" element={<Home />} />
-                    <Route path="/indicadores-camas" element={<IndicadoresCamas />} />
+                    <Route path="/indicadores-camas" element={<IndicadoresCamas user={user} />} />
                     <Route path="/indicadores-camas/:nombre" element={<IndicadoresCamasEstablecimiento />} />
-                    <Route path="/atencion-medica" element={<AtencionMedica />} />
+                    <Route path="/atencion-medica" element={<AtencionMedica user={user} />} />
                     <Route path="/atencion-medica/:nombre" element={<AtencionMedicaEstablecimiento />} />
-                    <Route path="/ranking-diagnostico" element={<RankingDiagnostico />} />
+                    <Route path="/ranking-diagnostico" element={<RankingDiagnostico user={user} />} />
                     <Route path="/ranking-diagnostico/:nombre" element={<RankingDiagnosticoEstablecimiento />} />
                     <Route path="/ranking-diagnostico/:nombre/:categoria" element={<RankingDiagnosticoCategoria />} />
                   </Routes>
@@ -2044,22 +2253,8 @@ function App() {
           )
         } />
         
-        <Route path="/perfiles" element={
-          user && user.role === 'ADMIN' ? (
-            <div>
-              <div className="logout-bar">
-                <span className="user-name">{user?.nombre} {user?.apellido}</span>
-                <button className="config-btn" onClick={() => window.location.href = '/configuracion'}>
-                  Volver a Configuración
-                </button>
-                <button className="logout-btn" onClick={handleLogout}>Cerrar sesión</button>
-              </div>
-              <Configuracion onClose={() => window.location.href = '/configuracion'} />
-            </div>
-          ) : (
-            <Login />
-          )
-        } />
+        <Route path="/perfil" element={user ? <Perfil user={user} token={localStorage.getItem('token')} /> : <Login />} />
+        <Route path="/perfiles" element={user ? <Perfil user={user} token={localStorage.getItem('token')} /> : <Login />} />
         
         <Route path="/change-password" element={<ChangePassword />} />
         {/* Rutas directas para los detalles de cada sección */}
