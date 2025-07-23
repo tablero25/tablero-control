@@ -62,9 +62,9 @@ router.post('/login', async (req, res) => {
         nombre: user.nombre,
         apellido: user.apellido,
         funcion: user.funcion,
-        first_login: user.first_login
-      },
-      establecimientos
+        first_login: user.first_login,
+        establecimientos
+      }
     });
 
   } catch (error) {
@@ -80,8 +80,10 @@ router.get('/verify', authenticateToken, async (req, res) => {
     
     res.json({
       success: true,
-      user: req.user,
-      establecimientos
+      user: {
+        ...req.user,
+        establecimientos
+      }
     });
   } catch (error) {
     console.error('Error verificando token:', error);
