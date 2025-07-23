@@ -8,6 +8,7 @@ const { Pool } = require('pg');
 
 // Importar rutas de autenticación
 const authRoutes = require('./authRoutes');
+const { authenticateToken, getUserEstablecimientos } = require('./auth');
 
 // Configuración de la base de datos PostgreSQL
 const pool = new Pool({
