@@ -311,7 +311,7 @@ app.post('/guardar/:establecimiento/:anio', upload.single('file'), async (req, r
 });
 
 // Listar años/archivos por establecimiento
-app.get('/archivos/:establecimiento', (req, res) => {
+app.get('/archivos/:establecimiento', authenticateToken, validarAccesoEstablecimiento, (req, res) => {
   try {
     const establecimiento = req.params.establecimiento;
     const dir = path.join(__dirname, 'data', establecimiento);
@@ -328,7 +328,7 @@ app.get('/archivos/:establecimiento', (req, res) => {
 });
 
 // Listar archivos por establecimiento y año (case-insensitive)
-app.get('/archivos/:establecimiento/:anio', (req, res) => {
+app.get('/archivos/:establecimiento/:anio', authenticateToken, validarAccesoEstablecimiento, (req, res) => {
   try {
     const { establecimiento, anio } = req.params;
     const dataDir = path.join(__dirname, 'data');
@@ -349,7 +349,7 @@ app.get('/archivos/:establecimiento/:anio', (req, res) => {
 });
 
 // Leer archivo Excel guardado
-app.get('/leer/:establecimiento/:anio/:archivo', async (req, res) => {
+app.get('/leer/:establecimiento/:anio/:archivo', authenticateToken, validarAccesoEstablecimiento, async (req, res) => {
   try {
     const { establecimiento, anio, archivo } = req.params;
     console.log('Parámetros recibidos:', { establecimiento, anio, archivo });
@@ -1180,7 +1180,7 @@ app.post('/ranking/guardar/:establecimiento/:categoria/:anio', rankingUpload.sin
 });
 
 // Listar archivos por establecimiento, categoría y año
-app.get('/ranking/archivos/:establecimiento/:categoria/:anio', (req, res) => {
+app.get('/ranking/archivos/:establecimiento/:categoria/:anio', authenticateToken, validarAccesoEstablecimiento, (req, res) => {
   try {
     const { establecimiento, categoria, anio } = req.params;
     const dir = path.join(__dirname, 'data', establecimiento, categoria, anio);
@@ -1198,7 +1198,7 @@ app.get('/ranking/archivos/:establecimiento/:categoria/:anio', (req, res) => {
 });
 
 // Leer archivo Excel de ranking y extraer top 4 diagnósticos
-app.get('/ranking/leer/:establecimiento/:categoria/:anio/:archivo', async (req, res) => {
+app.get('/ranking/leer/:establecimiento/:categoria/:anio/:archivo', authenticateToken, validarAccesoEstablecimiento, async (req, res) => {
   try {
     const { establecimiento, categoria, anio, archivo } = req.params;
     console.log('Parámetros recibidos para ranking:', { establecimiento, categoria, anio, archivo });
@@ -1305,7 +1305,7 @@ app.get('/ranking/leer/:establecimiento/:categoria/:anio/:archivo', async (req, 
 });
 
 // Analizar múltiples archivos por meses seleccionados
-app.post('/ranking/analizar/:establecimiento/:categoria/:anio', async (req, res) => {
+app.post('/ranking/analizar/:establecimiento/:categoria/:anio', authenticateToken, validarAccesoEstablecimiento, async (req, res) => {
   try {
     const { establecimiento, categoria, anio } = req.params;
     const { meses } = req.body; // Array de meses seleccionados
