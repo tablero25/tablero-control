@@ -175,11 +175,17 @@ function IndicadoresCamas({ user }) {
   const navigate = useNavigate();
   let establecimientosPorZona = [];
   
+  console.log('IndicadoresCamas - User:', user);
+  console.log('IndicadoresCamas - User role:', user?.role);
+  console.log('IndicadoresCamas - User establecimientos:', user?.establecimientos);
+  
   if (user && (user.role === 'JEFE_ZONA' || user.role === 'GERENTE')) {
     const asignados = (user.establecimientos || []);
     const asignadosNombres = asignados.map(e =>
       (typeof e === 'string' ? e.toLowerCase().trim() : e.nombre.toLowerCase().trim())
     );
+    
+    console.log('IndicadoresCamas - Asignados nombres:', asignadosNombres);
     
     ZONAS.forEach(zona => {
       const ests = zona.establecimientos.filter(est =>
@@ -189,8 +195,11 @@ function IndicadoresCamas({ user }) {
         establecimientosPorZona.push({ nombre: zona.nombre, establecimientos: ests });
       }
     });
+    
+    console.log('IndicadoresCamas - Establecimientos filtrados:', establecimientosPorZona);
   } else {
     establecimientosPorZona = ZONAS;
+    console.log('IndicadoresCamas - Mostrando todos los establecimientos (ADMIN/DIRECTOR)');
   }
 
   return (
@@ -690,11 +699,17 @@ function AtencionMedica({ user }) {
   const navigate = useNavigate();
   let establecimientosPorZona = [];
   
+  console.log('AtencionMedica - User:', user);
+  console.log('AtencionMedica - User role:', user?.role);
+  console.log('AtencionMedica - User establecimientos:', user?.establecimientos);
+  
   if (user && (user.role === 'JEFE_ZONA' || user.role === 'GERENTE')) {
     const asignados = (user.establecimientos || []);
     const asignadosNombres = asignados.map(e =>
       (typeof e === 'string' ? e.toLowerCase().trim() : e.nombre.toLowerCase().trim())
     );
+    
+    console.log('AtencionMedica - Asignados nombres:', asignadosNombres);
     
     ZONAS.forEach(zona => {
       const ests = zona.establecimientos.filter(est =>
@@ -704,8 +719,11 @@ function AtencionMedica({ user }) {
         establecimientosPorZona.push({ nombre: zona.nombre, establecimientos: ests });
       }
     });
+    
+    console.log('AtencionMedica - Establecimientos filtrados:', establecimientosPorZona);
   } else {
     establecimientosPorZona = ZONAS;
+    console.log('AtencionMedica - Mostrando todos los establecimientos (ADMIN/DIRECTOR)');
   }
   return (
     <div className="tablero-bg">
@@ -1320,11 +1338,17 @@ function RankingDiagnostico({ user }) {
   const navigate = useNavigate();
   let establecimientosPorZona = [];
   
+  console.log('RankingDiagnostico - User:', user);
+  console.log('RankingDiagnostico - User role:', user?.role);
+  console.log('RankingDiagnostico - User establecimientos:', user?.establecimientos);
+  
   if (user && (user.role === 'JEFE_ZONA' || user.role === 'GERENTE')) {
     const asignados = (user.establecimientos || []);
     const asignadosNombres = asignados.map(e =>
       (typeof e === 'string' ? e.toLowerCase().trim() : e.nombre.toLowerCase().trim())
     );
+    
+    console.log('RankingDiagnostico - Asignados nombres:', asignadosNombres);
     
     ZONAS.forEach(zona => {
       const ests = zona.establecimientos.filter(est =>
@@ -1334,8 +1358,11 @@ function RankingDiagnostico({ user }) {
         establecimientosPorZona.push({ nombre: zona.nombre, establecimientos: ests });
       }
     });
+    
+    console.log('RankingDiagnostico - Establecimientos filtrados:', establecimientosPorZona);
   } else {
     establecimientosPorZona = ZONAS;
+    console.log('RankingDiagnostico - Mostrando todos los establecimientos (ADMIN/DIRECTOR)');
   }
   return (
     <div className="tablero-bg">
