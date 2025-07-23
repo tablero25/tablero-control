@@ -189,6 +189,10 @@ function IndicadoresCamas({ user }) {
   } else {
     establecimientosPorZona = ZONAS;
   }
+  // ...
+}
+  }  let establecimientosPorZona = [];
+
   return (
     <div className="tablero-bg">
       <div style={{textAlign:'center', padding:'30px 0', color:'#fff'}}>
