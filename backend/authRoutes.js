@@ -475,4 +475,74 @@ router.put('/users/:userId/confirm', authenticateToken, requireRole(['ADMIN']), 
   }
 });
 
+// Confirmar email con token (público)
+router.post('/confirm-email', async (req, res) => {
+  try {
+    const { token } = req.body;
+    
+    if (!token) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Token de confirmación requerido' 
+      });
+    }
+
+    // Verificar el token de confirmación
+    const decoded = verifyConfirmationToken(token);
+    if (!decoded) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Token de confirmación inválido o expirado' 
+      });
+    }
+
+    // Buscar el usuario por el token
+    const userResult = await pool.query(
+      'SELECT id, username, email, is_active, confirmation_token FROM users WHERE confirmation_token = $1',
+      [token]
+    );
+
+    if (userResult.rows.length === 0) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Token de confirmación no encontrado' 
+      });
+    }
+
+    const user = userResult.rows[0];
+
+    // Verificar que el usuario no esté ya activo
+    if (user.is_active) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'La cuenta ya está confirmada' 
+      });
+    }
+
+    // Activar el usuario y limpiar el token
+    await pool.query(
+      'UPDATE users SET is_active = true, confirmation_token = NULL, confirmed_at = NOW() WHERE id = $1',
+      [user.id]
+    );
+
+    console.log(`✅ Usuario ${user.username} (${user.email}) confirmado exitosamente`);
+
+    res.json({
+      success: true,
+      message: 'Cuenta confirmada exitosamente. Ya puedes iniciar sesión.',
+      user: {
+        username: user.username,
+        email: user.email
+      }
+    });
+
+  } catch (error) {
+    console.error('Error confirmando email:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Error interno del servidor' 
+    });
+  }
+});
+
 module.exports = router; 
