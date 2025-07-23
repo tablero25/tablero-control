@@ -175,7 +175,7 @@ function IndicadoresCamas({ user }) {
   const navigate = useNavigate();
   let establecimientosPorZona = [];
   
-  console.log('=== DEBUG INDICADORES CAMAS ===');
+  console.log('=== DEBUG INDICADORES CAMAS V2 ===');
   console.log('IndicadoresCamas - User:', user);
   console.log('IndicadoresCamas - User role:', user?.role);
   console.log('IndicadoresCamas - User establecimientos:', user?.establecimientos);
