@@ -172,23 +172,26 @@ function Home() {
 
 // Pantalla solo selector de establecimiento
 function IndicadoresCamas({ user }) {
-  const asignadosNombres = asignados.map(e =>
-    (typeof e === 'string' ? e.toLowerCase().trim() : e.nombre.toLowerCase().trim())
-  );
-  ZONAS.forEach(zona => {
-    const ests = zona.establecimientos.filter(est =>
-      asignadosNombres.includes(est.toLowerCase().trim())
+  const navigate = useNavigate();
+  let establecimientosPorZona = [];
+  
+  if (user && (user.role === 'JEFE_ZONA' || user.role === 'GERENTE')) {
+    const asignados = (user.establecimientos || []);
+    const asignadosNombres = asignados.map(e =>
+      (typeof e === 'string' ? e.toLowerCase().trim() : e.nombre.toLowerCase().trim())
     );
-    if (ests.length > 0) {
-      establecimientosPorZona.push({ nombre: zona.nombre, establecimientos: ests });
-    }
-  });
+    
+    ZONAS.forEach(zona => {
+      const ests = zona.establecimientos.filter(est =>
+        asignadosNombres.includes(est.toLowerCase().trim())
+      );
+      if (ests.length > 0) {
+        establecimientosPorZona.push({ nombre: zona.nombre, establecimientos: ests });
+      }
+    });
   } else {
     establecimientosPorZona = ZONAS;
   }
-  // ...
-}
-  }  let establecimientosPorZona = [];
 
   return (
     <div className="tablero-bg">
@@ -683,8 +686,24 @@ function IndicadoresCamasEstablecimiento() {
 }
 
 // Pantalla solo selector de establecimiento para ATENCION MEDICA
-
-});
+function AtencionMedica({ user }) {
+  const navigate = useNavigate();
+  let establecimientosPorZona = [];
+  
+  if (user && (user.role === 'JEFE_ZONA' || user.role === 'GERENTE')) {
+    const asignados = (user.establecimientos || []);
+    const asignadosNombres = asignados.map(e =>
+      (typeof e === 'string' ? e.toLowerCase().trim() : e.nombre.toLowerCase().trim())
+    );
+    
+    ZONAS.forEach(zona => {
+      const ests = zona.establecimientos.filter(est =>
+        asignadosNombres.includes(est.toLowerCase().trim())
+      );
+      if (ests.length > 0) {
+        establecimientosPorZona.push({ nombre: zona.nombre, establecimientos: ests });
+      }
+    });
   } else {
     establecimientosPorZona = ZONAS;
   }
@@ -1298,17 +1317,23 @@ function AtencionMedicaEstablecimiento() {
 
 // Pantalla principal de ranking de diagnóstico
 function RankingDiagnostico({ user }) {
-const asignadosNombres = asignados.map(e =>
-  (typeof e === 'string' ? e.toLowerCase().trim() : e.nombre.toLowerCase().trim())
-);
-ZONAS.forEach(zona => {
-  const ests = zona.establecimientos.filter(est =>
-    asignadosNombres.includes(est.toLowerCase().trim())
-  );
-  if (ests.length > 0) {
-    establecimientosPorZona.push({ nombre: zona.nombre, establecimientos: ests });
-  }
-});
+  const navigate = useNavigate();
+  let establecimientosPorZona = [];
+  
+  if (user && (user.role === 'JEFE_ZONA' || user.role === 'GERENTE')) {
+    const asignados = (user.establecimientos || []);
+    const asignadosNombres = asignados.map(e =>
+      (typeof e === 'string' ? e.toLowerCase().trim() : e.nombre.toLowerCase().trim())
+    );
+    
+    ZONAS.forEach(zona => {
+      const ests = zona.establecimientos.filter(est =>
+        asignadosNombres.includes(est.toLowerCase().trim())
+      );
+      if (ests.length > 0) {
+        establecimientosPorZona.push({ nombre: zona.nombre, establecimientos: ests });
+      }
+    });
   } else {
     establecimientosPorZona = ZONAS;
   }
