@@ -714,6 +714,7 @@ function AtencionMedica({ user }) {
   console.log('AtencionMedica - User establecimientos:', user?.establecimientos);
   
   if (user && (user.role === 'JEFE_ZONA' || user.role === 'GERENTE')) {
+    console.log('AtencionMedica - Usuario es JEFE_ZONA o GERENTE, aplicando filtro');
     const asignados = (user.establecimientos || []);
     const asignadosNombres = asignados.map(e =>
       (typeof e === 'string' ? e.toLowerCase().trim() : e.nombre.toLowerCase().trim())
