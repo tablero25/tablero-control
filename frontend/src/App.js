@@ -178,7 +178,7 @@ function Home({ user }) {
 
   // Renderiza un cuadro con los establecimientos agrupados
   const renderCuadro = (titulo, rutaBase) => (
-    <div className="box" style={{cursor:'pointer', minWidth: 320}}>
+    <div className="box" style={{cursor:'pointer', minWidth: 320}} onClick={() => navigate(`/sistema-tablero/${rutaBase}`)}>
       <h2>{titulo}</h2>
       <div className="zonas-grid-home">
         {zonasFiltradas.map(zona => (
@@ -189,7 +189,7 @@ function Home({ user }) {
                 <button
                   key={est}
                   className="establecimiento-btn"
-                  onClick={() => navigate(`/sistema-tablero/${rutaBase}/${encodeURIComponent(est)}`)}
+                  onClick={(e) => { e.stopPropagation(); navigate(`/sistema-tablero/${rutaBase}/${encodeURIComponent(est)}`); }}
                 >
                   {est}
                 </button>
