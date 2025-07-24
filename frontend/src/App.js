@@ -153,16 +153,29 @@ const ZONAS = [
 // Página principal con los tres cuadros
 function Home() {
   const navigate = useNavigate();
+  
+  // Alert para verificar que Home se está ejecutando
+  alert('Componente Home ejecutándose');
+  
   return (
     <div className="tablero-bg">
       <div className="container">
-        <div className="box" onClick={() => navigate('indicadores-camas')} style={{cursor:'pointer'}}>
+        <div className="box" onClick={() => {
+          alert('Haciendo clic en PRODUCCIÓN INTERNACIÓN');
+          navigate('indicadores-camas');
+        }} style={{cursor:'pointer'}}>
           <h2>PRODUCCIÓN INTERNACIÓN</h2>
         </div>
-        <div className="box" onClick={() => navigate('atencion-medica')} style={{cursor:'pointer'}}>
+        <div className="box" onClick={() => {
+          alert('Haciendo clic en PRODUCCIÓN CONSULTA AMBULATORIA');
+          navigate('atencion-medica');
+        }} style={{cursor:'pointer'}}>
           <h2>PRODUCCIÓN CONSULTA AMBULATORIA</h2>
         </div>
-        <div className="box" onClick={() => navigate('ranking-diagnostico')} style={{cursor:'pointer'}}>
+        <div className="box" onClick={() => {
+          alert('Haciendo clic en RANKING DE DIAGNÓSTICO');
+          navigate('ranking-diagnostico');
+        }} style={{cursor:'pointer'}}>
           <h2>RANKING DE DIAGNÓSTICO</h2>
         </div>
       </div>
