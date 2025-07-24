@@ -86,6 +86,16 @@ app.post('/api/auth/login', async (req, res) => {
   }
 });
 
+// Endpoint para verificar token (dummy)
+app.get('/api/auth/verify', (req, res) => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.startsWith('Bearer ') ? authHeader.split(' ')[1] : (req.query.token || null);
+  if (token) {
+    return res.json({ success: true, user: { username: 'admin', role: 'admin', first_login: false } });
+  }
+  return res.status(401).json({ success: false, error: 'Token inválido' });
+});
+
 app.get('/api/auth/test', (req, res) => {
   res.json({ 
     message: 'API de autenticación funcionando correctamente',
