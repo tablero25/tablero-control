@@ -63,9 +63,10 @@ app.post('/api/auth/login', async (req, res) => {
       return res.status(400).json({ error: 'Usuario y contraseña requeridos' });
     }
 
-    // Respuesta de prueba
+    // Respuesta de prueba con token
     res.json({
       success: true,
+      token: 'dummy-token',
       message: 'Login funcionando correctamente',
       timestamp: new Date().toISOString(),
       user: {
