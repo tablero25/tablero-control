@@ -242,9 +242,6 @@ function IndicadoresCamasEstablecimiento({ user }) {
   const [totalGuardia, setTotalGuardia] = useState(null);
   const [todos, setTodos] = useState(false);
 
-  // Verificar si el usuario puede cargar archivos (no JEFE_ZONA)
-  const puedeCargarArchivos = user && user.role !== 'JEFE_ZONA';
-
   const handleMesChange = (mes) => {
     if (mes === 'TODOS') {
       if (todos) {
@@ -707,37 +704,31 @@ function IndicadoresCamasEstablecimiento({ user }) {
             ))}
           </div>
         </div>
-        {puedeCargarArchivos && (
-          <>
-            <div className="form-group archivo-group" style={{display:'flex',alignItems:'center',gap:16,flexWrap:'wrap'}}>
-              <label style={{fontWeight:'bold',marginRight:8}}>EXAMINAR</label>
-              <input type="file" accept=".xlsx,.xls,.xlsm,.xlsb,.xlt,.xltx,.xltm,.ods,.fods,.csv,.txt,.rtf,.html,.htm,.xml,.sylk,.slk,.dif,.prn,.dbf,.wk1,.wk3,.wk4,.123,.wb1,.wb2,.wb3,.qpw,.numbers" onChange={handleArchivo} />
-              {archivo && (
-                <div style={{marginLeft:8,fontSize:'0.9rem',color:'#666'}}>
-                  {archivo.name}
-                </div>
-              )}
-              <span style={{fontWeight:'bold',marginLeft:8}}>CONSULTA EXT. MEDICO</span>
+        <div className="form-group archivo-group" style={{display:'flex',alignItems:'center',gap:16,flexWrap:'wrap'}}>
+          <label style={{fontWeight:'bold',marginRight:8}}>EXAMINAR</label>
+          <input type="file" accept=".xlsx,.xls,.xlsm,.xlsb,.xlt,.xltx,.xltm,.ods,.fods,.csv,.txt,.rtf,.html,.htm,.xml,.sylk,.slk,.dif,.prn,.dbf,.wk1,.wk3,.wk4,.123,.wb1,.wb2,.wb3,.qpw,.numbers" onChange={handleArchivo} />
+          {archivo && (
+            <div style={{marginLeft:8,fontSize:'0.9rem',color:'#666'}}>
+              {archivo.name}
             </div>
-            <div className="form-group archivo-group" style={{display:'flex',alignItems:'center',gap:16,flexWrap:'wrap'}}>
-              <label style={{fontWeight:'bold',marginRight:8}}>EXAMINAR</label>
-              <input type="file" accept=".xlsx,.xls,.xlsm,.xlsb,.xlt,.xltx,.xltm,.ods,.fods,.csv,.txt,.rtf,.html,.htm,.xml,.sylk,.slk,.dif,.prn,.dbf,.wk1,.wk3,.wk4,.123,.wb1,.wb2,.wb3,.qpw,.numbers" onChange={handleArchivo} />
-              {archivo && (
-                <div style={{marginLeft:8,fontSize:'0.9rem',color:'#666'}}>
-                  {archivo.name}
-                </div>
-              )}
-              <span style={{fontWeight:'bold',marginLeft:8}}>CONSULTA GUARDIA</span>
+          )}
+          <span style={{fontWeight:'bold',marginLeft:8}}>CONSULTA EXT. MEDICO</span>
+        </div>
+        <div className="form-group archivo-group" style={{display:'flex',alignItems:'center',gap:16,flexWrap:'wrap'}}>
+          <label style={{fontWeight:'bold',marginRight:8}}>EXAMINAR</label>
+          <input type="file" accept=".xlsx,.xls,.xlsm,.xlsb,.xlt,.xltx,.xltm,.ods,.fods,.csv,.txt,.rtf,.html,.htm,.xml,.sylk,.slk,.dif,.prn,.dbf,.wk1,.wk3,.wk4,.123,.wb1,.wb2,.wb3,.qpw,.numbers" onChange={handleArchivo} />
+          {archivo && (
+            <div style={{marginLeft:8,fontSize:'0.9rem',color:'#666'}}>
+              {archivo.name}
             </div>
-          </>
-        )}
+          )}
+          <span style={{fontWeight:'bold',marginLeft:8}}>CONSULTA GUARDIA</span>
+        </div>
 
-        {puedeCargarArchivos && (
-          <div style={{display:'flex',gap:16,marginTop:24,justifyContent:'center'}}>
-            <button className="analizar-btn" style={{padding:'6px 20px', fontSize:'0.9rem', minWidth:80}} onClick={handleGuardar} disabled={guardando}>{guardando ? 'PROCESANDO...' : 'GUARDAR'}</button>
-            <button className="analizar-btn" style={{padding:'6px 20px', fontSize:'0.9rem', minWidth:80}} onClick={handleAlmacenar} disabled={guardando}>{guardando ? 'PROCESANDO...' : 'ALMACENAR'}</button>
-          </div>
-        )}
+        <div style={{display:'flex',gap:16,marginTop:24,justifyContent:'center'}}>
+          <button className="analizar-btn" style={{padding:'6px 20px', fontSize:'0.9rem', minWidth:80}} onClick={handleGuardar} disabled={guardando}>{guardando ? 'PROCESANDO...' : 'GUARDAR'}</button>
+          <button className="analizar-btn" style={{padding:'6px 20px', fontSize:'0.9rem', minWidth:80}} onClick={handleAlmacenar} disabled={guardando}>{guardando ? 'PROCESANDO...' : 'ALMACENAR'}</button>
+        </div>
         {(totalTurnos !== null || totalGuardia !== null) && (
           <div style={{display:'flex',gap:20,marginTop:24,justifyContent:'center',flexWrap:'wrap'}}>
             {totalTurnos !== null && (
@@ -871,9 +862,6 @@ function AtencionMedicaEstablecimiento({ user }) {
   const [error, setError] = useState("");
   const [totalTurnos, setTotalTurnos] = useState(null);
   const [totalGuardia, setTotalGuardia] = useState(null);
-
-  // Verificar si el usuario puede cargar archivos (no JEFE_ZONA)
-  const puedeCargarArchivos = user && user.role !== 'JEFE_ZONA';
 
   const handleMesChange = (mes) => {
     if (mes === 'TODOS') {
@@ -1346,37 +1334,31 @@ function AtencionMedicaEstablecimiento({ user }) {
             ))}
           </div>
         </div>
-        {puedeCargarArchivos && (
-          <>
-            <div className="form-group archivo-group" style={{display:'flex',alignItems:'center',gap:16,flexWrap:'wrap'}}>
-              <label style={{fontWeight:'bold',marginRight:8}}>EXAMINAR</label>
-              <input type="file" accept=".xlsx,.xls,.xlsm,.xlsb,.xlt,.xltx,.xltm,.ods,.fods,.csv,.txt,.rtf,.html,.htm,.xml,.sylk,.slk,.dif,.prn,.dbf,.wk1,.wk3,.wk4,.123,.wb1,.wb2,.wb3,.qpw,.numbers" onChange={handleArchivo} />
-              {archivo && (
-                <div style={{marginLeft:8,fontSize:'0.9rem',color:'#666'}}>
-                  {archivo.name}
-                </div>
-              )}
-              <span style={{fontWeight:'bold',marginLeft:8}}>CONSULTA EXT. MEDICO</span>
+        <div className="form-group archivo-group" style={{display:'flex',alignItems:'center',gap:16,flexWrap:'wrap'}}>
+          <label style={{fontWeight:'bold',marginRight:8}}>EXAMINAR</label>
+          <input type="file" accept=".xlsx,.xls,.xlsm,.xlsb,.xlt,.xltx,.xltm,.ods,.fods,.csv,.txt,.rtf,.html,.htm,.xml,.sylk,.slk,.dif,.prn,.dbf,.wk1,.wk3,.wk4,.123,.wb1,.wb2,.wb3,.qpw,.numbers" onChange={handleArchivo} />
+          {archivo && (
+            <div style={{marginLeft:8,fontSize:'0.9rem',color:'#666'}}>
+              {archivo.name}
             </div>
-            <div className="form-group archivo-group" style={{display:'flex',alignItems:'center',gap:16,flexWrap:'wrap'}}>
-              <label style={{fontWeight:'bold',marginRight:8}}>EXAMINAR</label>
-              <input type="file" accept=".xlsx,.xls,.xlsm,.xlsb,.xlt,.xltx,.xltm,.ods,.fods,.csv,.txt,.rtf,.html,.htm,.xml,.sylk,.slk,.dif,.prn,.dbf,.wk1,.wk3,.wk4,.123,.wb1,.wb2,.wb3,.qpw,.numbers" onChange={handleArchivoGuardia} />
-              {archivoGuardia && (
-                <div style={{marginLeft:8,fontSize:'0.9rem',color:'#666'}}>
-                  {archivoGuardia.name}
-                </div>
-              )}
-              <span style={{fontWeight:'bold',marginLeft:8}}>CONSULTA GUARDIA</span>
+          )}
+          <span style={{fontWeight:'bold',marginLeft:8}}>CONSULTA EXT. MEDICO</span>
+        </div>
+        <div className="form-group archivo-group" style={{display:'flex',alignItems:'center',gap:16,flexWrap:'wrap'}}>
+          <label style={{fontWeight:'bold',marginRight:8}}>EXAMINAR</label>
+          <input type="file" accept=".xlsx,.xls,.xlsm,.xlsb,.xlt,.xltx,.xltm,.ods,.fods,.csv,.txt,.rtf,.html,.htm,.xml,.sylk,.slk,.dif,.prn,.dbf,.wk1,.wk3,.wk4,.123,.wb1,.wb2,.wb3,.qpw,.numbers" onChange={handleArchivoGuardia} />
+          {archivoGuardia && (
+            <div style={{marginLeft:8,fontSize:'0.9rem',color:'#666'}}>
+              {archivoGuardia.name}
             </div>
-          </>
-        )}
+          )}
+          <span style={{fontWeight:'bold',marginLeft:8}}>CONSULTA GUARDIA</span>
+        </div>
 
-        {puedeCargarArchivos && (
-          <div style={{display:'flex',gap:16,marginTop:24,justifyContent:'center'}}>
-            <button className="analizar-btn" style={{padding:'6px 20px', fontSize:'0.9rem', minWidth:80}} onClick={handleGuardar} disabled={guardando}>{guardando ? 'PROCESANDO...' : 'GUARDAR'}</button>
-            <button className="analizar-btn" style={{padding:'6px 20px', fontSize:'0.9rem', minWidth:80}} onClick={handleAlmacenar} disabled={guardando}>{guardando ? 'PROCESANDO...' : 'ALMACENAR'}</button>
-          </div>
-        )}
+        <div style={{display:'flex',gap:16,marginTop:24,justifyContent:'center'}}>
+          <button className="analizar-btn" style={{padding:'6px 20px', fontSize:'0.9rem', minWidth:80}} onClick={handleGuardar} disabled={guardando}>{guardando ? 'PROCESANDO...' : 'GUARDAR'}</button>
+          <button className="analizar-btn" style={{padding:'6px 20px', fontSize:'0.9rem', minWidth:80}} onClick={handleAlmacenar} disabled={guardando}>{guardando ? 'PROCESANDO...' : 'ALMACENAR'}</button>
+        </div>
         {(totalTurnos !== null || totalGuardia !== null) && (
           <div style={{display:'flex',gap:20,marginTop:24,justifyContent:'center',flexWrap:'wrap'}}>
             {totalTurnos !== null && (
