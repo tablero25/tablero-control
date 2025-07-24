@@ -155,13 +155,13 @@ function Home() {
   return (
     <div className="tablero-bg">
       <div className="container">
-        <div className="box" onClick={() => navigate('/indicadores-camas')} style={{cursor:'pointer'}}>
+        <div className="box" onClick={() => navigate('/sistema-tablero/indicadores-camas')} style={{cursor:'pointer'}}>
           <h2>PRODUCCIÓN INTERNACIÓN</h2>
         </div>
-        <div className="box" onClick={() => navigate('/atencion-medica')} style={{cursor:'pointer'}}>
+        <div className="box" onClick={() => navigate('/sistema-tablero/atencion-medica')} style={{cursor:'pointer'}}>
           <h2>PRODUCCIÓN CONSULTA AMBULATORIA</h2>
         </div>
-        <div className="box" onClick={() => navigate('/ranking-diagnostico')} style={{cursor:'pointer'}}>
+        <div className="box" onClick={() => navigate('/sistema-tablero/ranking-diagnostico')} style={{cursor:'pointer'}}>
           <h2>RANKING DE DIAGNÓSTICO</h2>
         </div>
       </div>
@@ -486,7 +486,7 @@ function IndicadoresCamasEstablecimiento() {
       <div className="panel" style={{maxWidth:900,margin:'40px auto',marginTop:40}}>
         <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:24}}>
           <h2 style={{color:'#223366',textTransform:'uppercase',fontWeight:'bold',fontSize:'1.3rem',margin:0}}>{nombreEstablecimiento}</h2>
-          <button className="analizar-btn" style={{padding:'8px 18px',fontSize:'1rem',marginLeft:16}} onClick={()=>navigate('/indicadores-camas')}>VOLVER</button>
+          <button className="analizar-btn" style={{padding:'8px 18px',fontSize:'1rem',marginLeft:16}} onClick={()=>navigate('/sistema-tablero/indicadores-camas')}>VOLVER</button>
         </div>
         <div className="form-group" style={{marginBottom:16, display:'flex', alignItems:'center', gap:8}}>
           <label>AÑO</label>
@@ -1147,7 +1147,7 @@ function AtencionMedicaEstablecimiento() {
       <div className="panel" style={{maxWidth:900,margin:'40px auto',marginTop:40}}>
         <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:24}}>
           <h2 style={{color:'#223366',textTransform:'uppercase',fontWeight:'bold',fontSize:'1.3rem',margin:0}}>{nombreEstablecimiento}</h2>
-          <button className="analizar-btn" style={{padding:'6px 14px',fontSize:'0.9rem',marginLeft:16}} onClick={()=>navigate('/atencion-medica')}>VOLVER</button>
+          <button className="analizar-btn" style={{padding:'6px 14px',fontSize:'0.9rem',marginLeft:16}} onClick={()=>navigate('/sistema-tablero/atencion-medica')}>VOLVER</button>
         </div>
         <div className="form-group" style={{marginBottom:16, display:'flex', alignItems:'center', gap:8}}>
           <label>AÑO</label>
@@ -1326,7 +1326,7 @@ function RankingDiagnosticoEstablecimiento() {
       <div className="panel" style={{maxWidth:900,margin:'40px auto',marginTop:40}}>
         <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:24}}>
           <h2 style={{color:'#223366',textTransform:'uppercase',fontWeight:'bold',fontSize:'1.3rem',margin:0}}>{nombreEstablecimiento}</h2>
-          <button className="analizar-btn" style={{padding:'8px 18px',fontSize:'1rem',marginLeft:16}} onClick={()=>navigate('/ranking-diagnostico')}>VOLVER</button>
+          <button className="analizar-btn" style={{padding:'8px 18px',fontSize:'1rem',marginLeft:16}} onClick={()=>navigate('/sistema-tablero/ranking-diagnostico')}>VOLVER</button>
         </div>
         
         <div className="zonas-grid" style={{gap: '20px', marginTop: '20px'}}>
