@@ -2135,12 +2135,14 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [showChangePassword, setShowChangePassword] = useState(false);
   
-  // Alert para verificar que App se está cargando
-  alert('Componente App cargándose');
+  // Debug: verificar que App se está cargando
+  console.log('Componente App cargándose');
 
   // Verificar token al cargar la aplicación (solo una vez)
   useEffect(() => {
+    console.log('useEffect ejecutándose - verificando token');
     const token = localStorage.getItem('token');
+    console.log('Token encontrado:', token ? 'SÍ' : 'NO');
     if (token) {
       // Verificar si el token es válido
       fetch('https://tablero-control-1.onrender.com/api/auth/verify', {
@@ -2150,21 +2152,26 @@ function App() {
       })
       .then(res => res.json())
       .then(data => {
+        console.log('Respuesta del servidor:', data);
         if (data.success) {
+          console.log('Usuario autenticado:', data.user);
           setUser(data.user);
           if (data.user.first_login) {
             setShowChangePassword(true);
           }
         } else {
+          console.log('Token inválido, removiendo del localStorage');
           localStorage.removeItem('token');
         }
         setLoading(false);
       })
-      .catch(() => {
+      .catch((error) => {
+        console.log('Error al verificar token:', error);
         localStorage.removeItem('token');
         setLoading(false);
       });
     } else {
+      console.log('No hay token, mostrando login');
       setLoading(false);
     }
   }, []); // Solo se ejecuta una vez al montar el componente
