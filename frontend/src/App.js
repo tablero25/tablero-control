@@ -151,21 +151,62 @@ const ZONAS = [
 ];
 
 // Página principal con los tres cuadros
-function Home() {
+function Home({ user }) {
   const navigate = useNavigate();
-  
+
+  // Filtrado de establecimientos según el rol
+  const getEstablecimientosPorZona = () => {
+    if (!user || user.role === 'ADMIN' || user.role === 'DIRECTOR') {
+      return ZONAS;
+    }
+    if (user.role === 'JEFE_ZONA' || user.role === 'GERENTE') {
+      const asignados = (user.establecimientos || []);
+      const asignadosNombres = asignados.map(e =>
+        (typeof e === 'string' ? e.toLowerCase().trim() : e.nombre.toLowerCase().trim())
+      );
+      return ZONAS.map(zona => ({
+        nombre: zona.nombre,
+        establecimientos: zona.establecimientos.filter(est =>
+          asignadosNombres.includes(est.toLowerCase().trim())
+        )
+      })).filter(zona => zona.establecimientos.length > 0);
+    }
+    return [];
+  };
+
+  const zonasFiltradas = getEstablecimientosPorZona();
+
+  // Renderiza un cuadro con los establecimientos agrupados
+  const renderCuadro = (titulo, rutaBase) => (
+    <div className="box" style={{cursor:'pointer', minWidth: 320}}>
+      <h2>{titulo}</h2>
+      <div className="zonas-grid-home">
+        {zonasFiltradas.map(zona => (
+          <div key={zona.nombre} className="zona-col">
+            <div className="zona-titulo">{zona.nombre}</div>
+            <div className="zona-establecimientos">
+              {zona.establecimientos.map(est => (
+                <button
+                  key={est}
+                  className="establecimiento-btn"
+                  onClick={() => navigate(`${rutaBase}/${encodeURIComponent(est)}`)}
+                >
+                  {est}
+                </button>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+
   return (
     <div className="tablero-bg">
-      <div className="container">
-        <div className="box" onClick={() => navigate('indicadores-camas')} style={{cursor:'pointer'}}>
-          <h2>PRODUCCIÓN INTERNACIÓN</h2>
-        </div>
-        <div className="box" onClick={() => navigate('atencion-medica')} style={{cursor:'pointer'}}>
-          <h2>PRODUCCIÓN CONSULTA AMBULATORIA</h2>
-        </div>
-        <div className="box" onClick={() => navigate('ranking-diagnostico')} style={{cursor:'pointer'}}>
-          <h2>RANKING DE DIAGNÓSTICO</h2>
-        </div>
+      <div className="container" style={{display:'flex', gap:24, flexWrap:'wrap', justifyContent:'center'}}>
+        {renderCuadro('PRODUCCIÓN INTERNACIÓN', 'indicadores-camas')}
+        {renderCuadro('PRODUCCIÓN CONSULTA AMBULATORIA', 'atencion-medica')}
+        {renderCuadro('RANKING DE DIAGNÓSTICO', 'ranking-diagnostico')}
       </div>
     </div>
   );
