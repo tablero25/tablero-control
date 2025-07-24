@@ -50,26 +50,16 @@ const SafeGaugeChart = ({ percent, ...props }) => {
 // Componente Header común para todas las páginas
 const Header = ({ user, handleLogout, showConfigButton = true }) => {
   return (
-    <>
-      <div className="logout-bar">
-        <div className="logo-section">
-          <img src="/static/media/logoo.c9263002735465189850.png" alt="Logo SDO" style={{height: '30px', marginRight: '10px'}} />
-          <span style={{color: '#fff', fontWeight: 'bold'}}>SISTEMA DE TABLEROS DE CONTROL</span>
-        </div>
-        <div className="user-section">
-          <span className="user-name">{user?.nombre} {user?.apellido}</span>
-          {user?.role === 'ADMIN' && showConfigButton && (
-            <button className="config-btn" onClick={() => window.location.href = '/configuracion'}>
-              Configuración
-            </button>
-          )}
-          <button className="config-btn" onClick={() => window.location.href = '/sistema-tablero'}>
-            Inicio
-          </button>
-          <button className="logout-btn" onClick={handleLogout}>Cerrar sesión</button>
-        </div>
-      </div>
-    </>
+    <div className="header-bar">
+      <img src="/static/media/logoo.c9263002735465189850.png" alt="Logo SDO" className="header-logo" />
+      {user?.role === 'ADMIN' && showConfigButton && (
+        <button className="config-btn" onClick={() => window.location.href = '/configuracion'}>
+          Configuración
+        </button>
+      )}
+      <span className="user-name">{user?.nombre} {user?.apellido}</span>
+      <button className="logout-btn" onClick={handleLogout}>Cerrar sesión</button>
+    </div>
   );
 };
 
@@ -1982,10 +1972,7 @@ function App() {
               <Header user={user} handleLogout={handleLogout} showConfigButton={false} />
               
               <div className="tablero-bg">
-                <div className="logo-sdo-banner">
-                  <img src="/static/media/logoo.c9263002735465189850.png" alt="Logo SDO" />
-                  <h1 className="banner-title">SISTEMA DE TABLEROS DE CONTROL</h1>
-                </div>
+                
 
                 <div className="container">
                   <Routes>
