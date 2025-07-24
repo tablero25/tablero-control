@@ -2131,6 +2131,8 @@ function EditarRolModal({ user, onClose, onSave }) {
 
 // Componente principal de la aplicación
 function App() {
+  console.log('🚀 APP.JS EJECUTÁNDOSE - VERSIÓN ACTUALIZADA');
+  
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showChangePassword, setShowChangePassword] = useState(false);
