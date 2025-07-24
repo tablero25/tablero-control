@@ -267,6 +267,98 @@ function IndicadoresCamas({ user }) {
   );
 }
 
+function RankingDiagnostico({ user }) {
+  const navigate = useNavigate();
+
+  const getEstablecimientosPorZona = () => {
+    if (!user || user.role === 'ADMIN' || user.role === 'DIRECTOR') {
+      return ZONAS;
+    }
+    if (user.role === 'JEFE_ZONA' || user.role === 'GERENTE') {
+      const asignados = (user.establecimientos || []).map(e => (typeof e === 'string' ? e.toLowerCase().trim() : e.nombre.toLowerCase().trim()));
+      return ZONAS.map(zona => ({
+        nombre: zona.nombre,
+        establecimientos: zona.establecimientos.filter(est => asignados.includes(est.toLowerCase().trim()))
+      })).filter(zona => zona.establecimientos.length > 0);
+    }
+    return [];
+  };
+
+  const zonasFiltradas = getEstablecimientosPorZona();
+
+  return (
+    <div className="tablero-bg">
+      <div style={{textAlign:'center', padding:'30px 0', color:'#fff'}}>
+        <h2 style={{fontSize:'2rem', margin:0}}>RANKING DE DIAGNÓSTICO</h2>
+      </div>
+      <div className="zonas-grid">
+        {zonasFiltradas.map(zona => (
+          <div key={zona.nombre} className="zona-col">
+            <div className="zona-titulo">{zona.nombre}</div>
+            <div className="zona-establecimientos">
+              {zona.establecimientos.map(est => (
+                <button
+                  key={est}
+                  className="establecimiento-btn"
+                  onClick={() => navigate(`/sistema-tablero/ranking-diagnostico/${encodeURIComponent(est)}`)}
+                >
+                  {est}
+                </button>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function AtencionMedica({ user }) {
+  const navigate = useNavigate();
+
+  const getEstablecimientosPorZona = () => {
+    if (!user || user.role === 'ADMIN' || user.role === 'DIRECTOR') {
+      return ZONAS;
+    }
+    if (user.role === 'JEFE_ZONA' || user.role === 'GERENTE') {
+      const asignados = (user.establecimientos || []).map(e => (typeof e === 'string' ? e.toLowerCase().trim() : e.nombre.toLowerCase().trim()));
+      return ZONAS.map(zona => ({
+        nombre: zona.nombre,
+        establecimientos: zona.establecimientos.filter(est => asignados.includes(est.toLowerCase().trim()))
+      })).filter(zona => zona.establecimientos.length > 0);
+    }
+    return [];
+  };
+
+  const zonasFiltradas = getEstablecimientosPorZona();
+
+  return (
+    <div className="tablero-bg">
+      <div style={{textAlign:'center', padding:'30px 0', color:'#fff'}}>
+        <h2 style={{fontSize:'2rem', margin:0}}>PRODUCCIÓN CONSULTA AMBULATORIA</h2>
+      </div>
+      <div className="zonas-grid">
+        {zonasFiltradas.map(zona => (
+          <div key={zona.nombre} className="zona-col">
+            <div className="zona-titulo">{zona.nombre}</div>
+            <div className="zona-establecimientos">
+              {zona.establecimientos.map(est => (
+                <button
+                  key={est}
+                  className="establecimiento-btn"
+                  onClick={() => navigate(`/sistema-tablero/atencion-medica/${encodeURIComponent(est)}`)}
+                >
+                  {est}
+                </button>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // Pantalla específica de establecimiento para INDICADORES CAMAS
 function IndicadoresCamasEstablecimiento({ user }) {
   const { nombre } = useParams();
@@ -834,44 +926,6 @@ function IndicadoresCamasEstablecimiento({ user }) {
 }
 
 // Pantalla específica de establecimiento para ATENCION MEDICA
-function AtencionMedica({ user }) {
-  const navigate = useNavigate();
-  let establecimientosPorZona = [];
-  
-  if (user && (user.role === 'JEFE_ZONA' || user.role === 'GERENTE')) {
-    const asignados = (user.establecimientos || []);
-    const asignadosNombres = asignados.map(e =>
-      (typeof e === 'string' ? e.toLowerCase().trim() : e.nombre.toLowerCase().trim())
-    );
-    
-    ZONAS.forEach(zona => {
-      const ests = zona.establecimientos.filter(est => {
-        const estLower = est.toLowerCase().trim();
-        return asignadosNombres.includes(estLower);
-      });
-      if (ests.length > 0) {
-        establecimientosPorZona.push({ nombre: zona.nombre, establecimientos: ests });
-      }
-    });
-  } else {
-    establecimientosPorZona = ZONAS;
-  }
-  return (
-    <div className="tablero-bg">
-      <div style={{textAlign:'center', padding:'30px 0', color:'#fff'}}>
-        <h2 style={{fontSize:'2rem', margin:0}}>PRODUCCIÓN CONSULTA AMBULATORIA</h2>
-        <p>Seleccione un establecimiento para ver los datos o cargue archivos si es la primera vez.</p>
-      </div>
-      <div className="zonas-grid">
-        {establecimientosPorZona && establecimientosPorZona.length > 0 ? (
-          establecimientosPorZona.map(zona => (
-            <div key={zona.nombre} className="zona-col">
-              <div className="zona-titulo">{zona.nombre}</div>
-              <div className="zona-establecimientos">
-                {zona.establecimientos.map(est => (
-                  <button
-                    key={est}
-                    className="establecimiento-btn"
                     onClick={() => navigate(`/atencion-medica/${encodeURIComponent(est)}`)}
                   >
                     {est}
