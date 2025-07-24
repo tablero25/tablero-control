@@ -189,7 +189,7 @@ function Home({ user }) {
                 <button
                   key={est}
                   className="establecimiento-btn"
-                  onClick={() => navigate(`${rutaBase}/${encodeURIComponent(est)}`)}
+                  onClick={() => navigate(`/sistema-tablero/${rutaBase}/${encodeURIComponent(est)}`)}
                 >
                   {est}
                 </button>
