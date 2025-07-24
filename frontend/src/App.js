@@ -2331,24 +2331,13 @@ function App() {
                 )}
                 <button className="logout-btn" onClick={handleLogout}>Cerrar sesión</button>
               </div>
-              
               <div className="tablero-bg">
                 <div className="logo-sdo-banner">
                   <img src="/static/media/logoo.c9263002735465189850.png" alt="Logo SDO" />
                   <h1 className="banner-title">SISTEMA DE TABLEROS DE CONTROL</h1>
                 </div>
-
                 <div className="container">
-                  <Routes>
-                    <Route path="/" element={<Home />} />
-                    <Route path="/indicadores-camas" element={<IndicadoresCamas user={user} />} />
-                                         <Route path="/indicadores-camas/:nombre" element={<IndicadoresCamasEstablecimiento user={user} />} />
-                    <Route path="/atencion-medica" element={<AtencionMedica user={user} />} />
-                    <Route path="/atencion-medica/:nombre" element={<AtencionMedicaEstablecimiento user={user} />} />
-                    <Route path="/ranking-diagnostico" element={<RankingDiagnostico user={user} />} />
-                    <Route path="/ranking-diagnostico/:nombre" element={<RankingDiagnosticoEstablecimiento />} />
-                    <Route path="/ranking-diagnostico/:nombre/:categoria" element={<RankingDiagnosticoCategoria />} />
-                  </Routes>
+                  <Home />
                 </div>
               </div>
             </div>
