@@ -47,6 +47,32 @@ const SafeGaugeChart = ({ percent, ...props }) => {
 //   <img src={logoSDO} alt="Logo SDO" style={{height: '40px'}} />
 // );
 
+// Componente Header común para todas las páginas
+const Header = ({ user, handleLogout, showConfigButton = true }) => {
+  return (
+    <>
+      <div className="logout-bar">
+        <div className="logo-section">
+          <img src="/static/media/logoo.c9263002735465189850.png" alt="Logo SDO" style={{height: '30px', marginRight: '10px'}} />
+          <span style={{color: '#fff', fontWeight: 'bold'}}>SISTEMA DE TABLEROS DE CONTROL</span>
+        </div>
+        <div className="user-section">
+          <span className="user-name">{user?.nombre} {user?.apellido}</span>
+          {user?.role === 'ADMIN' && showConfigButton && (
+            <button className="config-btn" onClick={() => window.location.href = '/configuracion'}>
+              Configuración
+            </button>
+          )}
+          <button className="config-btn" onClick={() => window.location.href = '/sistema-tablero'}>
+            Inicio
+          </button>
+          <button className="logout-btn" onClick={handleLogout}>Cerrar sesión</button>
+        </div>
+      </div>
+    </>
+  );
+};
+
 // Lista de meses del año
 const MESES = [
   'ENERO', 'FEBRERO', 'MARZO', 'ABRIL', 'MAYO', 'JUNIO',
@@ -1919,13 +1945,7 @@ function App() {
         <Route path="/sistema-tablero/indicadores-camas" element={
           user ? (
             <div>
-              <div className="logout-bar">
-                <span className="user-name">{user?.nombre} {user?.apellido}</span>
-                <button className="config-btn" onClick={() => window.location.href = '/sistema-tablero'}>
-                  Volver al Sistema
-                </button>
-                <button className="logout-btn" onClick={handleLogout}>Cerrar sesión</button>
-              </div>
+              <Header user={user} handleLogout={handleLogout} />
               <IndicadoresCamas />
             </div>
           ) : (
@@ -1936,13 +1956,7 @@ function App() {
         <Route path="/sistema-tablero/atencion-medica" element={
           user ? (
             <div>
-              <div className="logout-bar">
-                <span className="user-name">{user?.nombre} {user?.apellido}</span>
-                <button className="config-btn" onClick={() => window.location.href = '/sistema-tablero'}>
-                  Volver al Sistema
-                </button>
-                <button className="logout-btn" onClick={handleLogout}>Cerrar sesión</button>
-              </div>
+              <Header user={user} handleLogout={handleLogout} />
               <AtencionMedica />
             </div>
           ) : (
@@ -1953,13 +1967,7 @@ function App() {
         <Route path="/sistema-tablero/ranking-diagnostico" element={
           user ? (
             <div>
-              <div className="logout-bar">
-                <span className="user-name">{user?.nombre} {user?.apellido}</span>
-                <button className="config-btn" onClick={() => window.location.href = '/sistema-tablero'}>
-                  Volver al Sistema
-                </button>
-                <button className="logout-btn" onClick={handleLogout}>Cerrar sesión</button>
-              </div>
+              <Header user={user} handleLogout={handleLogout} />
               <RankingDiagnostico />
             </div>
           ) : (
@@ -1971,15 +1979,7 @@ function App() {
         <Route path="/sistema-tablero" element={
           user ? (
             <div>
-              <div className="logout-bar">
-                <span className="user-name">{user?.nombre} {user?.apellido}</span>
-                {user?.role === 'ADMIN' && (
-                  <button className="config-btn" onClick={() => window.location.href = '/configuracion'}>
-                    Configuración
-                  </button>
-                )}
-                <button className="logout-btn" onClick={handleLogout}>Cerrar sesión</button>
-              </div>
+              <Header user={user} handleLogout={handleLogout} showConfigButton={false} />
               
               <div className="tablero-bg">
                 <div className="logo-sdo-banner">
@@ -2009,13 +2009,7 @@ function App() {
         <Route path="/configuracion" element={
           user && user.role === 'ADMIN' ? (
             <div>
-              <div className="logout-bar">
-                <span className="user-name">{user?.nombre} {user?.apellido}</span>
-                <button className="config-btn" onClick={() => window.location.href = '/sistema-tablero'}>
-                  Sistema de Tablero
-                </button>
-                <button className="logout-btn" onClick={handleLogout}>Cerrar sesión</button>
-              </div>
+              <Header user={user} handleLogout={handleLogout} showConfigButton={false} />
               <Configuracion onClose={() => window.location.href = '/sistema-tablero'} />
             </div>
           ) : (
@@ -2026,13 +2020,7 @@ function App() {
         <Route path="/gestion-usuarios" element={
           user && user.role === 'ADMIN' ? (
             <div>
-              <div className="logout-bar">
-                <span className="user-name">{user?.nombre} {user?.apellido}</span>
-                <button className="config-btn" onClick={() => window.location.href = '/configuracion'}>
-                  Volver a Configuración
-                </button>
-                <button className="logout-btn" onClick={handleLogout}>Cerrar sesión</button>
-              </div>
+              <Header user={user} handleLogout={handleLogout} />
               <Configuracion onClose={() => window.location.href = '/configuracion'} />
             </div>
           ) : (
@@ -2043,13 +2031,7 @@ function App() {
         <Route path="/perfiles" element={
           user && user.role === 'ADMIN' ? (
             <div>
-              <div className="logout-bar">
-                <span className="user-name">{user?.nombre} {user?.apellido}</span>
-                <button className="config-btn" onClick={() => window.location.href = '/configuracion'}>
-                  Volver a Configuración
-                </button>
-                <button className="logout-btn" onClick={handleLogout}>Cerrar sesión</button>
-              </div>
+              <Header user={user} handleLogout={handleLogout} />
               <Configuracion onClose={() => window.location.href = '/configuracion'} />
             </div>
           ) : (
