@@ -154,28 +154,16 @@ const ZONAS = [
 function Home() {
   const navigate = useNavigate();
   
-  // Alert para verificar que Home se está ejecutando
-  alert('Componente Home ejecutándose');
-  
   return (
     <div className="tablero-bg">
       <div className="container">
-        <div className="box" onClick={() => {
-          alert('Haciendo clic en PRODUCCIÓN INTERNACIÓN');
-          navigate('indicadores-camas');
-        }} style={{cursor:'pointer'}}>
+        <div className="box" onClick={() => navigate('indicadores-camas')} style={{cursor:'pointer'}}>
           <h2>PRODUCCIÓN INTERNACIÓN</h2>
         </div>
-        <div className="box" onClick={() => {
-          alert('Haciendo clic en PRODUCCIÓN CONSULTA AMBULATORIA');
-          navigate('atencion-medica');
-        }} style={{cursor:'pointer'}}>
+        <div className="box" onClick={() => navigate('atencion-medica')} style={{cursor:'pointer'}}>
           <h2>PRODUCCIÓN CONSULTA AMBULATORIA</h2>
         </div>
-        <div className="box" onClick={() => {
-          alert('Haciendo clic en RANKING DE DIAGNÓSTICO');
-          navigate('ranking-diagnostico');
-        }} style={{cursor:'pointer'}}>
+        <div className="box" onClick={() => navigate('ranking-diagnostico')} style={{cursor:'pointer'}}>
           <h2>RANKING DE DIAGNÓSTICO</h2>
         </div>
       </div>
@@ -188,41 +176,24 @@ function IndicadoresCamas({ user }) {
   const navigate = useNavigate();
   let establecimientosPorZona = [];
   
-  console.log('=== DEBUG INDICADORES CAMAS V2 ===');
-  console.log('IndicadoresCamas - User:', user);
-  console.log('IndicadoresCamas - User role:', user?.role);
-  console.log('IndicadoresCamas - User establecimientos:', user?.establecimientos);
-  
   if (user && (user.role === 'JEFE_ZONA' || user.role === 'GERENTE')) {
-    console.log('IndicadoresCamas - Usuario es JEFE_ZONA o GERENTE, aplicando filtro');
     const asignados = (user.establecimientos || []);
     const asignadosNombres = asignados.map(e =>
       (typeof e === 'string' ? e.toLowerCase().trim() : e.nombre.toLowerCase().trim())
     );
     
-    console.log('IndicadoresCamas - Asignados nombres:', asignadosNombres);
-    console.log('IndicadoresCamas - ZONAS disponibles:', ZONAS);
-    
     ZONAS.forEach(zona => {
-      console.log(`IndicadoresCamas - Procesando zona: ${zona.nombre}`);
       const ests = zona.establecimientos.filter(est => {
         const estLower = est.toLowerCase().trim();
-        const isIncluded = asignadosNombres.includes(estLower);
-        console.log(`IndicadoresCamas - Establecimiento "${est}" (${estLower}) incluido: ${isIncluded}`);
-        return isIncluded;
+        return asignadosNombres.includes(estLower);
       });
       if (ests.length > 0) {
         establecimientosPorZona.push({ nombre: zona.nombre, establecimientos: ests });
-        console.log(`IndicadoresCamas - Zona ${zona.nombre} agregada con ${ests.length} establecimientos`);
       }
     });
-    
-    console.log('IndicadoresCamas - Establecimientos filtrados finales:', establecimientosPorZona);
   } else {
     establecimientosPorZona = ZONAS;
-    console.log('IndicadoresCamas - Mostrando todos los establecimientos (ADMIN/DIRECTOR)');
   }
-
   return (
     <div className="tablero-bg">
       <div style={{textAlign:'center', padding:'30px 0', color:'#fff'}}>
@@ -835,40 +806,23 @@ function AtencionMedica({ user }) {
   const navigate = useNavigate();
   let establecimientosPorZona = [];
   
-  // Log muy visible para debug
-  alert('AtencionMedica ejecutándose - User: ' + JSON.stringify(user));
-  console.log('AtencionMedica - User:', user);
-  console.log('AtencionMedica - User role:', user?.role);
-  console.log('AtencionMedica - User establecimientos:', user?.establecimientos);
-  
   if (user && (user.role === 'JEFE_ZONA' || user.role === 'GERENTE')) {
-    console.log('AtencionMedica - Usuario es JEFE_ZONA o GERENTE, aplicando filtro');
     const asignados = (user.establecimientos || []);
     const asignadosNombres = asignados.map(e =>
       (typeof e === 'string' ? e.toLowerCase().trim() : e.nombre.toLowerCase().trim())
     );
     
-    console.log('AtencionMedica - Asignados nombres:', asignadosNombres);
-    console.log('AtencionMedica - ZONAS disponibles:', ZONAS);
-    
     ZONAS.forEach(zona => {
-      console.log(`AtencionMedica - Procesando zona: ${zona.nombre}`);
       const ests = zona.establecimientos.filter(est => {
         const estLower = est.toLowerCase().trim();
-        const isIncluded = asignadosNombres.includes(estLower);
-        console.log(`AtencionMedica - Establecimiento "${est}" (${estLower}) incluido: ${isIncluded}`);
-        return isIncluded;
+        return asignadosNombres.includes(estLower);
       });
       if (ests.length > 0) {
         establecimientosPorZona.push({ nombre: zona.nombre, establecimientos: ests });
-        console.log(`AtencionMedica - Zona ${zona.nombre} agregada con ${ests.length} establecimientos`);
       }
     });
-    
-    console.log('AtencionMedica - Establecimientos filtrados finales:', establecimientosPorZona);
   } else {
     establecimientosPorZona = ZONAS;
-    console.log('AtencionMedica - Mostrando todos los establecimientos (ADMIN/DIRECTOR)');
   }
   return (
     <div className="tablero-bg">
@@ -1491,17 +1445,11 @@ function RankingDiagnostico({ user }) {
   const navigate = useNavigate();
   let establecimientosPorZona = [];
   
-  console.log('RankingDiagnostico - User:', user);
-  console.log('RankingDiagnostico - User role:', user?.role);
-  console.log('RankingDiagnostico - User establecimientos:', user?.establecimientos);
-  
   if (user && (user.role === 'JEFE_ZONA' || user.role === 'GERENTE')) {
     const asignados = (user.establecimientos || []);
     const asignadosNombres = asignados.map(e =>
       (typeof e === 'string' ? e.toLowerCase().trim() : e.nombre.toLowerCase().trim())
     );
-    
-    console.log('RankingDiagnostico - Asignados nombres:', asignadosNombres);
     
     ZONAS.forEach(zona => {
       const ests = zona.establecimientos.filter(est =>
@@ -1511,11 +1459,8 @@ function RankingDiagnostico({ user }) {
         establecimientosPorZona.push({ nombre: zona.nombre, establecimientos: ests });
       }
     });
-    
-    console.log('RankingDiagnostico - Establecimientos filtrados:', establecimientosPorZona);
   } else {
     establecimientosPorZona = ZONAS;
-    console.log('RankingDiagnostico - Mostrando todos los establecimientos (ADMIN/DIRECTOR)');
   }
   return (
     <div className="tablero-bg">
