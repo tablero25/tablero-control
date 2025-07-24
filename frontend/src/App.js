@@ -2291,10 +2291,7 @@ function App() {
                 </button>
                 <button className="logout-btn" onClick={handleLogout}>Cerrar sesión</button>
               </div>
-              {(() => {
-                alert('Ruta atencion-medica ejecutándose - User: ' + JSON.stringify(user));
-                return <AtencionMedica user={user} />;
-              })()}
+              <AtencionMedica user={user} />
             </div>
           ) : (
             <Login />
@@ -2343,12 +2340,7 @@ function App() {
                     <Route path="/" element={<Home />} />
                     <Route path="/indicadores-camas" element={<IndicadoresCamas user={user} />} />
                                          <Route path="/indicadores-camas/:nombre" element={<IndicadoresCamasEstablecimiento user={user} />} />
-                    <Route path="/atencion-medica" element={
-                      (() => {
-                        alert('Ruta anidada atencion-medica ejecutándose - User: ' + JSON.stringify(user));
-                        return <AtencionMedica user={user} />;
-                      })()
-                    } />
+                    <Route path="/atencion-medica" element={<AtencionMedica user={user} />} />
                     <Route path="/atencion-medica/:nombre" element={<AtencionMedicaEstablecimiento user={user} />} />
                     <Route path="/ranking-diagnostico" element={<RankingDiagnostico user={user} />} />
                     <Route path="/ranking-diagnostico/:nombre" element={<RankingDiagnosticoEstablecimiento />} />
