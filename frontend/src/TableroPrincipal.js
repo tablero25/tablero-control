@@ -28,12 +28,16 @@ function TableroPrincipal({ user, onLogout }) {
               </div>
               
               <div className="dashboard-actions">
-                <button onClick={() => window.location.href = '/configuracion'} className="dashboard-btn">
-                  ⚙️ Configuración
-                </button>
-                <button onClick={() => window.location.href = '/roles'} className="dashboard-btn">
-                  👥 Gestión de Roles
-                </button>
+                {user && user.role === 'ADMIN' && (
+  <>
+    <button onClick={() => window.location.href = '/configuracion'} className="dashboard-btn">
+      ⚙️ Configuración
+    </button>
+    <button onClick={() => window.location.href = '/roles'} className="dashboard-btn">
+      👥 Gestión de Roles
+    </button>
+  </>
+) }
                 <button onClick={() => window.location.href = '/change-password'} className="dashboard-btn">
                   🔑 Cambiar Contraseña
                 </button>

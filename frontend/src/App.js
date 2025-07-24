@@ -2337,7 +2337,7 @@ function App() {
                   <h1 className="banner-title">SISTEMA DE TABLEROS DE CONTROL</h1>
                 </div>
                 <div className="container">
-                  <Home />
+                  <Home user={user} />
                 </div>
               </div>
             </div>
