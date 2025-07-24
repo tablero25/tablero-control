@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Routes, Route, useNavigate, useParams } from 'react-router-dom';
+import { Routes, Route, useNavigate, useParams, Outlet, Navigate } from 'react-router-dom';
 import './App.css';
 import GaugeChart from 'react-gauge-chart';
 import * as XLSX from 'xlsx';
@@ -2227,6 +2227,34 @@ function EditarRolModal({ user, onClose, onSave }) {
 }
 
 // Componente principal de la aplicación
+// Layout principal para vistas protegidas
+const MainLayout = ({ user, handleLogout, children }) => (
+  <div>
+    <div className="logout-bar">
+      <span className="user-name">{user?.nombre} {user?.apellido}</span>
+      {user?.role === 'ADMIN' && (
+        <button className="config-btn" onClick={() => window.location.href = '/configuracion'}>
+          Configuración
+        </button>
+      )}
+       <button className="config-btn" onClick={() => window.location.href = '/sistema-tablero'}>
+          Tablero Principal
+       </button>
+      <button className="logout-btn" onClick={handleLogout}>Cerrar sesión</button>
+    </div>
+    <div className="tablero-bg">
+      <div className="logo-sdo-banner">
+        <img src="/static/media/logoo.c9263002735465189850.png" alt="Logo SDO" />
+        <h1 className="banner-title">SISTEMA DE TABLEROS DE CONTROL</h1>
+      </div>
+      <div className="container">
+        {children}
+      </div>
+    </div>
+  </div>
+);
+
+
 function App() {
   console.log('🚀 APP.JS EJECUTÁNDOSE - VERSIÓN ACTUALIZADA');
   
@@ -2302,102 +2330,42 @@ function App() {
     <div className="App">
       <Routes>
         {/* Rutas públicas */}
-        <Route path="/" element={<Login />} />
-        <Route path="/login" element={<Login />} />
+        <Route path="/" element={user ? <Navigate to="/sistema-tablero" /> : <Login onLoginSuccess={(userData) => setUser(userData)} />} />
+        <Route path="/login" element={user ? <Navigate to="/sistema-tablero" /> : <Login onLoginSuccess={(userData) => setUser(userData)} />} />
         <Route path="/registrarse" element={<Register />} />
         <Route path="/confirmar/:token" element={<ConfirmEmail />} />
-        
-        {/* Rutas directas para las secciones principales */}
-        <Route path="/indicadores-camas" element={<Navigate to="/sistema-tablero/indicadores-camas" replace />} />
-        
-        <Route path="/atencion-medica" element={<Navigate to="/sistema-tablero/atencion-medica" replace />} />
-        
-        <Route path="/ranking-diagnostico" element={<Navigate to="/sistema-tablero/ranking-diagnostico" replace />} />
-        
-        {/* Rutas protegidas */}
-        <Route path="/sistema-tablero" element={
-          user ? (
-            <div>
-              <div className="logout-bar">
-                <span className="user-name">{user?.nombre} {user?.apellido}</span>
-                {user?.role === 'ADMIN' && (
-                  <button className="config-btn" onClick={() => window.location.href = '/configuracion'}>
-                    Configuración
-                  </button>
-                )}
-                <button className="logout-btn" onClick={handleLogout}>Cerrar sesión</button>
-              </div>
-              <div className="tablero-bg">
-                <div className="logo-sdo-banner">
-                  <img src="/static/media/logoo.c9263002735465189850.png" alt="Logo SDO" />
-                  <h1 className="banner-title">SISTEMA DE TABLEROS DE CONTROL</h1>
-                </div>
-                <div className="container">
-                  <Home user={user} />
-                </div>
-              </div>
-            </div>
-          ) : (
-            <Login />
-          )
-        } />
-        
-        <Route path="/configuracion" element={
-          user && user.role === 'ADMIN' ? (
-            <div className="tablero-bg">
-              <div className="logo-sdo-banner">
-                <img src="/static/media/logoo.c9263002735465189850.png" alt="Logo SDO" />
-                <h1 className="banner-title">SISTEMA DE TABLEROS DE CONTROL</h1>
-              </div>
-              <div className="logout-bar">
-                <span className="user-name">{user?.nombre} {user?.apellido}</span>
-                <button className="config-btn" onClick={() => window.location.href = '/sistema-tablero'}>
-                  Sistema de Tablero
-                </button>
-                <button className="logout-btn" onClick={handleLogout}>Cerrar sesión</button>
-              </div>
-              <div className="container">
-                <Configuracion onClose={() => window.location.href = '/sistema-tablero'} />
-              </div>
-            </div>
-          ) : (
-            <Login />
-          )
-        } />
-        
-        <Route path="/perfil" element={user ? <Perfil user={user} token={localStorage.getItem('token')} /> : <Login />} />
-        <Route path="/perfiles" element={user ? <Perfil user={user} token={localStorage.getItem('token')} /> : <Login />} />
-        
         <Route path="/change-password" element={<ChangePassword />} />
-        {/* Rutas directas para los detalles de cada sección */}
-                  <Route path="/indicadores-camas/:nombre" element={
-            user ? (
-              <IndicadoresCamasEstablecimiento user={user} />
-            ) : (
-              <Login />
-            )
-          } />
-        <Route path="/atencion-medica/:nombre" element={
-          user ? (
-            <AtencionMedicaEstablecimiento user={user} />
-          ) : (
-            <Login />
-          )
-        } />
-        <Route path="/ranking-diagnostico/:nombre" element={
-          user ? (
-            <RankingDiagnosticoEstablecimiento />
-          ) : (
-            <Login />
-          )
-        } />
-        <Route path="/ranking-diagnostico/:nombre/:categoria" element={
-          user ? (
-            <RankingDiagnosticoCategoria />
-          ) : (
-            <Login />
-          )
-        } />
+
+        {/* Redirecciones de rutas antiguas */}
+        <Route path="/indicadores-camas" element={<Navigate to="/sistema-tablero/indicadores-camas" replace />} />
+        <Route path="/atencion-medica" element={<Navigate to="/sistema-tablero/atencion-medica" replace />} />
+        <Route path="/ranking-diagnostico" element={<Navigate to="/sistema-tablero/ranking-diagnostico" replace />} />
+
+        {/* Rutas protegidas con Layout */}
+        <Route 
+          path="/sistema-tablero/*"
+          element={user ? <MainLayout user={user} handleLogout={handleLogout}><Outlet /></MainLayout> : <Navigate to="/login" />}
+        >
+          <Route index element={<Home user={user} />} />
+          <Route path="indicadores-camas" element={<IndicadoresCamas user={user} />} />
+          <Route path="indicadores-camas/:nombre" element={<IndicadoresCamasEstablecimiento user={user} />} />
+          <Route path="atencion-medica" element={<AtencionMedica user={user} />} />
+          <Route path="atencion-medica/:nombre" element={<AtencionMedicaEstablecimiento user={user} />} />
+          <Route path="ranking-diagnostico" element={<RankingDiagnostico user={user} />} />
+          <Route path="ranking-diagnostico/:nombre" element={<RankingDiagnosticoEstablecimiento />} />
+          <Route path="ranking-diagnostico/:nombre/:categoria" element={<RankingDiagnosticoCategoria />} />
+        </Route>
+
+        <Route 
+          path="/configuracion"
+          element={user && user.role === 'ADMIN' ? <MainLayout user={user} handleLogout={handleLogout}><Configuracion onClose={() => navigate('/sistema-tablero')} /></MainLayout> : <Navigate to="/login" />}
+        />
+
+        <Route 
+          path="/perfil"
+          element={user ? <MainLayout user={user} handleLogout={handleLogout}><Perfil user={user} token={localStorage.getItem('token')} /></MainLayout> : <Navigate to="/login" />}
+        />
+
       </Routes>
     </div>
   );
