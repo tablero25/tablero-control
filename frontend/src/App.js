@@ -925,11 +925,6 @@ function IndicadoresCamasEstablecimiento({ user }) {
   );
 }
 
-
-    </div>
-  );
-}
-
 // Pantalla específica de establecimiento para ATENCION MEDICA (ahora layout con Outlet)
 function AtencionMedicaEstablecimiento({ user }) {
   const { nombre } = useParams();
