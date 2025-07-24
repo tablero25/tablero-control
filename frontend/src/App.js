@@ -2134,6 +2134,9 @@ function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showChangePassword, setShowChangePassword] = useState(false);
+  
+  // Alert para verificar que App se está cargando
+  alert('Componente App cargándose');
 
   // Verificar token al cargar la aplicación (solo una vez)
   useEffect(() => {
