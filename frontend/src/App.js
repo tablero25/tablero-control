@@ -734,17 +734,23 @@ function AtencionMedica({ user }) {
     );
     
     console.log('AtencionMedica - Asignados nombres:', asignadosNombres);
+    console.log('AtencionMedica - ZONAS disponibles:', ZONAS);
     
     ZONAS.forEach(zona => {
-      const ests = zona.establecimientos.filter(est =>
-        asignadosNombres.includes(est.toLowerCase().trim())
-      );
+      console.log(`AtencionMedica - Procesando zona: ${zona.nombre}`);
+      const ests = zona.establecimientos.filter(est => {
+        const estLower = est.toLowerCase().trim();
+        const isIncluded = asignadosNombres.includes(estLower);
+        console.log(`AtencionMedica - Establecimiento "${est}" (${estLower}) incluido: ${isIncluded}`);
+        return isIncluded;
+      });
       if (ests.length > 0) {
         establecimientosPorZona.push({ nombre: zona.nombre, establecimientos: ests });
+        console.log(`AtencionMedica - Zona ${zona.nombre} agregada con ${ests.length} establecimientos`);
       }
     });
     
-    console.log('AtencionMedica - Establecimientos filtrados:', establecimientosPorZona);
+    console.log('AtencionMedica - Establecimientos filtrados finales:', establecimientosPorZona);
   } else {
     establecimientosPorZona = ZONAS;
     console.log('AtencionMedica - Mostrando todos los establecimientos (ADMIN/DIRECTOR)');
