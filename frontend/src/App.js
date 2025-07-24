@@ -255,73 +255,25 @@ function IndicadoresCamas({ user }) {
   );
 }
 
-// Pantalla específica de establecimiento
-function IndicadoresCamasEstablecimiento() {
+// Pantalla específica de establecimiento para INDICADORES CAMAS
+function IndicadoresCamasEstablecimiento({ user }) {
   const { nombre } = useParams();
   const navigate = useNavigate();
+  const nombreEstablecimiento = decodeURIComponent(nombre);
   const [anio, setAnio] = useState(new Date().getFullYear());
   const [mesesSeleccionados, setMesesSeleccionados] = useState([]);
   const [archivo, setArchivo] = useState(null);
-  const [datos, setDatos] = useState([]);
-  const [resultados, setResultados] = useState(null);
-  const [resultadosPorMes, setResultadosPorMes] = useState(null);
-  const [observacion, setObservacion] = useState('');
-  const [error, setError] = useState('');
-
-  const [archivos, setArchivos] = useState([]);
-  const nombreEstablecimiento = decodeURIComponent(nombre);
-  const [todos, setTodos] = useState(false);
   const [guardando, setGuardando] = useState(false);
-  const [guardado, setGuardado] = useState(false);
-  const [archivoSeleccionado, setArchivoSeleccionado] = useState(""); // Nuevo estado para el archivo seleccionado en la lista
-  const [infoDeteccionAnio, setInfoDeteccionAnio] = useState(null); // Info sobre detección automática de año
+  const [mensaje, setMensaje] = useState("");
+  const [error, setError] = useState("");
+  const [datos, setDatos] = useState(null);
+  const [totalTurnos, setTotalTurnos] = useState(null);
+  const [totalGuardia, setTotalGuardia] = useState(null);
+  const [todos, setTodos] = useState(false);
 
-  // Cargar lista de archivos/años al entrar
-  useEffect(() => {
-            fetchWithAuth(`https://tablero-control-1.onrender.com/archivos/${encodeURIComponent(nombreEstablecimiento)}`)
-      .then(res => res.json())
-      .then(data => setArchivos((data.archivos || []).map(a => typeof a === 'string' ? { archivo: a } : a)));
-  }, [nombreEstablecimiento, guardado]);
+  // Verificar si el usuario puede cargar archivos (no JEFE_ZONA)
+  const puedeCargarArchivos = user && user.role !== 'JEFE_ZONA';
 
-  // Cargar archivos específicos del año seleccionado
-  useEffect(() => {
-            fetchWithAuth(`https://tablero-control-1.onrender.com/archivos/${encodeURIComponent(nombreEstablecimiento)}/${anio}`)
-      .then(res => res.json())
-      .then(data => {
-        const archivosAdaptados = (data.archivos || []).map(a => typeof a === 'string' ? { archivo: a } : a);
-        setArchivos(archivosAdaptados);
-        // Si hay archivos disponibles, seleccionar el primero
-        if (archivosAdaptados.length > 0) {
-          setArchivoSeleccionado(String(archivosAdaptados[0].archivo));
-        } else {
-          setArchivoSeleccionado("");
-        }
-      });
-  }, [nombreEstablecimiento, anio, guardado]);
-
-  // Después de la declaración de archivoSeleccionado:
-  useEffect(() => {
-    if (archivoSeleccionado) {
-      // Cargar datos del archivo guardado
-              fetchWithAuth(`https://tablero-control-1.onrender.com/leer/${encodeURIComponent(nombreEstablecimiento)}/${anio}/${archivoSeleccionado}`)
-        .then(res => res.json())
-        .then(data => {
-          if (data.success) {
-            setDatos(data.data); // Guardar datos para analizar
-            setArchivo(null); // Limpiar archivo subido si seleccionas uno guardado
-          } else {
-            setDatos([]);
-            setError('No se pudo leer el archivo guardado.');
-          }
-        })
-        .catch(() => {
-          setDatos([]);
-          setError('No se pudo leer el archivo guardado.');
-        });
-    }
-  }, [archivoSeleccionado, anio, nombreEstablecimiento]);
-
-  // Manejar selección de meses con opción TODOS
   const handleMesChange = (mes) => {
     if (mes === 'TODOS') {
       if (todos) {
@@ -343,203 +295,410 @@ function IndicadoresCamasEstablecimiento() {
     }
   };
 
-  // Leer archivo Excel
-  const handleArchivo = async (e) => {
-    const file = e.target.files[0];
-    setArchivo(file);
-    if (file && isValidExcelFormat(file.name)) {
-      // Para archivos Excel, los procesamos en el backend
-      setDatos([]); // Limpiar datos anteriores
-      setError(''); // Limpiar errores
-    } else {
-      setError(`Solo se permiten archivos de Excel. Formatos soportados: ${EXCEL_FORMATS.join(', ')}`);
-      setArchivo(null);
-      setDatos([]);
-    }
+  const handleArchivo = (e) => {
+    // Solo tomar el primer archivo seleccionado (un archivo por mes)
+    setArchivo(e.target.files.length > 0 ? e.target.files[0] : null);
   };
 
-
-
-  // Procesar datos al hacer clic en analizar
-  const analizar = () => {
-    setError('');
-    if ((!archivo && !archivoSeleccionado) || !datos || datos.length === 0) {
-      setResultados(null);
-      setResultadosPorMes(null);
-      setError('Seleccione un archivo para analizar.');
+  const handleGuardar = async () => {
+    setMensaje("");
+    setError("");
+    if (!anio) {
+      setError("Debe ingresar un año válido.");
       return;
     }
     if (!mesesSeleccionados.length) {
-      setResultados(null);
-      setResultadosPorMes(null);
-      setError('Debe seleccionar al menos un mes.');
+      setError("Debe seleccionar al menos un mes.");
       return;
     }
-    // Normalizar campos
-    const datosNorm = datos && Array.isArray(datos) ? datos : [];
-    const camposClave = ['PERIMES','CAMDIS','PACVIV','PACFAL','PACDIA'];
-    if (!datosNorm.length || !datosNorm[0] || typeof datosNorm[0] !== 'object') {
-      setResultados(null);
-      setResultadosPorMes(null);
-      setError('No hay datos para analizar o el archivo no es válido.');
+    if (!archivo) {
+      setError("Debe seleccionar al menos un archivo.");
       return;
     }
-    const tieneCampos = camposClave.every(campo => Object.keys(datosNorm[0]).includes(campo));
-    if (!tieneCampos) {
-      setResultados(null);
-      setResultadosPorMes(null);
-      setError('El archivo no contiene los campos requeridos: PERIMES, CAMDIS, PACVIV, PACFAL, PACDIA.');
-      return;
-    }
-    // --- FILTRO POR AÑO ---
-    const datosFiltrados = datosNorm.filter(row => {
-      if ('PERIANO' in row) {
-        return String(row.PERIANO) === String(anio);
-      }
-      return true;
-    });
-    console.log('Datos filtrados:', datosFiltrados);
-    // Mapear meses seleccionados a números (1-12)
-    const mesesNum = mesesSeleccionados.map(m => MESES.indexOf(m) + 1);
-    // Calcular resultados por mes
-    let totalCAMDIS = 0, totalPACVIV = 0, totalPACFAL = 0, totalPACDIA = 0;
-    let resultadosMes = [];
-    mesesNum.forEach((mesNum, idx) => {
-      const filtrados = datosFiltrados.filter(row => Number(row['PERIMES']) === mesNum);
-      console.log('Mes:', mesNum, 'Filas:', filtrados);
-      let CAMDIS = 0, PACVIV = 0, PACFAL = 0, PACDIA = 0;
-      filtrados.forEach(row => {
-        CAMDIS += Number(row['CAMDIS'] && row['CAMDIS'].toString().trim() !== '' ? row['CAMDIS'] : 0);
-        PACVIV += Number(row['PACVIV'] && row['PACVIV'].toString().trim() !== '' ? row['PACVIV'] : 0);
-        PACFAL += Number(row['PACFAL'] && row['PACFAL'].toString().trim() !== '' ? row['PACFAL'] : 0);
-        PACDIA += Number(row['PACDIA'] && row['PACDIA'].toString().trim() !== '' ? row['PACDIA'] : 0);
-      });
-      totalCAMDIS += CAMDIS;
-      totalPACVIV += PACVIV;
-      totalPACFAL += PACFAL;
-      totalPACDIA += PACDIA;
-      // Porcentaje de ocupación: PACDIA / CAMDIS * 100
-      const porcentaje = CAMDIS ? ((PACDIA / CAMDIS) * 100).toFixed(2) : 0;
-      // Tiempo estadía: PACDIA / PACVIV
-      const estadia = PACVIV ? (PACDIA / PACVIV).toFixed(2) : 0;
-      resultadosMes.push({
-        mes: MESES[mesNum-1],
-        CAMDIS,
-        PACVIV,
-        PACFAL,
-        PACDIA,
-        porcentaje,
-        estadia
-      });
-    });
-    // Calcular totales generales
-    const total = {
-      mes: 'TOTAL',
-      CAMDIS: totalCAMDIS,
-      PACVIV: totalPACVIV,
-      PACFAL: totalPACFAL,
-      PACDIA: totalPACDIA,
-      porcentaje: totalCAMDIS ? ((totalPACDIA / totalCAMDIS) * 100).toFixed(2) : 0,
-      estadia: totalPACVIV ? (totalPACDIA / totalPACVIV).toFixed(2) : 0
-    };
-    setResultadosPorMes([...resultadosMes, total]);
-    setResultados(null); // ya no usamos el anterior
-    setObservacion(totalPACFAL > 0 ? `PACIENTE FALLECIDO: ${totalPACFAL}` : '');
-  };
-
-  const actualizarArchivos = (establecimiento, anio) => {
-            fetchWithAuth(`https://tablero-control-1.onrender.com/archivos/${encodeURIComponent(establecimiento)}/${anio}`)
-      .then(res => res.json())
-      .then(data => setArchivos(data.archivos || []));
-  };
-
-  // Guardar archivo en backend con detección automática de año
-  const handleGuardar = async () => {
+    
     setGuardando(true);
-    setGuardado(false);
-    setError('');
-    setInfoDeteccionAnio(null);
-    console.log('Iniciando guardado...', { archivo: archivo?.name, anio, nombreEstablecimiento });
-    
-    if (!archivo || !anio) {
-      setError('Debe seleccionar un archivo y escribir el año.');
-      setGuardando(false);
-      return;
-    }
-    
-    const formData = new FormData();
-    formData.append('file', archivo);
-    console.log('FormData creado con archivo:', archivo.name);
-    
     try {
-      const url = `https://tablero-control-1.onrender.com/guardar/${encodeURIComponent(nombreEstablecimiento)}/${anio}`;
-      console.log('Enviando a URL:', url);
       
-      const response = await fetchWithAuth(url, {
-        method: 'POST',
-        body: formData,
-      });
-      
-      console.log('Respuesta del servidor:', response.status, response.statusText);
-      const result = await response.json();
-      console.log('Resultado del guardado:', result);
-      
-      if (result.success) {
-        setGuardado(true);
-        setError('');
-        
-        // 🎯 MANEJAR DETECCIÓN AUTOMÁTICA DE AÑO
-        if (result.cambioAutomatico) {
-          setInfoDeteccionAnio({
-            mensaje: `🔄 Año detectado automáticamente: ${result.anioUsado}`,
-            anioOriginal: result.anioOriginal,
-            anioDetectado: result.anioUsado,
-            cambioAutomatico: true
+      // Guardar archivo de atención profesional (un archivo por mes)
+      if (archivo) {
+        for (const mes of mesesSeleccionados) {
+          const formData = new FormData();
+          formData.append('file', archivo);
+          const url = `https://tablero-control-1.onrender.com/atencion-profesional/guardar/${encodeURIComponent(nombreEstablecimiento)}/${anio}/${encodeURIComponent(mes)}`;
+          const response = await fetchWithAuth(url, {
+            method: 'POST',
+            body: formData
           });
-          console.log('🔄 CAMBIO AUTOMÁTICO DE AÑO:', result.anioOriginal, '→', result.anioUsado);
-          
-          // Actualizar la lista con el año correcto detectado
-          actualizarArchivos(nombreEstablecimiento, result.anioUsado);
-          
-          // También actualizar el año en la interfaz si el usuario quiere
-          setTimeout(() => {
-            if (window.confirm(`El archivo contiene datos del año ${result.anioUsado}, pero está buscando archivos del ${result.anioOriginal}. ¿Quiere cambiar la búsqueda al año ${result.anioUsado}?`)) {
-              setAnio(result.anioUsado);
-            }
-          }, 1000);
-        } else {
-          setInfoDeteccionAnio({
-            mensaje: `✅ Archivo guardado en el año ${result.anioUsado}`,
-            anioUsado: result.anioUsado,
-            cambioAutomatico: false
-          });
-          console.log('✅ Archivo guardado sin cambio de año');
-          
-          // Actualizar lista con el año usado
-          actualizarArchivos(nombreEstablecimiento, result.anioUsado);
+          const result = await response.json();
+          if (!result.success) {
+            setError(result.error || 'Error al guardar el archivo de atención profesional.');
+            setGuardando(false);
+            return;
+          }
         }
-        
-        console.log('Archivo guardado exitosamente');
-      } else {
-        setError('No se pudo guardar el archivo: ' + (result.error || 'Error desconocido'));
-        setInfoDeteccionAnio(null);
       }
+
+      // Guardar archivo de guardia (un archivo por mes)
+      if (archivo) {
+        for (const mes of mesesSeleccionados) {
+          const formData = new FormData();
+          formData.append('file', archivo);
+          const url = `https://tablero-control-1.onrender.com/guardia/guardar/${encodeURIComponent(nombreEstablecimiento)}/${anio}/${encodeURIComponent(mes)}`;
+          const response = await fetchWithAuth(url, {
+            method: 'POST',
+            body: formData
+          });
+          const result = await response.json();
+          if (!result.success) {
+            setError(result.error || 'Error al guardar el archivo de guardia.');
+            setGuardando(false);
+            return;
+          }
+        }
+      }
+
+      setMensaje("Archivo(s) guardado(s) correctamente.");
+      setArchivo(null);
+      setMesesSeleccionados([]);
+      setTodos(false);
+      
+      // Extraer totales automáticamente para todos los meses seleccionados
+      if (mesesSeleccionados.length > 0) {
+        await extraerTotales(mesesSeleccionados);
+      }
+      
     } catch (err) {
-      console.error('Error durante el guardado:', err);
-      setError('Error de conexión con el backend: ' + err.message);
-      setInfoDeteccionAnio(null);
+      setError("Error de conexión con el servidor.");
     }
     setGuardando(false);
   };
 
+  const handleAlmacenar = async () => {
+    setMensaje("");
+    setError("");
+    if (!anio) {
+      setError("Debe ingresar un año válido.");
+      return;
+    }
+    if (!mesesSeleccionados.length) {
+      setError("Debe seleccionar al menos un mes.");
+      return;
+    }
+    
+    setGuardando(true);
+    try {
+      // Extraer totales automáticamente para todos los meses seleccionados
+      if (mesesSeleccionados.length > 0) {
+        await extraerTotales(mesesSeleccionados);
+      }
+      
+    } catch (err) {
+      setError("Error al almacenar los datos.");
+    }
+    setGuardando(false);
+  };
 
+  const extraerTotales = async (meses) => {
+    try {
+      // Esperar un momento para que los archivos se guarden completamente
+      await new Promise(resolve => setTimeout(resolve, 1500)); // Esperar 1.5 segundos
+      
+      let totalTurnosAcumulado = 0;
+      let totalGuardiaAcumulado = 0;
+      
+      // Procesar cada mes seleccionado
+      for (const mes of meses) {
+        // Extraer total de atención profesional para este mes
+        const urlProfesional = `https://tablero-control-1.onrender.com/atencion-profesional/descargar/${encodeURIComponent(nombreEstablecimiento)}/${anio}/${encodeURIComponent(mes)}`;
+        const responseProfesional = await fetchWithAuth(urlProfesional);
+        if (responseProfesional.ok) {
+          const blobProfesional = await responseProfesional.blob();
+          const fileProfesional = new File([blobProfesional], 'atencion.xlsx');
+          const totalMes = await procesarArchivo(fileProfesional, 'turnos atendidos', () => {});
+          totalTurnosAcumulado += totalMes || 0;
+        }
+
+        // Extraer total de guardia para este mes
+        const urlGuardia = `https://tablero-control-1.onrender.com/guardia/descargar/${encodeURIComponent(nombreEstablecimiento)}/${anio}/${encodeURIComponent(mes)}`;
+        const responseGuardia = await fetchWithAuth(urlGuardia);
+        if (responseGuardia.ok) {
+          const blobGuardia = await responseGuardia.blob();
+          const fileGuardia = new File([blobGuardia], 'guardia.xlsx');
+          const totalMes = await procesarArchivoGuardia(fileGuardia, () => {});
+          totalGuardiaAcumulado += totalMes || 0;
+        }
+      }
+      
+      // Establecer los totales acumulados
+      setTotalTurnos(totalTurnosAcumulado);
+      setTotalGuardia(totalGuardiaAcumulado);
+      
+    } catch (err) {
+      console.error('Error al extraer totales:', err);
+    }
+  };
+
+  const procesarArchivo = (file, columnaBuscar, setTotal) => {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const data = new Uint8Array(e.target.result);
+          const workbook = XLSX.read(data, { type: 'array' });
+          
+          if (workbook.SheetNames.length === 0) {
+            setTotal(0);
+            resolve(0);
+            return;
+          }
+          
+          const sheetName = workbook.SheetNames[0];
+          const worksheet = workbook.Sheets[sheetName];
+          const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+
+          // Mejorada: Solo sumar la primera sección encontrada
+          if (columnaBuscar.toLowerCase().includes('atención médica por consulta')) {
+            let total = 0;
+            let encontrado = false;
+            let seccionProcesada = false;
+            
+            for (let i = 0; i < jsonData.length; i++) {
+              const row = jsonData[i];
+              if (row && Array.isArray(row)) {
+                for (let j = 0; j < row.length; j++) {
+                  const cellValue = String(row[j] || '').toLowerCase();
+                  if ((cellValue.includes('atención médica') || cellValue.includes('atencion medica') || cellValue.includes('médica') || cellValue.includes('medica')) && 
+                      (cellValue.includes('consulta') || cellValue.includes('por consulta')) && !seccionProcesada) {
+                    encontrado = true;
+                    seccionProcesada = true;
+                    
+                    // Buscar la columna "Cantidad de Atenciones" en la siguiente fila
+                    let columnaCantidad = -1;
+                    if (i + 1 < jsonData.length) {
+                      const nextRow = jsonData[i + 1];
+                      if (nextRow && Array.isArray(nextRow)) {
+                        for (let k = 0; k < nextRow.length; k++) {
+                          const headerValue = String(nextRow[k] || '').toLowerCase();
+                          if (headerValue.includes('cantidad de atenciones') || headerValue.includes('cantidad') || 
+                              headerValue.includes('atenciones') || headerValue.includes('total') || headerValue.includes('cant')) {
+                            columnaCantidad = k;
+                            break;
+                          }
+                        }
+                      }
+                    }
+                    
+                    if (columnaCantidad !== -1) {
+                      for (let k = i + 2; k < jsonData.length; k++) { // Empezar desde i + 2 (después del header)
+                        const dataRow = jsonData[k];
+                        if (!dataRow || !Array.isArray(dataRow)) continue;
+                        // Detener si es TOTAL o SUMA
+                        const primeraColumna = String(dataRow[0] || '').toLowerCase();
+                        if (primeraColumna.includes('total') || primeraColumna.includes('suma')) {
+                          break;
+                        }
+                        // Sumar solo si es número válido
+                        const val = Number(String(dataRow[columnaCantidad]).replace(/[^\d.-]/g, ''));
+                        if (!isNaN(val) && val !== null && val !== undefined && String(dataRow[columnaCantidad]).trim() !== '') {
+                          total += val;
+                        }
+                      }
+                    }
+                    break; // Solo la primera sección
+                  }
+                }
+                if (encontrado) break;
+              }
+            }
+            
+            setTotal(total);
+            resolve(total);
+          } else if (columnaBuscar.toLowerCase().includes('turnos atendidos')) {
+            // Procesamiento específico para "Turnos atendidos"
+            let colIdx = -1;
+            
+            // Buscar en las primeras filas por cualquier columna que contenga "turnos"
+            for (let i = 0; i < Math.min(jsonData.length, 20); i++) {
+              const row = jsonData[i];
+              if (row && Array.isArray(row)) {
+                for (let j = 0; j < row.length; j++) {
+                  const cellValue = String(row[j] || '').toLowerCase();
+                  if (cellValue.includes('turnos') && (cellValue.includes('atendidos') || cellValue.includes('atend'))) {
+                    colIdx = j;
+                    break;
+                  }
+                }
+                if (colIdx !== -1) break;
+              }
+            }
+            
+            if (colIdx !== -1) {
+              let total = 0;
+              for (let i = 1; i < jsonData.length; i++) {
+                const row = jsonData[i];
+                if (row && row[colIdx] !== undefined && row[colIdx] !== null && row[colIdx] !== '') {
+                  const val = Number(String(row[colIdx]).replace(/[^\d.-]/g, ''));
+                  if (!isNaN(val) && val > 0) {
+                    total += val;
+                  }
+                }
+              }
+              setTotal(total);
+              resolve(total);
+            } else {
+              setTotal(0);
+              resolve(0);
+            }
+          } else {
+            // Procesamiento original para otros tipos de archivos
+            let colIdx = -1;
+            for (let i = 0; i < Math.min(jsonData.length, 10); i++) {
+              const row = jsonData[i];
+              if (row && Array.isArray(row)) {
+                for (let j = 0; j < row.length; j++) {
+                  const cellValue = String(row[j] || '').toLowerCase();
+                  if (cellValue.includes(columnaBuscar.toLowerCase())) {
+                    colIdx = j;
+                    break;
+                  }
+                }
+                if (colIdx !== -1) break;
+              }
+            }
+            if (colIdx !== -1) {
+              let total = 0;
+              for (let i = 1; i < jsonData.length; i++) {
+                const row = jsonData[i];
+                if (row && row[colIdx] !== undefined && row[colIdx] !== null && row[colIdx] !== '') {
+                  const val = Number(String(row[colIdx]).replace(/[^\d.-]/g, ''));
+                  if (!isNaN(val)) {
+                    total += val;
+                  }
+                }
+              }
+              setTotal(total);
+              resolve(total);
+            } else {
+              setTotal(0);
+              resolve(0);
+            }
+          }
+        } catch (err) {
+          console.error('Error al procesar archivo:', err);
+          setTotal(0);
+          resolve(0);
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    });
+  };
+
+  const procesarArchivoGuardia = (file, setTotal) => {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const data = new Uint8Array(e.target.result);
+          
+          // Intentar diferentes opciones de lectura
+          let workbook;
+          try {
+            workbook = XLSX.read(data, { type: 'array', codepage: 65001 });
+          } catch (e1) {
+            try {
+              workbook = XLSX.read(data, { type: 'array', codepage: 1252 });
+            } catch (e2) {
+              workbook = XLSX.read(data, { type: 'array' });
+            }
+          }
+          
+          if (workbook.SheetNames.length === 0) {
+            setTotal(0);
+            resolve(0);
+            return;
+          }
+          
+          const sheetName = workbook.SheetNames[0];
+          const worksheet = workbook.Sheets[sheetName];
+          
+          // Intentar diferentes métodos de conversión
+          let jsonData;
+          try {
+            jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: '' });
+          } catch (err) {
+            jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, raw: false, defval: '' });
+          }
+          
+          // NUEVA LÓGICA SIMPLE: Contar registros con diagnóstico
+          let total = 0;
+          let columnaDiagnostico = -1;
+          
+          // Buscar la columna de diagnóstico en las primeras filas
+          for (let i = 0; i < Math.min(5, jsonData.length); i++) {
+            const row = jsonData[i];
+            if (row && Array.isArray(row)) {
+              for (let j = 0; j < row.length; j++) {
+                const cellValue = String(row[j] || '').toLowerCase().trim();
+                if (cellValue.includes('diagnostico') || cellValue.includes('diagnóstico')) {
+                  columnaDiagnostico = j;
+                  break;
+                }
+              }
+              if (columnaDiagnostico !== -1) break;
+            }
+          }
+          
+          if (columnaDiagnostico === -1) {
+            setTotal(0);
+            resolve(0);
+            return;
+          }
+          
+          // Contar todas las filas que tengan algo escrito en la columna de diagnóstico
+          for (let k = 1; k < jsonData.length; k++) { // Empezar desde fila 1 (saltar header)
+            const dataRow = jsonData[k];
+            if (!dataRow || !Array.isArray(dataRow)) continue;
+            
+            // Si la fila está completamente vacía, continuar
+            if (!dataRow.some(cell => cell && String(cell).trim() !== '')) {
+              continue;
+            }
+            
+            // Saltar filas que contengan headers (como "DIAGNOSTICO", "APELLIDO", "NOMBRE", etc.)
+            const primeraColumna = String(dataRow[0] || '').toLowerCase().trim();
+            if (primeraColumna === 'diagnostico' || primeraColumna === 'diagnóstico' || 
+                primeraColumna === 'apellido' || primeraColumna === 'nombre' || 
+                primeraColumna === 'dni' || primeraColumna === 'fecha desde' || 
+                primeraColumna === 'fecha hasta' || primeraColumna === 'reporte emergencias') {
+              continue;
+            }
+            
+            // Verificar si hay diagnóstico en la columna correspondiente
+            const diagnostico = String(dataRow[columnaDiagnostico] || '').trim();
+            if (diagnostico !== '' && diagnostico !== 'VACÍO' && diagnostico !== 'N/A' && diagnostico !== 'null') {
+              total++;
+            }
+          }
+          
+          setTotal(total);
+          resolve(total);
+          
+        } catch (err) {
+          console.error('Error al procesar archivo de guardia:', err);
+          setTotal(0);
+          resolve(0);
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    });
+  };
 
   return (
     <div className="tablero-bg">
       <div className="panel" style={{maxWidth:900,margin:'40px auto',marginTop:40}}>
         <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:24}}>
           <h2 style={{color:'#223366',textTransform:'uppercase',fontWeight:'bold',fontSize:'1.3rem',margin:0}}>{nombreEstablecimiento}</h2>
-          <button className="analizar-btn" style={{padding:'8px 18px',fontSize:'1rem',marginLeft:16}} onClick={()=>navigate('/indicadores-camas')}>VOLVER</button>
+          <button className="analizar-btn" style={{padding:'6px 14px',fontSize:'0.9rem',marginLeft:16}} onClick={()=>navigate('/indicadores-camas')}>VOLVER</button>
         </div>
         <div className="form-group" style={{marginBottom:16, display:'flex', alignItems:'center', gap:8}}>
           <label>AÑO</label>
@@ -548,17 +707,10 @@ function IndicadoresCamasEstablecimiento() {
             min="2000"
             max="2100"
             value={anio}
-            onChange={e => setAnio(e.target.value)}
+            onChange={(e) => setAnio(e.target.value)}
             className="anio-input"
             style={{width:100, fontSize:'1.1rem', padding:'6px', borderRadius:6, border:'1px solid #b0b8d1'}}
           />
-          <span style={{fontSize:'0.9rem', color:'#666'}}>Archivos del año {anio}</span>
-          <button
-            className="analizar-btn"
-            style={{padding:'6px 10px', fontSize:'0.9rem', marginLeft:4, background:'#6c8cd5'}}
-            onClick={analizar}
-            disabled={(!(archivoSeleccionado || archivo) || mesesSeleccionados.length === 0 || !datos || datos.length === 0)}
-          >ANALIZAR</button>
         </div>
         <div className="form-group">
           <label>MESES</label>
@@ -577,145 +729,108 @@ function IndicadoresCamasEstablecimiento() {
                   type="checkbox"
                   checked={mesesSeleccionados.includes(mes)}
                   onChange={() => handleMesChange(mes)}
+                  disabled={todos}
                 />
                 {mes}
               </label>
             ))}
           </div>
         </div>
-        <div className="form-group archivo-group" style={{display:'flex',alignItems:'center',gap:16}}>
-          <label style={{fontWeight:'bold',marginRight:8}}>EXAMINAR</label>
-                          <input type="file" accept={getExcelAcceptAttribute()} onChange={handleArchivo} />
-          {archivo && <span style={{marginLeft:8}}>{archivo.name}</span>}
-
-          <button
-            className="analizar-btn"
-            onClick={analizar}
-            disabled={(!(archivoSeleccionado || archivo) || mesesSeleccionados.length === 0 || !datos || datos.length === 0)}
-          >
-            ANALIZAR
-          </button>
-          <button className="analizar-btn" onClick={handleGuardar} disabled={!archivo || !anio || guardando}>
-            {guardando ? 'GUARDANDO...' : 'GUARDAR'}
-          </button>
-        </div>
-        {guardado && <div className="success-msg">Archivo guardado correctamente.</div>}
-        {infoDeteccionAnio && (
-          <div className={`info-msg ${infoDeteccionAnio.cambioAutomatico ? 'cambio-automatico' : 'info-normal'}`}>
-            {infoDeteccionAnio.mensaje}
-          </div>
-        )}
-      </div>
-      {/* Mostrar archivos cargados para el año buscado */}
-      <div className="panel" style={{maxWidth:900,margin:'0 auto',marginTop:20}}>
-        <div style={{fontWeight:'bold',color:'#223366',marginBottom:8}}>ARCHIVOS CARGADOS PARA EL AÑO {anio}</div>
-        {archivos.length === 0 ? (
-          <div style={{color:'#888'}}>No hay archivos cargados para este año.</div>
-        ) : (
-          <ul style={{paddingLeft:0}}>
-            {archivos.map(a => (
-              <li key={a.archivo} style={{listStyle:'none',marginBottom:4}}>
-                <label>
-                  <input
-                    type="radio"
-                    name="archivoSeleccionado"
-                    value={String(a.archivo)}
-                    checked={archivoSeleccionado === String(a.archivo)}
-                    onChange={e => {
-                      console.log('Seleccionado:', e.target.value);
-                      setArchivoSeleccionado(e.target.value);
-                    }}
-                  />
-                  Archivo: {a.archivo}
-                </label>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
-
-      {resultados && (
-        <div className="resultados-container">
-          <div className="resultado-box">
-            <h2>CAMAS DISPONIBLES</h2>
-            <div className="valor">{formatearCamasDisponibles(resultados.CAMDIS, MESES[mesesSeleccionados[0] - 1], anio)}</div>
-          </div>
-          <div className="resultado-box">
-            <h2>% OCUPACIÓN</h2>
-            <div className="valor">{resultados.porcentaje}%</div>
-          </div>
-          <div className="resultado-box">
-            <h2>TIEMPO ESTADÍA</h2>
-            <div className="valor">{resultados.estadia}</div>
-          </div>
-          <div className="resultado-box">
-            <h2>EGRESO INTERNADOS</h2>
-            <div className="valor">{resultados.PACVIV}</div>
-          </div>
-        </div>
-      )}
-      {resultadosPorMes && (
-        <div className="resultados-container">
-          {resultadosPorMes.map((res, idx) => (
-            <div key={res.mes} className="resultado-mes">
-              <div className="resultado-box">
-                <h2>{res.mes}</h2>
-                <div className="gauge-indicador">
-                  {isNaN(parseFloat(res.porcentaje)) ? (
-                    <div className="gauge-label">% OCUPACIÓN<br/><span className="sin-datos">Sin datos</span></div>
-                  ) : (
-                    <>
-                      <SafeGaugeChart
-                        id={`gauge-ocupacion-${res.mes}`}
-                        nrOfLevels={100}
-                        arcsLength={[0.5, 0.1, 0.4]}
-                        colors={['#ff4136', '#ffcc00', '#2ecc40']}
-                        percent={parseFloat(res.porcentaje) / 100}
-                        arcPadding={0.02}
-                        textColor="#223366"
-                        formatTextValue={value => `${res.porcentaje}%`}
-                      />
-                      <div className="gauge-label">% OCUPACIÓN</div>
-                    </>
-                  )}
+        {puedeCargarArchivos && (
+          <>
+            <div className="form-group archivo-group" style={{display:'flex',alignItems:'center',gap:16,flexWrap:'wrap'}}>
+              <label style={{fontWeight:'bold',marginRight:8}}>EXAMINAR</label>
+              <input type="file" accept=".xlsx,.xls,.xlsm,.xlsb,.xlt,.xltx,.xltm,.ods,.fods,.csv,.txt,.rtf,.html,.htm,.xml,.sylk,.slk,.dif,.prn,.dbf,.wk1,.wk3,.wk4,.123,.wb1,.wb2,.wb3,.qpw,.numbers" onChange={handleArchivo} />
+              {archivo && (
+                <div style={{marginLeft:8,fontSize:'0.9rem',color:'#666'}}>
+                  {archivo.name}
                 </div>
-                <div className="gauge-indicador">
-                  {isNaN(parseFloat(res.estadia)) ? (
-                    <div className="gauge-label">TIEMPO ESTADÍA<br/><span className="sin-datos">Sin datos</span></div>
-                  ) : (
-                    <>
-                      <SafeGaugeChart
-                        id={`gauge-estadia-${res.mes}`}
-                        nrOfLevels={15}
-                        arcsLength={[3/15, 4/15, 8/15]}
-                        colors={['#ff4136', '#2ecc40', '#ff4136']}
-                        percent={parseFloat(res.estadia) / 15}
-                        arcPadding={0.02}
-                        textColor="#223366"
-                        formatTextValue={value => `${res.estadia}`}
-                      />
-                      <div className="gauge-label">TIEMPO ESTADÍA</div>
-                    </>
-                  )}
-                </div>
-                <div className="valor-indicador">CAMAS DISPONIBLES: <span className="valor-grande">{formatearCamasDisponibles(res.CAMDIS, res.mes, anio)}</span></div>
-                <div className="valor-indicador">EGRESO INTERNADOS: <span className="valor-grande">{res.PACVIV}</span></div>
-              </div>
+              )}
+              <span style={{fontWeight:'bold',marginLeft:8}}>CONSULTA EXT. MEDICO</span>
             </div>
-          ))}
-        </div>
-      )}
-      {observacion && (
-        <div className="observacion">{observacion}</div>
-      )}
-      {error && (
-        <div className="error-msg">{error}</div>
-      )}
+            <div className="form-group archivo-group" style={{display:'flex',alignItems:'center',gap:16,flexWrap:'wrap'}}>
+              <label style={{fontWeight:'bold',marginRight:8}}>EXAMINAR</label>
+              <input type="file" accept=".xlsx,.xls,.xlsm,.xlsb,.xlt,.xltx,.xltm,.ods,.fods,.csv,.txt,.rtf,.html,.htm,.xml,.sylk,.slk,.dif,.prn,.dbf,.wk1,.wk3,.wk4,.123,.wb1,.wb2,.wb3,.qpw,.numbers" onChange={handleArchivo} />
+              {archivo && (
+                <div style={{marginLeft:8,fontSize:'0.9rem',color:'#666'}}>
+                  {archivo.name}
+                </div>
+              )}
+              <span style={{fontWeight:'bold',marginLeft:8}}>CONSULTA GUARDIA</span>
+            </div>
+          </>
+        )}
+
+        {puedeCargarArchivos && (
+          <div style={{display:'flex',gap:16,marginTop:24,justifyContent:'center'}}>
+            <button className="analizar-btn" style={{padding:'6px 20px', fontSize:'0.9rem', minWidth:80}} onClick={handleGuardar} disabled={guardando}>{guardando ? 'PROCESANDO...' : 'GUARDAR'}</button>
+            <button className="analizar-btn" style={{padding:'6px 20px', fontSize:'0.9rem', minWidth:80}} onClick={handleAlmacenar} disabled={guardando}>{guardando ? 'PROCESANDO...' : 'ALMACENAR'}</button>
+          </div>
+        )}
+        {(totalTurnos !== null || totalGuardia !== null) && (
+          <div style={{display:'flex',gap:20,marginTop:24,justifyContent:'center',flexWrap:'wrap'}}>
+            {totalTurnos !== null && (
+              <div style={{background:'#f8fafd', borderRadius:10, boxShadow:'0 2px 8px rgba(0,0,0,0.08)', padding:'15px 25px', minWidth:280, textAlign:'center', fontWeight:'bold', color:'#223366', fontSize:'1.1rem'}}>
+                CONSULTA EXT. MEDICO<br />
+                <span style={{fontSize:'1.8rem', color:'#4a90e2'}}>{totalTurnos}</span>
+              </div>
+            )}
+            {totalGuardia !== null && (
+              <div style={{background:'#f8fafd', borderRadius:10, boxShadow:'0 2px 8px rgba(0,0,0,0.08)', padding:'15px 25px', minWidth:280, textAlign:'center', fontWeight:'bold', color:'#223366', fontSize:'1.1rem'}}>
+                CONSULTA GUARDIA<br />
+                <span style={{fontSize:'1.8rem', color:'#4a90e2'}}>{totalGuardia}</span>
+              </div>
+            )}
+            {totalTurnos !== null && totalGuardia !== null && totalGuardia !== 0 && (
+              <div style={{background:'#f0f8ff', borderRadius:10, boxShadow:'0 2px 8px rgba(0,0,0,0.08)', padding:'15px 25px', minWidth:280, textAlign:'center', fontWeight:'bold', color:'#223366', fontSize:'1.1rem', border:'2px solid #4a90e2'}}>
+                CST.EXT/GUARDIA<br />
+                <div className="gauge-indicador">
+                  {(() => {
+                    const ratio = totalTurnos / totalGuardia;
+                    const maxValue = 10;
+                    const clampedRatio = Math.min(ratio, maxValue);
+                    // Invertir el percent para que 0 esté a la izquierda y 10 a la derecha
+                    const percent = 1 - (clampedRatio / maxValue);
+                    
+                    return (
+                      <>
+                        <SafeGaugeChart
+                          id="gauge-ratio-profesional-guardia"
+                          nrOfLevels={100}
+                          arcsLength={[0.25, 0.75]}
+                          colors={['#ff4136', '#2ecc40']}
+                          percent={percent}
+                          arcPadding={0.02}
+                          textColor="#223366"
+                          formatTextValue={value => `${ratio.toFixed(2)}`}
+                        />
+                        <div className="gauge-label">RATIO PROFESIONAL/GUARDIA</div>
+                        <div style={{
+                          fontSize:'0.9rem', 
+                          fontWeight:'bold', 
+                          color: ratio >= 2.5 ? '#2ecc40' : '#ff4136',
+                          textTransform: 'uppercase',
+                          marginTop: '5px'
+                        }}>
+                          {ratio >= 2.5 ? '✅ Óptimo' : '⚠️ Bajo'}
+                        </div>
+                      </>
+                    );
+                  })()}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+        {mensaje && <div className="success-msg">{mensaje}</div>}
+        {error && <div className="error-msg">{error}</div>}
+
+      </div>
     </div>
   );
 }
 
-// Pantalla solo selector de establecimiento para ATENCION MEDICA
+// Pantalla específica de establecimiento para ATENCION MEDICA
 function AtencionMedica({ user }) {
   const navigate = useNavigate();
   let establecimientosPorZona = [];
@@ -788,7 +903,7 @@ function AtencionMedica({ user }) {
 }
 
 // Pantalla específica de establecimiento para ATENCION MEDICA (ahora layout con Outlet)
-function AtencionMedicaEstablecimiento() {
+function AtencionMedicaEstablecimiento({ user }) {
   const { nombre } = useParams();
   const navigate = useNavigate();
   const nombreEstablecimiento = decodeURIComponent(nombre);
@@ -803,6 +918,8 @@ function AtencionMedicaEstablecimiento() {
   const [totalTurnos, setTotalTurnos] = useState(null);
   const [totalGuardia, setTotalGuardia] = useState(null);
 
+  // Verificar si el usuario puede cargar archivos (no JEFE_ZONA)
+  const puedeCargarArchivos = user && user.role !== 'JEFE_ZONA';
 
   const handleMesChange = (mes) => {
     if (mes === 'TODOS') {
@@ -1275,31 +1392,37 @@ function AtencionMedicaEstablecimiento() {
             ))}
           </div>
         </div>
-        <div className="form-group archivo-group" style={{display:'flex',alignItems:'center',gap:16,flexWrap:'wrap'}}>
-          <label style={{fontWeight:'bold',marginRight:8}}>EXAMINAR</label>
-          <input type="file" accept=".xlsx,.xls,.xlsm,.xlsb,.xlt,.xltx,.xltm,.ods,.fods,.csv,.txt,.rtf,.html,.htm,.xml,.sylk,.slk,.dif,.prn,.dbf,.wk1,.wk3,.wk4,.123,.wb1,.wb2,.wb3,.qpw,.numbers" onChange={handleArchivo} />
-          {archivo && (
-            <div style={{marginLeft:8,fontSize:'0.9rem',color:'#666'}}>
-              {archivo.name}
+        {puedeCargarArchivos && (
+          <>
+            <div className="form-group archivo-group" style={{display:'flex',alignItems:'center',gap:16,flexWrap:'wrap'}}>
+              <label style={{fontWeight:'bold',marginRight:8}}>EXAMINAR</label>
+              <input type="file" accept=".xlsx,.xls,.xlsm,.xlsb,.xlt,.xltx,.xltm,.ods,.fods,.csv,.txt,.rtf,.html,.htm,.xml,.sylk,.slk,.dif,.prn,.dbf,.wk1,.wk3,.wk4,.123,.wb1,.wb2,.wb3,.qpw,.numbers" onChange={handleArchivo} />
+              {archivo && (
+                <div style={{marginLeft:8,fontSize:'0.9rem',color:'#666'}}>
+                  {archivo.name}
+                </div>
+              )}
+              <span style={{fontWeight:'bold',marginLeft:8}}>CONSULTA EXT. MEDICO</span>
             </div>
-          )}
-          <span style={{fontWeight:'bold',marginLeft:8}}>CONSULTA EXT. MEDICO</span>
-        </div>
-        <div className="form-group archivo-group" style={{display:'flex',alignItems:'center',gap:16,flexWrap:'wrap'}}>
-          <label style={{fontWeight:'bold',marginRight:8}}>EXAMINAR</label>
-          <input type="file" accept=".xlsx,.xls,.xlsm,.xlsb,.xlt,.xltx,.xltm,.ods,.fods,.csv,.txt,.rtf,.html,.htm,.xml,.sylk,.slk,.dif,.prn,.dbf,.wk1,.wk3,.wk4,.123,.wb1,.wb2,.wb3,.qpw,.numbers" onChange={handleArchivoGuardia} />
-          {archivoGuardia && (
-            <div style={{marginLeft:8,fontSize:'0.9rem',color:'#666'}}>
-              {archivoGuardia.name}
+            <div className="form-group archivo-group" style={{display:'flex',alignItems:'center',gap:16,flexWrap:'wrap'}}>
+              <label style={{fontWeight:'bold',marginRight:8}}>EXAMINAR</label>
+              <input type="file" accept=".xlsx,.xls,.xlsm,.xlsb,.xlt,.xltx,.xltm,.ods,.fods,.csv,.txt,.rtf,.html,.htm,.xml,.sylk,.slk,.dif,.prn,.dbf,.wk1,.wk3,.wk4,.123,.wb1,.wb2,.wb3,.qpw,.numbers" onChange={handleArchivoGuardia} />
+              {archivoGuardia && (
+                <div style={{marginLeft:8,fontSize:'0.9rem',color:'#666'}}>
+                  {archivoGuardia.name}
+                </div>
+              )}
+              <span style={{fontWeight:'bold',marginLeft:8}}>CONSULTA GUARDIA</span>
             </div>
-          )}
-          <span style={{fontWeight:'bold',marginLeft:8}}>CONSULTA GUARDIA</span>
-        </div>
+          </>
+        )}
 
-        <div style={{display:'flex',gap:16,marginTop:24,justifyContent:'center'}}>
-          <button className="analizar-btn" style={{padding:'6px 20px', fontSize:'0.9rem', minWidth:80}} onClick={handleGuardar} disabled={guardando}>{guardando ? 'PROCESANDO...' : 'GUARDAR'}</button>
-          <button className="analizar-btn" style={{padding:'6px 20px', fontSize:'0.9rem', minWidth:80}} onClick={handleAlmacenar} disabled={guardando}>{guardando ? 'PROCESANDO...' : 'ALMACENAR'}</button>
-        </div>
+        {puedeCargarArchivos && (
+          <div style={{display:'flex',gap:16,marginTop:24,justifyContent:'center'}}>
+            <button className="analizar-btn" style={{padding:'6px 20px', fontSize:'0.9rem', minWidth:80}} onClick={handleGuardar} disabled={guardando}>{guardando ? 'PROCESANDO...' : 'GUARDAR'}</button>
+            <button className="analizar-btn" style={{padding:'6px 20px', fontSize:'0.9rem', minWidth:80}} onClick={handleAlmacenar} disabled={guardando}>{guardando ? 'PROCESANDO...' : 'ALMACENAR'}</button>
+          </div>
+        )}
         {(totalTurnos !== null || totalGuardia !== null) && (
           <div style={{display:'flex',gap:20,marginTop:24,justifyContent:'center',flexWrap:'wrap'}}>
             {totalTurnos !== null && (
@@ -2292,14 +2415,14 @@ function App() {
                   <Routes>
                     <Route path="/" element={<Home />} />
                     <Route path="/indicadores-camas" element={<IndicadoresCamas user={user} />} />
-                    <Route path="/indicadores-camas/:nombre" element={<IndicadoresCamasEstablecimiento />} />
+                                         <Route path="/indicadores-camas/:nombre" element={<IndicadoresCamasEstablecimiento user={user} />} />
                     <Route path="/atencion-medica" element={
                       (() => {
                         alert('Ruta anidada atencion-medica ejecutándose - User: ' + JSON.stringify(user));
                         return <AtencionMedica user={user} />;
                       })()
                     } />
-                    <Route path="/atencion-medica/:nombre" element={<AtencionMedicaEstablecimiento />} />
+                    <Route path="/atencion-medica/:nombre" element={<AtencionMedicaEstablecimiento user={user} />} />
                     <Route path="/ranking-diagnostico" element={<RankingDiagnostico user={user} />} />
                     <Route path="/ranking-diagnostico/:nombre" element={<RankingDiagnosticoEstablecimiento />} />
                     <Route path="/ranking-diagnostico/:nombre/:categoria" element={<RankingDiagnosticoCategoria />} />
@@ -2351,16 +2474,16 @@ function App() {
         
         <Route path="/change-password" element={<ChangePassword />} />
         {/* Rutas directas para los detalles de cada sección */}
-        <Route path="/indicadores-camas/:nombre" element={
-          user ? (
-            <IndicadoresCamasEstablecimiento />
-          ) : (
-            <Login />
-          )
-        } />
+                  <Route path="/indicadores-camas/:nombre" element={
+            user ? (
+              <IndicadoresCamasEstablecimiento user={user} />
+            ) : (
+              <Login />
+            )
+          } />
         <Route path="/atencion-medica/:nombre" element={
           user ? (
-            <AtencionMedicaEstablecimiento />
+            <AtencionMedicaEstablecimiento user={user} />
           ) : (
             <Login />
           )
