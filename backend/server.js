@@ -16,6 +16,8 @@ app.use(express.json());
 const buildPath = path.join(__dirname, '../frontend/build');
 // Servir archivos estáticos del frontend React
 app.use(express.static(buildPath));
+// También servirlos bajo el prefijo /sistema-tablero para assets como manifest.json, favicon, etc.
+app.use('/sistema-tablero', express.static(buildPath));
 
 // Ruta de health check
 app.get('/health', (req, res) => {
