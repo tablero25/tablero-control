@@ -2219,7 +2219,7 @@ function App() {
             setShowChangePassword(true);
           }
           // Redirección automática tras login exitoso
-          navigate('/indicadores-camas');
+          navigate('/tablero-control-1');
         } else {
           console.log('Token inválido, removiendo del localStorage');
           localStorage.removeItem('token');
@@ -2409,6 +2409,32 @@ function App() {
         <Route path="/ranking-diagnostico/:nombre/:categoria" element={
           user ? (
             <RankingDiagnosticoCategoria />
+          ) : (
+            <Login />
+          )
+        } />
+        <Route path="/tablero-control-1" element={
+          user ? (
+            <div>
+              <div className="logout-bar">
+                <span className="user-name">{user?.nombre} {user?.apellido}</span>
+                {user?.role === 'ADMIN' && (
+                  <button className="config-btn" onClick={() => window.location.href = '/configuracion'}>
+                    Configuración
+                  </button>
+                )}
+                <button className="logout-btn" onClick={handleLogout}>Cerrar sesión</button>
+              </div>
+              <div className="tablero-bg">
+                <div className="logo-sdo-banner">
+                  <img src="/static/media/logoo.c9263002735465189850.png" alt="Logo SDO" />
+                  <h1 className="banner-title">SISTEMA DE TABLEROS DE CONTROL</h1>
+                </div>
+                <div className="container">
+                  <Home />
+                </div>
+              </div>
+            </div>
           ) : (
             <Login />
           )
