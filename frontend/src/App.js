@@ -2192,6 +2192,7 @@ function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showChangePassword, setShowChangePassword] = useState(false);
+  const navigate = useNavigate(); // <--- AGREGADO
   
   // Debug: verificar que App se está cargando
   console.log('Componente App cargándose');
@@ -2217,6 +2218,8 @@ function App() {
           if (data.user.first_login) {
             setShowChangePassword(true);
           }
+          // Redirección automática tras login exitoso
+          navigate('/indicadores-camas');
         } else {
           console.log('Token inválido, removiendo del localStorage');
           localStorage.removeItem('token');
