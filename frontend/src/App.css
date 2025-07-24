@@ -228,12 +228,15 @@ input, select, textarea {
   margin-bottom: 40px;
 }
 
-.header-logo-top img {
-  height: 200px;
-  min-width: 200px;
-  max-width: 400px;
-  object-fit: contain;
-  image-rendering: -webkit-optimize-contrast;
+.header-logo-section img {
+  height: 40px;
+  background: #0073b7;
+  box-shadow: none;
+  border-radius: 0;
+  margin: 0 10px 0 0;
+  padding: 0;
+  display: inline-block;
+  vertical-align: middle;
   image-rendering: crisp-edges;
 }
 

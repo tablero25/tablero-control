@@ -54,7 +54,7 @@ const Header = ({ user, handleLogout, showConfigButton = true }) => {
       <div className="logout-bar">
         <div className="logo-section">
           <img src="/static/media/logoo.c9263002735465189850.png" alt="Logo SDO" style={{height: '30px', marginRight: '10px'}} />
-          <span style={{color: '#fff', fontWeight: 'bold'}}>SISTEMA DE TABLEROS DE CONTROL</span>
+          
         </div>
         <div className="user-section">
           <span className="user-name">{user?.nombre} {user?.apellido}</span>
@@ -63,8 +63,8 @@ const Header = ({ user, handleLogout, showConfigButton = true }) => {
               Configuración
             </button>
           )}
-          <button className="config-btn" onClick={() => window.location.href = '/sistema-tablero'}>
-            Inicio
+          <button className="config-btn" onClick={() => window.location.href = '/configuracion'}>
+            Configuración
           </button>
           <button className="logout-btn" onClick={handleLogout}>Cerrar sesión</button>
         </div>
