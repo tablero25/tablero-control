@@ -925,19 +925,7 @@ function IndicadoresCamasEstablecimiento({ user }) {
   );
 }
 
-// Pantalla específica de establecimiento para ATENCION MEDICA
-                    onClick={() => navigate(`/atencion-medica/${encodeURIComponent(est)}`)}
-                  >
-                    {est}
-                  </button>
-                ))}
-              </div>
-            </div>
-          ))
-        ) : (
-          <div style={{color:'#fff', textAlign:'center', marginTop:40}}>No hay zonas configuradas.</div>
-        )}
-      </div>
+
     </div>
   );
 }
