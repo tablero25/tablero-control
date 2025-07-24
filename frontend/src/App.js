@@ -2227,9 +2227,9 @@ function EditarRolModal({ user, onClose, onSave }) {
 }
 
 // Componente principal de la aplicación
-// Layout principal para vistas protegidas
-const MainLayout = ({ user, handleLogout, children }) => (
-  <div>
+// Componente para el banner y la barra de usuario
+const BannerUsuario = ({ user, handleLogout }) => (
+  <>
     <div className="logout-bar">
       <span className="user-name">{user?.nombre} {user?.apellido}</span>
       {user?.role === 'ADMIN' && (
@@ -2237,21 +2237,16 @@ const MainLayout = ({ user, handleLogout, children }) => (
           Configuración
         </button>
       )}
-       <button className="config-btn" onClick={() => window.location.href = '/sistema-tablero'}>
-          Tablero Principal
-       </button>
+      <button className="config-btn" onClick={() => window.location.href = '/sistema-tablero'}>
+        Tablero Principal
+      </button>
       <button className="logout-btn" onClick={handleLogout}>Cerrar sesión</button>
     </div>
-    <div className="tablero-bg">
-      <div className="logo-sdo-banner">
-        <img src="/static/media/logoo.c9263002735465189850.png" alt="Logo SDO" />
-        <h1 className="banner-title">SISTEMA DE TABLEROS DE CONTROL</h1>
-      </div>
-      <div className="container">
-        {children}
-      </div>
+    <div className="logo-sdo-banner">
+      <img src="/static/media/logoo.c9263002735465189850.png" alt="Logo SDO" />
+      <h1 className="banner-title">SISTEMA DE TABLEROS DE CONTROL</h1>
     </div>
-  </div>
+  </>
 );
 
 
@@ -2336,35 +2331,26 @@ function App() {
         <Route path="/confirmar/:token" element={<ConfirmEmail />} />
         <Route path="/change-password" element={<ChangePassword />} />
 
-        {/* Redirecciones de rutas antiguas */}
+        {/* Rutas Protegidas */}
+        <Route path="/sistema-tablero" element={user ? <div className="tablero-bg"><BannerUsuario user={user} handleLogout={handleLogout} /><div className="container"><Home user={user} /></div></div> : <Navigate to="/login" />} />
+        
+        <Route path="/sistema-tablero/indicadores-camas" element={user ? <div className="tablero-bg"><BannerUsuario user={user} handleLogout={handleLogout} /><IndicadoresCamas user={user} /></div> : <Navigate to="/login" />} />
+        <Route path="/sistema-tablero/indicadores-camas/:nombre" element={user ? <div className="tablero-bg"><BannerUsuario user={user} handleLogout={handleLogout} /><IndicadoresCamasEstablecimiento user={user} /></div> : <Navigate to="/login" />} />
+        
+        <Route path="/sistema-tablero/atencion-medica" element={user ? <div className="tablero-bg"><BannerUsuario user={user} handleLogout={handleLogout} /><AtencionMedica user={user} /></div> : <Navigate to="/login" />} />
+        <Route path="/sistema-tablero/atencion-medica/:nombre" element={user ? <div className="tablero-bg"><BannerUsuario user={user} handleLogout={handleLogout} /><AtencionMedicaEstablecimiento user={user} /></div> : <Navigate to="/login" />} />
+        
+        <Route path="/sistema-tablero/ranking-diagnostico" element={user ? <div className="tablero-bg"><BannerUsuario user={user} handleLogout={handleLogout} /><RankingDiagnostico user={user} /></div> : <Navigate to="/login" />} />
+        <Route path="/sistema-tablero/ranking-diagnostico/:nombre" element={user ? <div className="tablero-bg"><BannerUsuario user={user} handleLogout={handleLogout} /><RankingDiagnosticoEstablecimiento user={user} /></div> : <Navigate to="/login" />} />
+        <Route path="/sistema-tablero/ranking-diagnostico/:nombre/:categoria" element={user ? <div className="tablero-bg"><BannerUsuario user={user} handleLogout={handleLogout} /><RankingDiagnosticoCategoria user={user} /></div> : <Navigate to="/login" />} />
+
+        <Route path="/configuracion" element={user && user.role === 'ADMIN' ? <div className="tablero-bg"><BannerUsuario user={user} handleLogout={handleLogout} /><div className="container"><Configuracion /></div></div> : <Navigate to="/login" />} />
+        <Route path="/perfil" element={user ? <div className="tablero-bg"><BannerUsuario user={user} handleLogout={handleLogout} /><div className="container"><Perfil user={user} token={localStorage.getItem('token')} /></div></div> : <Navigate to="/login" />} />
+
+        {/* Redirecciones */}
         <Route path="/indicadores-camas" element={<Navigate to="/sistema-tablero/indicadores-camas" replace />} />
         <Route path="/atencion-medica" element={<Navigate to="/sistema-tablero/atencion-medica" replace />} />
         <Route path="/ranking-diagnostico" element={<Navigate to="/sistema-tablero/ranking-diagnostico" replace />} />
-
-        {/* Rutas protegidas con Layout */}
-        <Route 
-          path="/sistema-tablero/*"
-          element={user ? <MainLayout user={user} handleLogout={handleLogout}><Outlet /></MainLayout> : <Navigate to="/login" />}
-        >
-          <Route index element={<Home user={user} />} />
-          <Route path="indicadores-camas" element={<IndicadoresCamas user={user} />} />
-          <Route path="indicadores-camas/:nombre" element={<IndicadoresCamasEstablecimiento user={user} />} />
-          <Route path="atencion-medica" element={<AtencionMedica user={user} />} />
-          <Route path="atencion-medica/:nombre" element={<AtencionMedicaEstablecimiento user={user} />} />
-          <Route path="ranking-diagnostico" element={<RankingDiagnostico user={user} />} />
-          <Route path="ranking-diagnostico/:nombre" element={<RankingDiagnosticoEstablecimiento />} />
-          <Route path="ranking-diagnostico/:nombre/:categoria" element={<RankingDiagnosticoCategoria />} />
-        </Route>
-
-        <Route 
-          path="/configuracion"
-          element={user && user.role === 'ADMIN' ? <MainLayout user={user} handleLogout={handleLogout}><Configuracion onClose={() => navigate('/sistema-tablero')} /></MainLayout> : <Navigate to="/login" />}
-        />
-
-        <Route 
-          path="/perfil"
-          element={user ? <MainLayout user={user} handleLogout={handleLogout}><Perfil user={user} token={localStorage.getItem('token')} /></MainLayout> : <Navigate to="/login" />}
-        />
 
       </Routes>
     </div>
