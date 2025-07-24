@@ -1501,6 +1501,45 @@ function AtencionMedicaEstablecimiento({ user }) {
 }
 
 
+// Pantalla específica de establecimiento para ranking de diagnóstico
+function RankingDiagnosticoEstablecimiento() {
+  const { nombre } = useParams();
+  const navigate = useNavigate();
+  const nombreEstablecimiento = decodeURIComponent(nombre);
+
+  const CATEGORIAS_RANKING = [
+    'Ranking de diagnóstico de emergencia',
+    'Ranking de diagnósticos de atención',
+    'Ranking de mortalidad',
+    'Ranking de motivos de egresos'
+  ];
+
+  return (
+    <div className="tablero-bg">
+      <div className="panel" style={{maxWidth:900,margin:'40px auto',marginTop:40}}>
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:24}}>
+          <h2 style={{color:'#223366',textTransform:'uppercase',fontWeight:'bold',fontSize:'1.3rem',margin:0}}>{nombreEstablecimiento}</h2>
+          <button className="analizar-btn" style={{padding:'8px 18px',fontSize:'1rem',marginLeft:16}} onClick={()=>navigate('/sistema-tablero/ranking-diagnostico')}>VOLVER</button>
+        </div>
+        
+        <div className="zonas-grid" style={{gap: '20px', marginTop: '20px'}}>
+          {CATEGORIAS_RANKING.map(categoria => (
+            <div key={categoria} className="zona-col" style={{minWidth: '300px'}}>
+              <button
+                className="establecimiento-btn"
+                style={{width: '100%', padding: '20px', fontSize: '1rem', textAlign: 'center'}}
+                onClick={() => navigate(`/sistema-tablero/ranking-diagnostico/${encodeURIComponent(nombreEstablecimiento)}/${encodeURIComponent(categoria)}`)}
+              >
+                {categoria}
+              </button>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function RankingDiagnosticoCategoria() {
   const { nombre, categoria } = useParams();
   const navigate = useNavigate();
