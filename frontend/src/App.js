@@ -2028,7 +2028,7 @@ function App() {
         <Route path="/sistema-tablero" element={
           user ? (
             <div>
-              <Header user={user} handleLogout={handleLogout} showConfigButton={false} />
+              <Header user={user} handleLogout={handleLogout} />
               
               <div className="tablero-bg">
                 <div className="logo-sdo-banner">
@@ -2057,7 +2057,7 @@ function App() {
         <Route path="/sistema-tablero/configuracion/*" element={
           user && user.role && user.role.toLowerCase() === 'admin' ? (
             <div>
-              <Header user={user} handleLogout={handleLogout} showConfigButton={false} />
+              <Header user={user} handleLogout={handleLogout} />
               <Configuracion onClose={() => window.location.href = '/sistema-tablero'} />
             </div>
           ) : (
