@@ -23,6 +23,7 @@ const Configuracion = ({ onClose }) => {
   const [pendingUsers, setPendingUsers] = useState([]);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const clearMessages = () => {
     setError('');
@@ -41,6 +42,8 @@ const Configuracion = ({ onClose }) => {
 
   const fetchUsers = useCallback(async () => {
     clearMessages();
+    setLoading(true);
+    
     try {
       const token = localStorage.getItem('token');
       if (!token) {
@@ -49,11 +52,16 @@ const Configuracion = ({ onClose }) => {
         return;
       }
 
+      console.log('[CONFIG] Iniciando fetch de usuarios...');
+      
       const response = await fetch('https://tablero-control-1.onrender.com/api/users', {
         headers: {
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
         }
       });
+
+      console.log('[CONFIG] Respuesta del servidor:', response.status, response.statusText);
 
       if (response.status === 401 || response.status === 403) {
         showError('Tu sesión ha expirado o no tienes permisos. Por favor, inicia sesión de nuevo.');
@@ -63,27 +71,53 @@ const Configuracion = ({ onClose }) => {
       }
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Error al cargar los usuarios.');
+        let errorMessage = 'Error al cargar los usuarios.';
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.message || errorMessage;
+        } catch (e) {
+          console.error('[CONFIG] Error al parsear respuesta de error:', e);
+        }
+        throw new Error(errorMessage);
+      }
+
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        throw new Error('El servidor no devolvió JSON válido. Verifica tu conexión.');
       }
 
       const data = await response.json();
-      setUsers(data.filter(u => u.is_confirmed));
-      setPendingUsers(data.filter(u => !u.is_confirmed));
+      console.log('[CONFIG] Datos recibidos:', data);
+
+      if (Array.isArray(data)) {
+        setUsers(data.filter(u => u.is_confirmed));
+        setPendingUsers(data.filter(u => !u.is_confirmed));
+      } else {
+        console.error('[CONFIG] Datos no son un array:', data);
+        setUsers([]);
+        setPendingUsers([]);
+      }
 
     } catch (err) {
-      showError(err.message);
+      console.error('[CONFIG] Error en fetchUsers:', err);
+      showError(err.message || 'Error al cargar los usuarios.');
+      setUsers([]);
+      setPendingUsers([]);
+    } finally {
+      setLoading(false);
     }
   }, [navigate]);
 
   useEffect(() => {
     const currentPath = location.pathname;
+    console.log('[CONFIG] Ruta actual:', currentPath);
+    
     if (currentPath.includes('/sistema-tablero/configuracion/usuarios')) {
       setView('users');
       fetchUsers();
     } else if (currentPath.includes('/sistema-tablero/configuracion/confirmar')) {
-        setView('confirm');
-        fetchUsers();
+      setView('confirm');
+      fetchUsers();
     } else if (currentPath.includes('/sistema-tablero/configuracion/perfiles')) {
       setView('profiles');
     } else {
@@ -98,6 +132,8 @@ const Configuracion = ({ onClose }) => {
 
   const handleAction = async (actionFn, successMessage) => {
     clearMessages();
+    setLoading(true);
+    
     try {
       const result = await actionFn();
       if (result.success) {
@@ -107,66 +143,111 @@ const Configuracion = ({ onClose }) => {
         showError(result.message || 'Ocurrió un error.');
       }
     } catch (err) {
+      console.error('[CONFIG] Error en acción:', err);
       showError(err.message || 'Error en la operación.');
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleConfirmUser = (userId) => {
     if (window.confirm('¿Estás seguro de que deseas confirmar a este usuario?')) {
-        handleAction(async () => {
-            const token = localStorage.getItem('token');
-            const response = await fetch(`https://tablero-control-1.onrender.com/api/users/confirm/${userId}`, {
-                method: 'PUT',
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            return response.json();
-        }, 'Usuario confirmado exitosamente.');
+      handleAction(async () => {
+        const token = localStorage.getItem('token');
+        const response = await fetch(`https://tablero-control-1.onrender.com/api/users/confirm/${userId}`, {
+          method: 'PUT',
+          headers: { 
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || 'Error al confirmar usuario');
+        }
+        
+        return response.json();
+      }, 'Usuario confirmado exitosamente.');
     }
   };
 
   const handleDeleteUser = (userId) => {
     if (window.confirm('¿Estás seguro de que deseas eliminar a este usuario? Esta acción es irreversible.')) {
-        handleAction(async () => {
-            const token = localStorage.getItem('token');
-            const response = await fetch(`https://tablero-control-1.onrender.com/api/users/${userId}`, {
-                method: 'DELETE',
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            return response.json();
-        }, 'Usuario eliminado exitosamente.');
+      handleAction(async () => {
+        const token = localStorage.getItem('token');
+        const response = await fetch(`https://tablero-control-1.onrender.com/api/users/${userId}`, {
+          method: 'DELETE',
+          headers: { 
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || 'Error al eliminar usuario');
+        }
+        
+        return response.json();
+      }, 'Usuario eliminado exitosamente.');
     }
   };
 
   const handleToggleBlockUser = (userId, isBlocked) => {
     const action = isBlocked ? 'desbloquear' : 'bloquear';
     if (window.confirm(`¿Estás seguro de que deseas ${action} a este usuario?`)) {
-        handleAction(async () => {
-            const token = localStorage.getItem('token');
-            const response = await fetch(`https://tablero-control-1.onrender.com/api/users/block/${userId}`, {
-                method: 'PUT',
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            return response.json();
-        }, `Usuario ${action} con éxito.`);
+      handleAction(async () => {
+        const token = localStorage.getItem('token');
+        const response = await fetch(`https://tablero-control-1.onrender.com/api/users/block/${userId}`, {
+          method: 'PUT',
+          headers: { 
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || `Error al ${action} usuario`);
+        }
+        
+        return response.json();
+      }, `Usuario ${action} con éxito.`);
     }
   };
 
   const handleResetPassword = (userId) => {
     if (window.confirm('¿Estás seguro de que deseas blanquear la contraseña de este usuario? Se enviará una nueva contraseña a su correo.')) {
-        handleAction(async () => {
-            const token = localStorage.getItem('token');
-            const response = await fetch(`https://tablero-control-1.onrender.com/api/users/reset-password/${userId}`, {
-                method: 'POST',
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            return response.json();
-        }, 'Contraseña blanqueada exitosamente. El usuario recibirá un correo con la nueva clave.');
+      handleAction(async () => {
+        const token = localStorage.getItem('token');
+        const response = await fetch(`https://tablero-control-1.onrender.com/api/users/reset-password/${userId}`, {
+          method: 'POST',
+          headers: { 
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || 'Error al blanquear contraseña');
+        }
+        
+        return response.json();
+      }, 'Contraseña blanqueada exitosamente. El usuario recibirá un correo con la nueva clave.');
     }
   };
 
   const renderUserTable = (userList, isPending) => (
     <div className="user-table-container">
-      {userList.length === 0 ? (
+      {loading && (
+        <div className="loading-message">
+          <p>Cargando usuarios...</p>
+        </div>
+      )}
+      
+      {!loading && userList.length === 0 ? (
         <div className="no-users-message">
           {isPending ? 'No hay usuarios pendientes de confirmación.' : 'No hay usuarios registrados.'}
         </div>
@@ -207,6 +288,7 @@ const Configuracion = ({ onClose }) => {
                         className="action-btn confirm" 
                         onClick={() => handleConfirmUser(user.id)}
                         title="Confirmar usuario"
+                        disabled={loading}
                       >
                         <i className="fas fa-check"></i> Confirmar
                       </button>
@@ -216,6 +298,7 @@ const Configuracion = ({ onClose }) => {
                           className={`action-btn ${user.is_blocked ? 'unblock' : 'block'}`} 
                           onClick={() => handleToggleBlockUser(user.id, user.is_blocked)}
                           title={user.is_blocked ? 'Desbloquear usuario' : 'Bloquear usuario'}
+                          disabled={loading}
                         >
                           <i className={`fas ${user.is_blocked ? 'fa-unlock' : 'fa-lock'}`}></i>
                         </button>
@@ -223,6 +306,7 @@ const Configuracion = ({ onClose }) => {
                           className="action-btn reset" 
                           onClick={() => handleResetPassword(user.id)}
                           title="Restablecer contraseña"
+                          disabled={loading}
                         >
                           <i className="fas fa-key"></i>
                         </button>
@@ -232,6 +316,7 @@ const Configuracion = ({ onClose }) => {
                       className="action-btn delete" 
                       onClick={() => handleDeleteUser(user.id)}
                       title="Eliminar usuario"
+                      disabled={loading}
                     >
                       <i className="fas fa-trash"></i>
                     </button>

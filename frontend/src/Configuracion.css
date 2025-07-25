@@ -91,6 +91,21 @@
   margin-bottom: 2rem;
 }
 
+/* Mensaje de carga */
+.loading-message {
+  text-align: center;
+  padding: 2rem;
+  color: #6c757d;
+  font-style: italic;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+}
+
+.loading-message p {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
 .no-users-message {
   text-align: center;
   padding: 2rem;
@@ -189,17 +204,23 @@
   font-size: 0.9rem;
 }
 
-.action-btn i {
-  font-size: 1rem;
+.action-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none !important;
 }
 
-.action-btn:hover {
+.action-btn:not(:disabled):hover {
   transform: translateY(-2px);
   box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
 
-.action-btn:active {
+.action-btn:not(:disabled):active {
   transform: translateY(0);
+}
+
+.action-btn i {
+  font-size: 1rem;
 }
 
 .action-btn.confirm {
@@ -253,7 +274,6 @@
     height: 32px;
   }
 }
-
 
 .user-table th {
   background-color: #f8f9fa;
