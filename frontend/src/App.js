@@ -62,11 +62,7 @@ const Header = ({ user, handleLogout, showConfigButton = true }) => {
   }
 
   const handleConfigClick = () => {
-    if (user?.role && user.role.toLowerCase() === 'admin') {
-      navigate('/sistema-tablero/configuracion');
-    } else {
-      alert('Solo los administradores pueden acceder a la configuración del sistema.');
-    }
+    navigate('/sistema-tablero/configuracion');
   };
 
   return (
@@ -2066,7 +2062,7 @@ function App() {
         } />
         
         <Route path="/sistema-tablero/configuracion/*" element={
-          user && user.role && user.role.toLowerCase() === 'admin' ? (
+          user ? (
             <div>
               <Header user={user} handleLogout={handleLogout} />
               <Routes>
