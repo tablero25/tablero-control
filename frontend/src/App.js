@@ -62,7 +62,7 @@ const Header = ({ user, handleLogout, showConfigButton = true }) => {
         </div>
         <div className="user-section">
           {user?.role === 'ADMIN' && showConfigButton && (
-            <button className="config-btn" onClick={() => window.location.href = '/configuracion'}>
+            <button className="config-btn" onClick={() => window.location.href = '/sistema-tablero/configuracion'}>
               Configuración
             </button>
           )}
@@ -2052,7 +2052,7 @@ function App() {
           )
         } />
         
-        <Route path="/configuracion/*" element={
+        <Route path="/sistema-tablero/configuracion/*" element={
           user && user.role && user.role.toLowerCase() === 'admin' ? (
             <div>
               <Header user={user} handleLogout={handleLogout} showConfigButton={false} />
