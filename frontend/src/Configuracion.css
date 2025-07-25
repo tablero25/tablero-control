@@ -1,0 +1,211 @@
+/* Contenedor principal de la página de configuración */
+.config-container {
+  padding: 2rem;
+  background-color: #f4f7fc;
+  min-height: 100vh;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Encabezado */
+.config-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  border-bottom: 2px solid #e0e0e0;
+  padding-bottom: 1rem;
+}
+
+.config-header h1 {
+  color: #223366;
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+/* Botón para volver */
+.back-btn {
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.back-btn:hover {
+  background-color: #5a6268;
+}
+
+/* Menú principal de configuración */
+.config-main-menu {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.config-option {
+  background-color: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border-left: 5px solid #007bff;
+}
+
+.config-option:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+}
+
+.config-option h2 {
+  margin-top: 0;
+  color: #223366;
+  font-size: 1.5rem;
+}
+
+.config-option p {
+  color: #666;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+/* Sección de gestión de usuarios */
+.user-management-section h2 {
+  font-size: 1.8rem;
+  color: #223366;
+  margin-bottom: 1.5rem;
+}
+
+/* Tabla de usuarios */
+.user-table-container {
+  overflow-x: auto;
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  padding: 1rem;
+}
+
+.user-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.user-table th, .user-table td {
+  padding: 1rem;
+  text-align: left;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.user-table th {
+  background-color: #f8f9fa;
+  color: #495057;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+}
+
+.user-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.user-table tbody tr:hover {
+  background-color: #f1f3f5;
+}
+
+/* Estilo para usuarios bloqueados */
+.blocked-user {
+  background-color: #ffebee !important;
+  color: #c62828;
+}
+
+.blocked-user td {
+  opacity: 0.7;
+}
+
+/* Celda de acciones */
+.actions-cell {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.action-btn {
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.action-btn.confirm {
+  background-color: #28a745;
+  color: white;
+}
+.action-btn.confirm:hover { background-color: #218838; }
+
+.action-btn.block {
+  background-color: #ffc107;
+  color: #212529;
+}
+.action-btn.block:hover { background-color: #e0a800; }
+
+.action-btn.reset {
+  background-color: #17a2b8;
+  color: white;
+}
+.action-btn.reset:hover { background-color: #138496; }
+
+.action-btn.delete {
+  background-color: #dc3545;
+  color: white;
+}
+.action-btn.delete:hover { background-color: #c82333; }
+
+/* Mensajes de feedback (éxito/error) */
+.feedback-message {
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  animation: fadeIn 0.5s ease;
+}
+
+.success-msg {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.error-msg {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.dismiss-btn {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: inherit;
+  cursor: pointer;
+  opacity: 0.7;
+}
+
+.dismiss-btn:hover {
+  opacity: 1;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
