@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import logoSDO from './logoo.png';
 
 // Utilidad para fetch con token
@@ -12,6 +13,8 @@ function fetchWithAuth(url, options = {}) {
 }
 
 function Configuracion({ onClose }) {
+  const navigate = useNavigate();
+  const location = useLocation();
   const [activeSection, setActiveSection] = useState('main');
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -22,16 +25,20 @@ function Configuracion({ onClose }) {
     setActiveSection(section);
     if (section === 'usuarios') {
       loadUsers();
+      navigate('/configuracion/usuarios');
     } else if (section === 'perfiles') {
-      window.location.href = '/perfiles';
+      navigate('/configuracion/perfiles');
+    } else {
+      navigate('/configuracion');
     }
   };
 
   const handleBack = () => {
-    if (activeSection === 'main') {
+    if (location.pathname === '/configuracion') {
       onClose();
     } else {
       setActiveSection('main');
+      navigate('/configuracion');
     }
   };
 
@@ -73,157 +80,80 @@ function Configuracion({ onClose }) {
     }
   };
 
-  // Bloquear/Desbloquear usuario
-  const handleToggleStatus = async (userId) => {
-    try {
-      const response = await fetchWithAuth(`https://tablero-control-1.onrender.com/api/auth/users/${userId}/toggle-status`, {
-        method: 'PUT'
-      });
-      const data = await response.json();
-      
-      if (data.success) {
-        setMessage(data.message);
-        loadUsers(); // Recargar lista
-        setTimeout(() => setMessage(''), 3000);
-      } else {
-        setError(data.error || 'Error al cambiar estado');
-      }
-    } catch (err) {
-      setError('Error de conexión con el servidor');
+  // Redirigir según la URL
+  useEffect(() => {
+    if (location.pathname.endsWith('/usuarios')) {
+      setActiveSection('usuarios');
+      loadUsers();
+    } else if (location.pathname.endsWith('/perfiles')) {
+      setActiveSection('perfiles');
+    } else {
+      setActiveSection('main');
     }
-  };
+    // eslint-disable-next-line
+  }, [location.pathname]);
 
-  // Eliminar usuario
-  const handleDeleteUser = async (userId, username) => {
-    if (!window.confirm(`¿Está seguro que desea eliminar al usuario ${username}?`)) {
-      return;
-    }
-
-    try {
-      const response = await fetchWithAuth(`https://tablero-control-1.onrender.com/api/auth/users/${userId}`, {
-        method: 'DELETE'
-      });
-      const data = await response.json();
-      
-      if (data.success) {
-        setMessage(data.message);
-        loadUsers(); // Recargar lista
-        setTimeout(() => setMessage(''), 3000);
-      } else {
-        setError(data.error || 'Error al eliminar usuario');
-      }
-    } catch (err) {
-      setError('Error de conexión con el servidor');
-    }
-  };
-
-  const handleResetPassword = async (userId, username) => {
-    if (!window.confirm(`¿Está seguro que desea blanquear la contraseña del usuario ${username}?`)) {
-      return;
-    }
-
-    try {
-      const response = await fetchWithAuth(`https://tablero-control-1.onrender.com/api/auth/users/${userId}/reset-password`, {
-        method: 'PUT'
-      });
-      const data = await response.json();
-      
-      if (data.success) {
-        setMessage(data.message);
-        loadUsers(); // Recargar lista
-        setTimeout(() => setMessage(''), 5000); // Más tiempo para leer la nueva contraseña
-      } else {
-        setError(data.error || 'Error al blanquear contraseña');
-      }
-    } catch (err) {
-      setError('Error de conexión con el servidor');
-    }
-  };
-
-  // Confirmar usuario pendiente
-  const handleConfirmUser = async (userId) => {
-    if (!window.confirm('¿Está seguro que desea confirmar este usuario?')) {
-      return;
-    }
-
-    try {
-      const response = await fetchWithAuth(`https://tablero-control-1.onrender.com/api/auth/users/${userId}/confirm`, {
-        method: 'PUT'
-      });
-      const data = await response.json();
-      
-      if (data.success) {
-        setMessage(data.message);
-        loadUsers(); // Recargar lista
-        setTimeout(() => setMessage(''), 3000);
-      } else {
-        setError(data.error || 'Error al confirmar usuario');
-      }
-    } catch (err) {
-      setError('Error de conexión con el servidor');
-    }
-  };
-
-  if (activeSection === 'main') {
-    return (
-      <div className="App">
-        <div className="tablero-bg">
-          <div className="logo-sdo-banner">
-            <img src={logoSDO} alt="Logo SDO" />
-            <h1 className="banner-title">CONFIGURACIÓN DEL SISTEMA</h1>
-          </div>
-          <div className="container">
-            <div className="config-panel">
-              <div className="config-header">
-                <button className="back-btn" onClick={handleBack}>
-                  ← Volver
-                </button>
-                <h2>Panel de Configuración</h2>
-              </div>
-              
-              <div className="config-buttons">
-                <button 
-                  className="config-option-btn"
-                  onClick={() => handleSectionClick('usuarios')}
-                >
-                  <div className="config-icon">👥</div>
-                  <div className="config-text">
-                    <h3>Usuarios</h3>
-                    <p>Gestionar usuarios del sistema</p>
-                  </div>
-                </button>
-
-                <button 
-                  className="config-option-btn"
-                  onClick={() => handleSectionClick('confirmar-usuarios')}
-                >
-                  <div className="config-icon">✅</div>
-                  <div className="config-text">
-                    <h3>Confirmar Usuarios</h3>
-                    <p>Confirmar y activar usuarios pendientes</p>
-                  </div>
-                </button>
-
-                <button 
-                  className="config-option-btn"
-                  onClick={() => handleSectionClick('perfiles')}
-                >
-                  <div className="config-icon">🔐</div>
-                  <div className="config-text">
-                    <h3>Perfiles</h3>
-                    <p>Gestionar roles y permisos</p>
-                  </div>
-                </button>
-              </div>
+  return (
+    <div className="App">
+      <div className="tablero-bg">
+        <div className="logo-sdo-banner">
+          <img src={logoSDO} alt="Logo SDO" />
+          <h1 className="banner-title">CONFIGURACIÓN DEL SISTEMA</h1>
+        </div>
+        <div className="container">
+          <div className="config-panel">
+            <div className="config-header">
+              <button className="back-btn" onClick={handleBack}>
+                ← Volver
+              </button>
+              <h2>Panel de Configuración</h2>
             </div>
+            <Routes>
+              <Route path="/" element={
+                <div className="config-buttons">
+                  <button 
+                    className="config-option-btn"
+                    onClick={() => handleSectionClick('usuarios')}
+                  >
+                    <div className="config-icon">👥</div>
+                    <div className="config-text">
+                      <h3>Usuarios</h3>
+                      <p>Gestionar usuarios del sistema</p>
+                    </div>
+                  </button>
+                  <button 
+                    className="config-option-btn"
+                    onClick={() => handleSectionClick('confirmar-usuarios')}
+                  >
+                    <div className="config-icon">✅</div>
+                    <div className="config-text">
+                      <h3>Confirmar Usuarios</h3>
+                      <p>Confirmar y activar usuarios pendientes</p>
+                    </div>
+                  </button>
+                  <button 
+                    className="config-option-btn"
+                    onClick={() => handleSectionClick('perfiles')}
+                  >
+                    <div className="config-icon">🔐</div>
+                    <div className="config-text">
+                      <h3>Perfiles</h3>
+                      <p>Gestionar roles y permisos</p>
+                    </div>
+                  </button>
+                </div>
+              } />
+              <Route path="usuarios" element={renderSection('usuarios')} />
+              <Route path="perfiles" element={renderSection('perfiles')} />
+            </Routes>
           </div>
         </div>
       </div>
-    );
-  }
+    </div>
+  );
 
   // Secciones específicas
-  const renderSection = () => {
+  const renderSection = (sectionOverride) => {
     switch (activeSection) {
       case 'usuarios':
         // Filtrar usuarios pendientes (is_active === false)
@@ -278,9 +208,38 @@ function Configuracion({ onClose }) {
               </div>
             )}
             
-            {message && <div className="success-msg">{message}</div>}
-            {error && <div className="error-msg">{error}</div>}
-            
+            {(message || error) && (
+              <div className={`banner-msg ${message ? 'banner-success' : 'banner-error'}`}
+                   style={{position: 'fixed', top: 40, left: '50%', transform: 'translateX(-50%)', zIndex: 3000, minWidth: 320, maxWidth: 500, boxShadow: '0 6px 24px rgba(0,0,0,0.20)', borderRadius: 12, display: 'flex', alignItems: 'center', padding: '18px 28px', fontSize: 18, fontWeight: 600, letterSpacing: 0.2, gap: 16, animation: 'fadeInDown 0.7s cubic-bezier(.57,1.4,.55,.95)'} }>
+                <span style={{fontSize: 26, marginRight: 10}}>
+                  {message ? '✅' : '❌'}
+                </span>
+                <span style={{flex: 1}}>{message || error}</span>
+                <button onClick={() => { setMessage(''); setError(''); }} style={{background: 'transparent', border: 'none', fontSize: 22, color: '#333', cursor: 'pointer', marginLeft: 10, fontWeight: 700}}>×</button>
+              </div>
+            )}
+
+            <style>{`
+              @keyframes fadeInDown {
+                0% { opacity: 0; transform: translateY(-30px) scale(0.95); }
+                80% { opacity: 1; transform: translateY(8px) scale(1.02); }
+                100% { opacity: 1; transform: translateY(0) scale(1); }
+              }
+              .banner-msg {
+                transition: opacity 0.4s, transform 0.4s;
+              }
+              .banner-success {
+                background: linear-gradient(90deg,#e9ffe4 60%,#d1f7d1 100%);
+                color: #1b5e20;
+                border: 1.5px solid #a5d6a7;
+              }
+              .banner-error {
+                background: linear-gradient(90deg,#fff1f0 60%,#ffd6d6 100%);
+                color: #b71c1c;
+                border: 1.5px solid #ef9a9a;
+              }
+            `}</style>
+
             <div className="config-content">
               {loading ? (
                 <div className="loading">Cargando usuarios...</div>
