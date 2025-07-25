@@ -80,6 +80,99 @@ function Configuracion({ onClose }) {
     }
   };
 
+  // Confirmar usuario
+  const handleConfirmUser = async (userId) => {
+    try {
+      setLoading(true);
+      setError("");
+      setMessage("");
+      const response = await fetchWithAuth(`https://tablero-control-1.onrender.com/api/auth/users/${userId}/confirm`, {
+        method: 'PUT'
+      });
+      const data = await response.json();
+      if (data.success) {
+        setMessage(data.message || 'Usuario confirmado correctamente');
+        loadUsers();
+      } else {
+        setError(data.error || 'Error al confirmar usuario');
+      }
+    } catch (err) {
+      setError('Error de conexión con el servidor');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Eliminar usuario
+  const handleDeleteUser = async (userId, username) => {
+    if (!window.confirm(`¿Está seguro que desea eliminar al usuario ${username}?`)) return;
+    try {
+      setLoading(true);
+      setError("");
+      setMessage("");
+      const response = await fetchWithAuth(`https://tablero-control-1.onrender.com/api/auth/users/${userId}`, {
+        method: 'DELETE'
+      });
+      const data = await response.json();
+      if (data.success) {
+        setMessage(data.message || 'Usuario eliminado correctamente');
+        loadUsers();
+      } else {
+        setError(data.error || 'Error al eliminar usuario');
+      }
+    } catch (err) {
+      setError('Error de conexión con el servidor');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Bloquear/desbloquear usuario
+  const handleToggleStatus = async (userId) => {
+    try {
+      setLoading(true);
+      setError("");
+      setMessage("");
+      const response = await fetchWithAuth(`https://tablero-control-1.onrender.com/api/auth/users/${userId}/toggle-status`, {
+        method: 'PUT'
+      });
+      const data = await response.json();
+      if (data.success) {
+        setMessage(data.message || 'Estado del usuario actualizado');
+        loadUsers();
+      } else {
+        setError(data.error || 'Error al actualizar estado del usuario');
+      }
+    } catch (err) {
+      setError('Error de conexión con el servidor');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Blanquear contraseña
+  const handleResetPassword = async (userId, username) => {
+    if (!window.confirm(`¿Está seguro que desea blanquear la contraseña de ${username}?`)) return;
+    try {
+      setLoading(true);
+      setError("");
+      setMessage("");
+      const response = await fetchWithAuth(`https://tablero-control-1.onrender.com/api/auth/users/${userId}/reset-password`, {
+        method: 'PUT'
+      });
+      const data = await response.json();
+      if (data.success) {
+        setMessage(data.message || 'Contraseña blanqueada correctamente');
+      } else {
+        setError(data.error || 'Error al blanquear contraseña');
+      }
+    } catch (err) {
+      setError('Error de conexión con el servidor');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Redirigir según la URL
   useEffect(() => {
     if (location.pathname.endsWith('/usuarios')) {
