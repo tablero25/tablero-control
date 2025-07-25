@@ -50,7 +50,7 @@ const SafeGaugeChart = ({ percent, ...props }) => {
 // Componente Header común para todas las páginas
 // Componente Header común para todas las páginas, actualizado.
 // FORZANDO DETECCIÓN DE CAMBIOS PARA GIT
-import { useNavigate } from 'react-router-dom';
+
 const Header = ({ user, handleLogout, showConfigButton = true }) => {
   const navigate = useNavigate();
   // DEBUG: mostrar usuario recibido
