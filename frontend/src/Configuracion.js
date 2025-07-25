@@ -78,13 +78,13 @@ const Configuracion = ({ onClose }) => {
 
   useEffect(() => {
     const currentPath = location.pathname;
-    if (currentPath.includes('/usuarios')) {
+    if (currentPath.includes('/sistema-tablero/configuracion/usuarios')) {
       setView('users');
       fetchUsers();
-    } else if (currentPath.includes('/confirmar')) {
+    } else if (currentPath.includes('/sistema-tablero/configuracion/confirmar')) {
         setView('confirm');
         fetchUsers();
-    } else if (currentPath.includes('/perfiles')) {
+    } else if (currentPath.includes('/sistema-tablero/configuracion/perfiles')) {
       setView('profiles');
     } else {
       setView('main');
@@ -93,7 +93,7 @@ const Configuracion = ({ onClose }) => {
 
   const handleNavigate = (path) => {
     clearMessages();
-    navigate(`/configuracion/${path}`);
+    navigate(`/sistema-tablero/configuracion/${path}`);
   };
 
   const handleAction = async (actionFn, successMessage) => {
