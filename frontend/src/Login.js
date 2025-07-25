@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 // import logoSDO from './logoo.png'; // Comentado temporalmente
 
 function Login({ onLogin, onShowRegister }) {
@@ -6,9 +6,22 @@ function Login({ onLogin, onShowRegister }) {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
+  // Limpiar cualquier token dummy al cargar el componente
+  useEffect(() => {
+    const currentToken = localStorage.getItem('token');
+    if (currentToken === 'dummy-token' || currentToken === 'null' || currentToken === '') {
+      localStorage.removeItem('token');
+      console.log('Token dummy eliminado al cargar Login');
+    }
+  }, []);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    
+    // Limpiar cualquier token previo (incluyendo dummy-token)
+    localStorage.removeItem('token');
+    
     try {
       const res = await fetch('https://tablero-control-1.onrender.com/api/auth/login', {
         method: 'POST',
@@ -17,7 +30,13 @@ function Login({ onLogin, onShowRegister }) {
       });
       const data = await res.json();
       if (data.success) {
+        // Asegurar que solo se guarde el token real del backend
         localStorage.setItem('token', data.token);
+        
+        // Verificar que el token se guardó correctamente
+        const savedToken = localStorage.getItem('token');
+        console.log('Token guardado:', savedToken ? 'Sí (JWT válido)' : 'No');
+        
         if (data.user.first_login) {
           window.location.href = '/change-password';
         } else {
