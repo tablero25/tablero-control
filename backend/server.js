@@ -35,7 +35,7 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(buildPath, 'index.html'));
 });
 
-// RUTAS DEL FRONTEND - Todas las rutas que no sean /api/* van al frontend React
+// RUTAS DEL FRONTEND - Rutas específicas del frontend
 app.get('/login', (req, res) => {
   console.log('🔐 Sirviendo página de login');
   res.sendFile(path.join(buildPath, 'index.html'));
@@ -48,6 +48,19 @@ app.get('/register', (req, res) => {
 
 app.get('/confirm', (req, res) => {
   console.log('✅ Sirviendo página de confirmación');
+  res.sendFile(path.join(buildPath, 'index.html'));
+});
+
+// CATCH-ALL PARA RUTAS DE REACT ROUTER
+// Esto debe ir después de todas las rutas de API pero antes del manejador de errores
+app.get('*', (req, res, next) => {
+  // Si la ruta comienza con /api, continuar al siguiente middleware (manejo de errores)
+  if (req.path.startsWith('/api/')) {
+    return next();
+  }
+  
+  // Para todas las demás rutas, servir el frontend React
+  console.log(`🌐 Sirviendo frontend React para ruta: ${req.path}`);
   res.sendFile(path.join(buildPath, 'index.html'));
 });
 
