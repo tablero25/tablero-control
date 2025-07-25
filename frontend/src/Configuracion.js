@@ -40,6 +40,10 @@ const Configuracion = ({ onClose }) => {
     setTimeout(() => setError(''), 5000); // Auto-dismiss after 5 seconds
   };
 
+  const handleVolverTablero = () => {
+    navigate('/sistema-tablero');
+  };
+
   const fetchUsers = useCallback(async () => {
     clearMessages();
     setLoading(true);
@@ -53,6 +57,7 @@ const Configuracion = ({ onClose }) => {
       }
 
       console.log('[CONFIG] Iniciando fetch de usuarios...');
+      console.log('[CONFIG] Token:', token.substring(0, 20) + '...');
       
       const response = await fetch('https://tablero-control-1.onrender.com/api/users', {
         headers: {
@@ -62,6 +67,7 @@ const Configuracion = ({ onClose }) => {
       });
 
       console.log('[CONFIG] Respuesta del servidor:', response.status, response.statusText);
+      console.log('[CONFIG] Headers de respuesta:', Object.fromEntries(response.headers.entries()));
 
       if (response.status === 401 || response.status === 403) {
         showError('Tu sesión ha expirado o no tienes permisos. Por favor, inicia sesión de nuevo.');
@@ -82,16 +88,28 @@ const Configuracion = ({ onClose }) => {
       }
 
       const contentType = response.headers.get('content-type');
+      console.log('[CONFIG] Content-Type:', contentType);
+      
       if (!contentType || !contentType.includes('application/json')) {
+        const textResponse = await response.text();
+        console.error('[CONFIG] Respuesta no-JSON recibida:', textResponse.substring(0, 200));
         throw new Error('El servidor no devolvió JSON válido. Verifica tu conexión.');
       }
 
       const data = await response.json();
       console.log('[CONFIG] Datos recibidos:', data);
+      console.log('[CONFIG] Tipo de datos:', typeof data);
+      console.log('[CONFIG] Es array:', Array.isArray(data));
 
       if (Array.isArray(data)) {
-        setUsers(data.filter(u => u.is_confirmed));
-        setPendingUsers(data.filter(u => !u.is_confirmed));
+        const confirmedUsers = data.filter(u => u.is_confirmed);
+        const pendingUsers = data.filter(u => !u.is_confirmed);
+        
+        console.log('[CONFIG] Usuarios confirmados:', confirmedUsers.length);
+        console.log('[CONFIG] Usuarios pendientes:', pendingUsers.length);
+        
+        setUsers(confirmedUsers);
+        setPendingUsers(pendingUsers);
       } else {
         console.error('[CONFIG] Datos no son un array:', data);
         setUsers([]);
@@ -334,9 +352,14 @@ const Configuracion = ({ onClose }) => {
     <div className="config-container">
       <div className="config-header">
         <h1>Panel de Configuración</h1>
-        {view !== 'main' && (
-          <button className="back-btn" onClick={() => handleNavigate('')}>← Volver</button>
-        )}
+        <div className="config-header-buttons">
+          <button className="tablero-btn" onClick={handleVolverTablero}>
+            📊 Tablero
+          </button>
+          {view !== 'main' && (
+            <button className="back-btn" onClick={() => handleNavigate('')}>← Volver</button>
+          )}
+        </div>
       </div>
 
       <FeedbackMessage message={error} type="error" onDismiss={() => setError('')} />
