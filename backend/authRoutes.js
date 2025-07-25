@@ -296,9 +296,11 @@ router.post('/users', authenticateToken, async (req, res) => {
   }
 });
 
-// Listar usuarios (todos los usuarios autenticados)
+// Listar usuarios (todos los usuarios autenticados) - SIN RESTRICCIONES DE ROL
 router.get('/users', authenticateToken, async (req, res) => {
   try {
+    console.log('[USERS] Usuario solicitando lista:', req.user.username, 'Rol:', req.user.role);
+    
     const result = await pool.query(`
       SELECT u.id, u.username, u.email, u.role, u.is_active, u.created_at,
              u.dni, u.nombre, u.apellido, u.funcion,
@@ -311,6 +313,7 @@ router.get('/users', authenticateToken, async (req, res) => {
       ORDER BY u.created_at DESC
     `);
 
+    console.log('[USERS] Usuarios encontrados:', result.rows.length);
     // Devolver directamente el array de usuarios como espera el frontend
     res.json(result.rows);
 
