@@ -2069,7 +2069,12 @@ function App() {
           user && user.role && user.role.toLowerCase() === 'admin' ? (
             <div>
               <Header user={user} handleLogout={handleLogout} />
-              <Configuracion onClose={() => window.location.href = '/sistema-tablero'} />
+              <Routes>
+                <Route path="/" element={<Configuracion onClose={() => window.location.href = '/sistema-tablero'} />} />
+                <Route path="/usuarios" element={<Configuracion onClose={() => window.location.href = '/sistema-tablero'} />} />
+                <Route path="/confirmar" element={<Configuracion onClose={() => window.location.href = '/sistema-tablero'} />} />
+                <Route path="/perfiles" element={<Configuracion onClose={() => window.location.href = '/sistema-tablero'} />} />
+              </Routes>
             </div>
           ) : (
             <Login />
