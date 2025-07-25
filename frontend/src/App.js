@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Routes, Route, useNavigate, useParams } from 'react-router-dom';
+import { Routes, Route, useNavigate, useParams, Navigate } from 'react-router-dom';
 import './App.css';
 import GaugeChart from 'react-gauge-chart';
 import * as XLSX from 'xlsx';
@@ -63,9 +63,6 @@ const Header = ({ user, handleLogout, showConfigButton = true }) => {
               Configuración
             </button>
           )}
-          <button className="config-btn" onClick={() => window.location.href = '/configuracion'}>
-            Configuración
-          </button>
           <button className="logout-btn" onClick={handleLogout}>Cerrar sesión</button>
         </div>
       </div>
@@ -1877,10 +1874,19 @@ function RankingDiagnosticoCategoria() {
 }
 
 // Componente principal de la aplicación
+// Componente para proteger rutas de administrador
+const ProtectedRoute = ({ user, children }) => {
+  if (!user || user.role !== 'ADMIN') {
+    return <Navigate to="/login" replace />;
+  }
+  return children;
+};
+
 function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showChangePassword, setShowChangePassword] = useState(false);
+  const [authError, setAuthError] = useState("");
 
   // Verificar token al cargar la aplicación (solo una vez)
   useEffect(() => {
@@ -1896,15 +1902,18 @@ function App() {
       .then(data => {
         if (data.success) {
           setUser(data.user);
+          setAuthError("");
           if (data.user.first_login) {
             setShowChangePassword(true);
           }
         } else {
+          setAuthError(data.error || 'Error de autenticación: token inválido o expirado');
           localStorage.removeItem('token');
         }
         setLoading(false);
       })
-      .catch(() => {
+      .catch((err) => {
+        setAuthError('Error de conexión con el servidor de autenticación');
         localStorage.removeItem('token');
         setLoading(false);
       });
@@ -1931,6 +1940,28 @@ function App() {
         </div>
       </div>
     );
+  }
+
+  if (authError) {
+    return (
+      <div className="App">
+        <div className="tablero-bg">
+          <div className="error-msg" style={{margin:'100px auto',maxWidth:600}}>
+            <h2>Error de autenticación</h2>
+            <p>{authError}</p>
+            <button className="login-btn" onClick={() => window.location.href = '/login'}>Ir al Login</button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // DEPURACIÓN: loguear el user y su rol antes de renderizar rutas protegidas
+  if (user) {
+    console.log('[DEBUG] Usuario logueado:', user);
+    console.log('[DEBUG] Rol del usuario:', user.role);
+  } else {
+    console.log('[DEBUG] No hay usuario logueado');
   }
 
   return (
@@ -2005,8 +2036,8 @@ function App() {
           )
         } />
         
-        <Route path="/configuracion" element={
-          user && user.role === 'ADMIN' ? (
+        <Route path="/configuracion/*" element={
+          user && user.role && user.role.toLowerCase() === 'admin' ? (
             <div>
               <Header user={user} handleLogout={handleLogout} showConfigButton={false} />
               <Configuracion onClose={() => window.location.href = '/sistema-tablero'} />
@@ -2016,27 +2047,9 @@ function App() {
           )
         } />
         
-        <Route path="/gestion-usuarios" element={
-          user && user.role === 'ADMIN' ? (
-            <div>
-              <Header user={user} handleLogout={handleLogout} />
-              <Configuracion onClose={() => window.location.href = '/configuracion'} />
-            </div>
-          ) : (
-            <Login />
-          )
-        } />
         
-        <Route path="/perfiles" element={
-          user && user.role === 'ADMIN' ? (
-            <div>
-              <Header user={user} handleLogout={handleLogout} />
-              <Configuracion onClose={() => window.location.href = '/configuracion'} />
-            </div>
-          ) : (
-            <Login />
-          )
-        } />
+        
+        
         
         <Route path="/change-password" element={<ChangePassword />} />
         {/* Rutas directas para los detalles de cada sección */}
