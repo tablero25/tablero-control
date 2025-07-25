@@ -166,40 +166,82 @@ const Configuracion = ({ onClose }) => {
 
   const renderUserTable = (userList, isPending) => (
     <div className="user-table-container">
-      <table className="user-table">
-        <thead>
-          <tr>
-            <th>Nombre y Apellido</th>
-            <th>Email</th>
-            <th>Establecimiento</th>
-            <th>Rol</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          {userList.map(user => (
-            <tr key={user.id} className={user.is_blocked ? 'blocked-user' : ''}>
-              <td>{user.nombre} {user.apellido}</td>
-              <td>{user.email}</td>
-              <td>{user.establecimiento}</td>
-              <td>{user.role}</td>
-              <td className="actions-cell">
-                {isPending ? (
-                  <button className="action-btn confirm" onClick={() => handleConfirmUser(user.id)}>Confirmar</button>
-                ) : (
-                  <>
-                    <button className="action-btn block" onClick={() => handleToggleBlockUser(user.id, user.is_blocked)}>
-                      {user.is_blocked ? 'Desbloquear' : 'Bloquear'}
-                    </button>
-                    <button className="action-btn reset" onClick={() => handleResetPassword(user.id)}>Blanquear</button>
-                  </>
-                )}
-                 <button className="action-btn delete" onClick={() => handleDeleteUser(user.id)}>Eliminar</button>
-              </td>
+      {userList.length === 0 ? (
+        <div className="no-users-message">
+          {isPending ? 'No hay usuarios pendientes de confirmación.' : 'No hay usuarios registrados.'}
+        </div>
+      ) : (
+        <table className="user-table">
+          <thead>
+            <tr>
+              <th>Nombre y Apellido</th>
+              <th>Email</th>
+              <th>Establecimiento</th>
+              <th>Rol</th>
+              <th>Estado</th>
+              <th>Acciones</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {userList.map(user => (
+              <tr key={user.id} className={user.is_blocked ? 'blocked-user' : ''}>
+                <td>{user.nombre} {user.apellido}</td>
+                <td>{user.email}</td>
+                <td>{user.establecimiento || 'No especificado'}</td>
+                <td>
+                  <span className={`role-badge ${user.role.toLowerCase()}`}>
+                    {user.role}
+                  </span>
+                </td>
+                <td>
+                  {user.is_blocked ? (
+                    <span className="status-badge blocked">Bloqueado</span>
+                  ) : (
+                    <span className="status-badge active">Activo</span>
+                  )}
+                </td>
+                <td className="actions-cell">
+                  <div className="action-buttons">
+                    {isPending ? (
+                      <button 
+                        className="action-btn confirm" 
+                        onClick={() => handleConfirmUser(user.id)}
+                        title="Confirmar usuario"
+                      >
+                        <i className="fas fa-check"></i> Confirmar
+                      </button>
+                    ) : (
+                      <>
+                        <button 
+                          className={`action-btn ${user.is_blocked ? 'unblock' : 'block'}`} 
+                          onClick={() => handleToggleBlockUser(user.id, user.is_blocked)}
+                          title={user.is_blocked ? 'Desbloquear usuario' : 'Bloquear usuario'}
+                        >
+                          <i className={`fas ${user.is_blocked ? 'fa-unlock' : 'fa-lock'}`}></i>
+                        </button>
+                        <button 
+                          className="action-btn reset" 
+                          onClick={() => handleResetPassword(user.id)}
+                          title="Restablecer contraseña"
+                        >
+                          <i className="fas fa-key"></i>
+                        </button>
+                      </>
+                    )}
+                    <button 
+                      className="action-btn delete" 
+                      onClick={() => handleDeleteUser(user.id)}
+                      title="Eliminar usuario"
+                    >
+                      <i className="fas fa-trash"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
     </div>
   );
 
