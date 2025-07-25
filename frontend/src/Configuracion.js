@@ -129,11 +129,14 @@ const Configuracion = ({ onClose }) => {
   useEffect(() => {
     const currentPath = location.pathname;
     console.log('[CONFIG] Ruta actual:', currentPath);
+    console.log('[CONFIG] fetchUsers disponible:', typeof fetchUsers);
     
     if (currentPath.includes('/sistema-tablero/configuracion/usuarios')) {
+      console.log('[CONFIG] Entrando a sección usuarios - llamando fetchUsers()');
       setView('users');
       fetchUsers();
     } else if (currentPath.includes('/sistema-tablero/configuracion/confirmar')) {
+      console.log('[CONFIG] Entrando a sección confirmar - llamando fetchUsers()');
       setView('confirm');
       fetchUsers();
     } else if (currentPath.includes('/sistema-tablero/configuracion/perfiles')) {
@@ -255,6 +258,36 @@ const Configuracion = ({ onClose }) => {
         return response.json();
       }, 'Contraseña blanqueada exitosamente. El usuario recibirá un correo con la nueva clave.');
     }
+  };
+
+  const handleResetAllUsers = () => {
+    if (!window.confirm('¿Estás seguro de que quieres eliminar TODOS los usuarios y crear uno nuevo con usuario "123" y contraseña "123"? Esta acción no se puede deshacer.')) {
+      return;
+    }
+
+    handleAction(
+      async () => {
+        const response = await fetch('https://tablero-control-1.onrender.com/api/reset-users', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Error al resetear usuarios');
+        }
+
+        return await response.json();
+      },
+      'Usuarios reseteados. Nuevo usuario creado: 123/123'
+    ).then(() => {
+      // Recargar la lista de usuarios después del reset
+      setTimeout(() => {
+        fetchUsers();
+      }, 1000);
+    });
   };
 
   const renderUserTable = (userList, isPending) => (
@@ -380,7 +413,17 @@ const Configuracion = ({ onClose }) => {
 
       {view === 'users' && (
         <div className="user-management-section">
-          <h2>Usuarios Registrados</h2>
+          <div className="user-management-header">
+            <h2>Usuarios Registrados</h2>
+            <button 
+              className="reset-all-btn" 
+              onClick={handleResetAllUsers}
+              disabled={loading}
+              title="Eliminar todos los usuarios y crear usuario 123"
+            >
+              🔄 Resetear Todos los Usuarios
+            </button>
+          </div>
           {users.length > 0 ? renderUserTable(users, false) : <p>No hay usuarios registrados o confirmados.</p>}
           
           <hr style={{margin: '40px 0'}} />
