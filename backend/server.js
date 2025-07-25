@@ -8,9 +8,15 @@ const XLSX = require('xlsx');
 // Importar inicialización automática de base de datos
 const { checkAndInitializeDatabase } = require('./autoInitDb');
 
+// Importar rutas de autenticación
+const authRoutes = require('./authRoutes');
+
 const app = express();
 app.use(cors());
 app.use(express.json());
+
+// Montar rutas de autenticación
+app.use('/api', authRoutes);
 
 // Ruta absoluta a la carpeta de build del frontend
 const buildPath = path.join(__dirname, '../frontend/build');
