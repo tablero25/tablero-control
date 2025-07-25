@@ -49,6 +49,7 @@ const SafeGaugeChart = ({ percent, ...props }) => {
 
 // Componente Header común para todas las páginas
 // Componente Header común para todas las páginas, actualizado.
+// FORZANDO DETECCIÓN DE CAMBIOS PARA GIT
 const Header = ({ user, handleLogout, showConfigButton = true }) => {
   return (
     <>
