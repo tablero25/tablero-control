@@ -51,6 +51,9 @@ const SafeGaugeChart = ({ percent, ...props }) => {
 // Componente Header común para todas las páginas, actualizado.
 // FORZANDO DETECCIÓN DE CAMBIOS PARA GIT
 const Header = ({ user, handleLogout, showConfigButton = true }) => {
+  // DEBUG: mostrar usuario recibido
+  console.log('[HEADER] user:', user, 'showConfigButton:', showConfigButton);
+
   return (
     <>
       <div className="logout-bar">
