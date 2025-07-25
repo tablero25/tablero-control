@@ -55,6 +55,19 @@ const Header = ({ user, handleLogout, showConfigButton = true }) => {
   const navigate = useNavigate();
   // DEBUG: mostrar usuario recibido
   console.log('[HEADER] user:', user, 'showConfigButton:', showConfigButton);
+  if (!user) {
+    console.warn('[HEADER] No hay user recibido');
+  } else {
+    console.info('[HEADER] Rol recibido:', user.role);
+  }
+
+  const handleConfigClick = () => {
+    if (user?.role && user.role.toLowerCase() === 'admin') {
+      navigate('/sistema-tablero/configuracion');
+    } else {
+      alert('Solo los administradores pueden acceder a la configuración del sistema.');
+    }
+  };
 
   return (
     <>
@@ -63,11 +76,9 @@ const Header = ({ user, handleLogout, showConfigButton = true }) => {
           {/* Logo eliminado según solicitud */}
         </div>
         <div className="user-section">
-          {user?.role === 'ADMIN' && showConfigButton && (
-            <button className="config-btn" onClick={() => navigate('/sistema-tablero/configuracion')}>
-              Configuración
-            </button>
-          )}
+          <button className="config-btn" onClick={handleConfigClick}>
+            Configuración
+          </button>
           <button className="logout-btn" onClick={handleLogout}>Cerrar sesión</button>
           <span className="user-name">{user?.nombre} {user?.apellido}</span>
         </div>
