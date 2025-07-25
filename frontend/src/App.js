@@ -48,6 +48,7 @@ const SafeGaugeChart = ({ percent, ...props }) => {
 // );
 
 // Componente Header común para todas las páginas
+// Componente Header común para todas las páginas, actualizado.
 const Header = ({ user, handleLogout, showConfigButton = true }) => {
   return (
     <>
