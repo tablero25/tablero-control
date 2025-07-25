@@ -53,17 +53,16 @@ const Header = ({ user, handleLogout, showConfigButton = true }) => {
     <>
       <div className="logout-bar">
         <div className="logo-section">
-          <img src="/static/media/logoo.c9263002735465189850.png" alt="Logo SDO" style={{height: '30px', marginRight: '10px'}} />
-          
+          {/* Logo eliminado según solicitud */}
         </div>
         <div className="user-section">
-          <span className="user-name">{user?.nombre} {user?.apellido}</span>
           {user?.role === 'ADMIN' && showConfigButton && (
             <button className="config-btn" onClick={() => window.location.href = '/configuracion'}>
               Configuración
             </button>
           )}
           <button className="logout-btn" onClick={handleLogout}>Cerrar sesión</button>
+          <span className="user-name">{user?.nombre} {user?.apellido}</span>
         </div>
       </div>
     </>
