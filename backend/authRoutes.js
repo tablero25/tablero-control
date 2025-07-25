@@ -253,8 +253,8 @@ router.post('/change-password', async (req, res) => {
   }
 });
 
-// Crear usuario (solo ADMIN)
-router.post('/users', authenticateToken, requireRole(['ADMIN']), async (req, res) => {
+// Crear usuario (todos los usuarios autenticados)
+router.post('/users', authenticateToken, async (req, res) => {
   try {
     const { username, email, password, role } = req.body;
     
@@ -296,8 +296,8 @@ router.post('/users', authenticateToken, requireRole(['ADMIN']), async (req, res
   }
 });
 
-// Listar usuarios (solo ADMIN)
-router.get('/users', authenticateToken, requireRole(['ADMIN']), async (req, res) => {
+// Listar usuarios (todos los usuarios autenticados)
+router.get('/users', authenticateToken, async (req, res) => {
   try {
     const result = await pool.query(`
       SELECT u.id, u.username, u.email, u.role, u.is_active, u.created_at,
@@ -320,8 +320,8 @@ router.get('/users', authenticateToken, requireRole(['ADMIN']), async (req, res)
   }
 });
 
-// Bloquear/Desbloquear usuario (solo ADMIN)
-router.put('/users/:userId/toggle-status', authenticateToken, requireRole(['ADMIN']), async (req, res) => {
+// Bloquear/Desbloquear usuario (todos los usuarios autenticados)
+router.put('/users/:userId/toggle-status', authenticateToken, async (req, res) => {
   try {
     const { userId } = req.params;
     
@@ -352,8 +352,8 @@ router.put('/users/:userId/toggle-status', authenticateToken, requireRole(['ADMI
   }
 });
 
-// Blanquear contraseña de usuario (solo ADMIN)
-router.put('/users/:userId/reset-password', authenticateToken, requireRole(['ADMIN']), async (req, res) => {
+// Blanquear contraseña de usuario (todos los usuarios autenticados)
+router.put('/users/:userId/reset-password', authenticateToken, async (req, res) => {
   try {
     const { userId } = req.params;
     
@@ -392,8 +392,8 @@ router.put('/users/:userId/reset-password', authenticateToken, requireRole(['ADM
   }
 });
 
-// Eliminar usuario (solo ADMIN)
-router.delete('/users/:userId', authenticateToken, requireRole(['ADMIN']), async (req, res) => {
+// Eliminar usuario (todos los usuarios autenticados)
+router.delete('/users/:userId', authenticateToken, async (req, res) => {
   try {
     const { userId } = req.params;
     
@@ -424,8 +424,8 @@ router.delete('/users/:userId', authenticateToken, requireRole(['ADMIN']), async
   }
 });
 
-// Asignar establecimiento a usuario (solo ADMIN)
-router.post('/users/:userId/establecimientos', authenticateToken, requireRole(['ADMIN']), async (req, res) => {
+// Asignar establecimiento a usuario (todos los usuarios autenticados)
+router.post('/users/:userId/establecimientos', authenticateToken, async (req, res) => {
   try {
     const { userId } = req.params;
     const { establecimientoId, isPrimary = false } = req.body;
@@ -459,8 +459,8 @@ router.post('/users/:userId/establecimientos', authenticateToken, requireRole(['
   }
 });
 
-// Confirmar usuario pendiente (solo ADMIN)
-router.put('/users/:userId/confirm', authenticateToken, requireRole(['ADMIN']), async (req, res) => {
+// Confirmar usuario pendiente (todos los usuarios autenticados)
+router.put('/users/:userId/confirm', authenticateToken, async (req, res) => {
   try {
     const { userId } = req.params;
     // Verificar que el usuario existe
@@ -547,8 +547,8 @@ router.post('/confirm-email', async (req, res) => {
   }
 });
 
-// Actualizar rol de usuario (solo ADMIN)
-router.put('/users/:userId/update-role', authenticateToken, requireRole(['ADMIN']), async (req, res) => {
+// Actualizar rol de usuario (todos los usuarios autenticados)
+router.put('/users/:userId/update-role', authenticateToken, async (req, res) => {
   try {
     const { userId } = req.params;
     const { role, establecimientos } = req.body;
