@@ -977,26 +977,30 @@ input[type="number"], .anio-input {
 }
 
 .users-table th {
-  background: #0073b7;
+  background: linear-gradient(90deg, #0073b7 85%, #4a90e2 100%);
   color: #fff;
-  padding: 12px 8px;
+  padding: 14px 10px;
   text-align: left;
-  font-weight: 600;
-  font-size: 0.9rem;
+  font-weight: 700;
+  font-size: 1rem;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  letter-spacing: 0.5px;
+  border-bottom: 3px solid #1976c5;
 }
 
 .users-table td {
   padding: 12px 8px;
   border-bottom: 1px solid #e9ecef;
   font-size: 0.9rem;
-  color: #333;
+  color: #666;
   font-weight: 500;
 }
 
-.users-table td:empty::before {
-  content: '-';
-  color: #999;
-  font-style: italic;
+.users-table tr:hover {
+  background: #e3f0fc;
+  transition: background 0.18s;
 }
 
 .user-data-cell {
@@ -1011,54 +1015,15 @@ input[type="number"], .anio-input {
   font-weight: 700;
 }
 
-/* --- USERS SUMMARY STYLES --- */
-.users-summary {
-  margin-bottom: 25px;
-  padding: 20px;
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-}
-
-.summary-stats {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 20px;
-}
-
-.stat-item {
-  text-align: center;
-  padding: 15px;
-  background: #f8f9fa;
-  border-radius: 8px;
-  border-left: 4px solid #0073b7;
-}
-
-.stat-number {
-  display: block;
-  font-size: 2rem;
-  font-weight: 700;
-  color: #0073b7;
-  margin-bottom: 5px;
-}
-
-.stat-label {
-  display: block;
-  font-size: 0.9rem;
-  color: #666;
-  font-weight: 500;
-}
-
-.users-table tr:hover {
-  background: #f8f9fa;
-}
-
 .role-badge {
-  padding: 4px 8px;
-  border-radius: 12px;
-  font-size: 0.8rem;
-  font-weight: 600;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 700;
   text-transform: uppercase;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.07);
+  letter-spacing: 0.5px;
+  border: none;
 }
 
 .role-admin {
@@ -1077,10 +1042,13 @@ input[type="number"], .anio-input {
 }
 
 .status-badge {
-  padding: 4px 8px;
-  border-radius: 12px;
-  font-size: 0.8rem;
-  font-weight: 600;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.07);
+  border: none;
+  letter-spacing: 0.5px;
 }
 
 .status-badge.active {
@@ -1095,38 +1063,47 @@ input[type="number"], .anio-input {
 
 .action-buttons {
   display: flex;
-  gap: 8px;
+  gap: 10px;
   justify-content: center;
+  align-items: center;
 }
 
 .toggle-btn, .delete-btn, .reset-password-btn {
-  background: none;
+  background: #f5f8fa;
   border: none;
-  font-size: 1.2rem;
+  font-size: 1.25rem;
   cursor: pointer;
-  padding: 4px;
-  border-radius: 4px;
-  transition: background 0.2s;
+  padding: 8px;
+  border-radius: 50%;
+  transition: background 0.2s, box-shadow 0.2s;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  position: relative;
+  outline: none;
 }
 
 .toggle-btn:hover {
-  background: #e9ecef;
+  background: #d1ecf1;
+  box-shadow: 0 2px 8px rgba(23,162,184,0.11);
 }
 
 .toggle-btn.block:hover {
-  background: #f8d7da;
+  background: #fae1e6;
+  color: #c82333;
 }
 
 .toggle-btn.unblock:hover {
-  background: #d4edda;
+  background: #d0f5e9;
+  color: #218838;
 }
 
 .reset-password-btn:hover {
-  background: #fff3cd;
+  background: #fffbe6;
+  color: #ff9800;
 }
 
 .delete-btn:hover {
-  background: #f8d7da;
+  background: #ffe6e6;
+  color: #d32f2f;
 }
 
 .delete-btn:disabled, .reset-password-btn:disabled {
