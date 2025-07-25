@@ -32,7 +32,10 @@ function Login({ onLogin, onShowRegister }) {
       if (data.success) {
         // Asegurar que solo se guarde el token real del backend
         localStorage.setItem('token', data.token);
-        
+        // Guardar también el usuario en localStorage para acceso inmediato
+        if (data.user) {
+          localStorage.setItem('user', JSON.stringify(data.user));
+        }
         // Verificar que el token se guardó correctamente
         const savedToken = localStorage.getItem('token');
         console.log('Token guardado:', savedToken ? 'Sí (JWT válido)' : 'No');

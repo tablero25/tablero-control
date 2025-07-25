@@ -1894,6 +1894,13 @@ function App() {
 
   // Verificar token al cargar la aplicación (solo una vez)
   useEffect(() => {
+    // Si hay usuario guardado en localStorage, usarlo primero
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      try {
+        setUser(JSON.parse(storedUser));
+      } catch (e) {}
+    }
     const token = localStorage.getItem('token');
     if (token) {
       // Verificar si el token es válido
@@ -1907,18 +1914,23 @@ function App() {
         if (data.success) {
           setUser(data.user);
           setAuthError("");
+          if (data.user) {
+            localStorage.setItem('user', JSON.stringify(data.user));
+          }
           if (data.user.first_login) {
             setShowChangePassword(true);
           }
         } else {
           setAuthError(data.error || 'Error de autenticación: token inválido o expirado');
           localStorage.removeItem('token');
+          localStorage.removeItem('user');
         }
         setLoading(false);
       })
       .catch((err) => {
         setAuthError('Error de conexión con el servidor de autenticación');
         localStorage.removeItem('token');
+        localStorage.removeItem('user');
         setLoading(false);
       });
     } else {
