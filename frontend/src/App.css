@@ -823,6 +823,23 @@ input[type="number"], .anio-input {
   background: #138496;
 }
 
+.tablero-btn {
+  background: #28a745;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 22px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(40,167,69,0.08);
+  transition: background 0.2s;
+}
+
+.tablero-btn:hover {
+  background: #218838;
+}
+
 .user-name {
   color: #223366;
   font-weight: bold;
@@ -836,7 +853,7 @@ input[type="number"], .anio-input {
     gap: 8px;
   }
   
-  .config-btn, .logout-btn {
+  .config-btn, .logout-btn, .tablero-btn {
     padding: 8px 16px;
     font-size: 0.9rem;
   }
@@ -852,7 +869,7 @@ input[type="number"], .anio-input {
     gap: 6px;
   }
   
-  .config-btn, .logout-btn {
+  .config-btn, .logout-btn, .tablero-btn {
     padding: 6px 12px;
     font-size: 0.8rem;
   }

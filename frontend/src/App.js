@@ -65,6 +65,10 @@ const Header = ({ user, handleLogout, showConfigButton = true }) => {
     navigate('/sistema-tablero/configuracion');
   };
 
+  const handleTableroClick = () => {
+    navigate('/sistema-tablero');
+  };
+
   return (
     <>
       <div className="logout-bar">
@@ -72,6 +76,9 @@ const Header = ({ user, handleLogout, showConfigButton = true }) => {
           {/* Logo eliminado según solicitud */}
         </div>
         <div className="user-section">
+          <button className="tablero-btn" onClick={handleTableroClick}>
+            Tablero
+          </button>
           <button className="config-btn" onClick={handleConfigClick}>
             Configuración
           </button>

@@ -302,6 +302,8 @@ router.get('/users', authenticateToken, async (req, res) => {
     const result = await pool.query(`
       SELECT u.id, u.username, u.email, u.role, u.is_active, u.created_at,
              u.dni, u.nombre, u.apellido, u.funcion,
+             COALESCE(u.is_confirmed, TRUE) as is_confirmed,
+             COALESCE(u.is_blocked, FALSE) as is_blocked,
              COUNT(ue.establecimiento_id) as establecimientos_count
       FROM users u
       LEFT JOIN user_establecimientos ue ON u.id = ue.user_id
@@ -309,10 +311,8 @@ router.get('/users', authenticateToken, async (req, res) => {
       ORDER BY u.created_at DESC
     `);
 
-    res.json({
-      success: true,
-      users: result.rows
-    });
+    // Devolver directamente el array de usuarios como espera el frontend
+    res.json(result.rows);
 
   } catch (error) {
     console.error('Error listando usuarios:', error);
