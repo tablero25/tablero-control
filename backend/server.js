@@ -20,7 +20,7 @@ app.use(cors());
 app.use(express.json());
 
 // Montar rutas de autenticación
-app.use('/api', authRoutes);
+app.use('/api/auth', authRoutes);
 
 // Ruta absoluta a la carpeta de build del frontend
 const buildPath = path.join(__dirname, '../frontend/build');
