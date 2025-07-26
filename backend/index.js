@@ -197,6 +197,12 @@ app.use('/logo192.png', express.static(path.join(__dirname, '../frontend/build/l
 app.use('/favicon.ico', express.static(path.join(__dirname, '../frontend/build/favicon.ico')));
 app.use('/manifest.json', express.static(path.join(__dirname, '../frontend/build/manifest.json')));
 
+// Servir archivos estáticos desde cualquier ruta (para client-side routing)
+app.use('*/static', express.static(path.join(__dirname, '../frontend/build/static')));
+app.use('*/manifest.json', express.static(path.join(__dirname, '../frontend/build/manifest.json')));
+app.use('*/favicon.ico', express.static(path.join(__dirname, '../frontend/build/favicon.ico')));
+app.use('*/logo192.png', express.static(path.join(__dirname, '../frontend/build/logo192.png')));
+
 // Ruta específica para manifest.json
 app.get('/manifest.json', (req, res) => {
   const manifestPath = path.join(__dirname, '../frontend/build/manifest.json');
@@ -2266,19 +2272,27 @@ app.post('/api/users/reset-password/:userId', requireAdmin, async (req, res) => 
 
 // Catch-all handler: SOLO para rutas que NO son archivos estáticos
 app.get('*', (req, res) => {
-  // NO servir index.html para archivos estáticos
+  // Verificar si es una ruta de API
+  if (req.url.startsWith('/api/')) {
+    return res.status(404).json({ error: 'API endpoint no encontrado' });
+  }
+  
+  // Verificar si es un archivo estático
   if (req.url.startsWith('/static/') || 
+      req.url.includes('/static/') ||
       req.url.endsWith('.js') || 
       req.url.endsWith('.css') || 
       req.url.endsWith('.map') ||
       req.url.endsWith('.ico') ||
       req.url.endsWith('.png') ||
-      req.url.endsWith('.json')) {
+      req.url.endsWith('.json') ||
+      req.url.includes('manifest.json')) {
     // Para archivos estáticos que no existen, devolver 404 silenciosamente
     return res.status(404).end();
   }
   
-  // Solo para rutas de React
+  // Para todas las demás rutas, servir index.html (client-side routing)
+  console.log(`🎯 [ROUTING] Sirviendo index.html para ruta: ${req.url}`);
   res.sendFile(path.join(__dirname, '../frontend/build/index.html'));
 });
 
