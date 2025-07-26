@@ -5,8 +5,21 @@ import logoSDO from './logoo.png';
 function ChangePassword({ onCancel, onSuccess }) {
   // eslint-disable-next-line no-unused-vars
   const navigate = useNavigate();
+  
+  // Obtener usuario del localStorage si está disponible
+  const getCurrentUser = () => {
+    try {
+      const userStr = localStorage.getItem('user');
+      return userStr ? JSON.parse(userStr) : null;
+    } catch (e) {
+      return null;
+    }
+  };
+  
+  const currentUser = getCurrentUser();
+  
   const [formData, setFormData] = useState({
-    username: '',
+    username: currentUser ? currentUser.username : '',
     oldPassword: '',
     newPassword: '',
     confirmPassword: ''
@@ -74,6 +87,17 @@ function ChangePassword({ onCancel, onSuccess }) {
           <div className="modal-content">
             <form className="login-form" onSubmit={handleSubmit}>
           <h2>Cambiar Contraseña</h2>
+          {currentUser && (
+            <div style={{ 
+              background: '#e3f2fd', 
+              padding: '10px', 
+              borderRadius: '5px', 
+              marginBottom: '15px',
+              fontSize: '14px'
+            }}>
+              Cambiando contraseña para: <strong>{currentUser.username}</strong>
+            </div>
+          )}
           
           <input
             type="text"
@@ -81,6 +105,7 @@ function ChangePassword({ onCancel, onSuccess }) {
             placeholder="Usuario"
             value={formData.username}
             onChange={handleChange}
+            readOnly={!!currentUser}
             required
           />
           
