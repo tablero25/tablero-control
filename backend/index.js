@@ -506,15 +506,21 @@ app.post('/api/auth/change-password', async (req, res) => {
     const user = userResult.rows[0];
     console.log('✅ [CHANGE-PASSWORD] Usuario encontrado:', user.username);
     console.log('🔍 [CHANGE-PASSWORD] Hash actual del usuario:', user.password_hash ? 'presente' : 'faltante');
+    console.log('🔍 [CHANGE-PASSWORD] Es primer login:', user.first_login);
 
-    // Verificar contraseña actual (case-insensitive)
-    console.log('🔍 [CHANGE-PASSWORD] Verificando contraseña...');
-    const isValidPassword = await verifyPassword(oldPassword.toLowerCase(), user.password_hash);
-    console.log('🔍 [CHANGE-PASSWORD] Resultado de verificación:', isValidPassword);
-    
-    if (!isValidPassword) {
-      console.log('❌ [CHANGE-PASSWORD] Contraseña actual incorrecta para:', username);
-      return res.status(400).json({ error: 'Contraseña actual incorrecta' });
+    // Si es primer login y tiene contraseña temporal, permitir cualquier contraseña "actual"
+    if (user.first_login && user.password_hash === 'temp_password_hash') {
+      console.log('ℹ️ [CHANGE-PASSWORD] Usuario con contraseña temporal, saltando verificación');
+    } else {
+      // Verificar contraseña actual (case-insensitive)
+      console.log('🔍 [CHANGE-PASSWORD] Verificando contraseña...');
+      const isValidPassword = await verifyPassword(oldPassword.toLowerCase(), user.password_hash);
+      console.log('🔍 [CHANGE-PASSWORD] Resultado de verificación:', isValidPassword);
+      
+      if (!isValidPassword) {
+        console.log('❌ [CHANGE-PASSWORD] Contraseña actual incorrecta para:', username);
+        return res.status(400).json({ error: 'Contraseña actual incorrecta' });
+      }
     }
 
     // Hashear nueva contraseña
@@ -530,7 +536,7 @@ app.post('/api/auth/change-password', async (req, res) => {
 
     res.json({
       success: true,
-      message: 'Contraseña cambiada exitosamente'
+      message: user.first_login ? 'Contraseña inicial configurada exitosamente' : 'Contraseña cambiada exitosamente'
     });
 
   } catch (error) {
