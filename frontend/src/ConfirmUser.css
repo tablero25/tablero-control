@@ -56,7 +56,8 @@
 }
 
 /* Loading */
-.confirm-loading .spinner {
+.confirm-loading .spinner,
+.loading-state .spinner {
   width: 50px;
   height: 50px;
   border: 4px solid #f3f3f3;
@@ -71,10 +72,63 @@
   100% { transform: rotate(360deg); }
 }
 
-.confirm-loading p {
+.confirm-loading p,
+.loading-state p {
   color: #666;
   font-size: 16px;
   margin: 0;
+}
+
+/* Result states */
+.result-state {
+  text-align: center;
+  padding: 20px 0;
+}
+
+.status-icon {
+  font-size: 48px;
+  margin-bottom: 20px;
+  display: block;
+}
+
+.status-icon.success {
+  color: #28a745;
+}
+
+.status-icon.error {
+  color: #dc3545;
+}
+
+.message {
+  font-size: 18px;
+  margin-bottom: 15px;
+  color: #333;
+  line-height: 1.5;
+}
+
+.redirect-info {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 20px;
+  font-style: italic;
+}
+
+.login-button {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 12px 30px;
+  border-radius: 25px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.login-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
 }
 
 /* Success */

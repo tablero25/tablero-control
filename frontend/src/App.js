@@ -8,6 +8,7 @@ import Login from './Login';
 import Register from './Register';
 import ChangePassword from './ChangePassword';
 import Configuracion from './Configuracion';
+import ConfirmUser from './ConfirmUser';
 
 // Suprimir warnings de ResizeObserver en desarrollo
 if (process.env.NODE_ENV === 'development') {
@@ -2032,6 +2033,7 @@ function App() {
         <Route path="/" element={<Login />} />
         <Route path="/login" element={<Login />} />
         <Route path="/registrarse" element={<Register />} />
+        <Route path="/confirmar-usuario" element={<ConfirmUser />} />
         
         {/* Rutas directas para las secciones principales */}
         <Route path="/sistema-tablero/indicadores-camas" element={

@@ -283,6 +283,75 @@ app.get('/api/auth/verify', (req, res) => {
   });
 });
 
+// Ruta para confirmar usuario con token
+app.get('/api/auth/confirmar-usuario', async (req, res) => {
+  try {
+    const { token } = req.query;
+    
+    if (!token) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Token de confirmación requerido' 
+      });
+    }
+
+    console.log('🔍 [CONFIRMAR] Verificando token:', token);
+    
+    // Buscar usuario con el token
+    const userResult = await pool.query(
+      'SELECT id, username, email, nombre, apellido, is_confirmed, confirmation_token FROM users WHERE confirmation_token = $1',
+      [token]
+    );
+
+    if (userResult.rows.length === 0) {
+      console.log('❌ [CONFIRMAR] Token no encontrado');
+      return res.status(404).json({ 
+        success: false, 
+        error: 'Token de confirmación inválido' 
+      });
+    }
+
+    const user = userResult.rows[0];
+    console.log('✅ [CONFIRMAR] Usuario encontrado:', user.email);
+
+    // Verificar si el usuario ya está confirmado
+    if (user.is_confirmed) {
+      console.log('ℹ️ [CONFIRMAR] Usuario ya confirmado');
+      return res.status(400).json({ 
+        success: false, 
+        error: 'La cuenta ya está confirmada' 
+      });
+    }
+
+    // Confirmar usuario y limpiar token
+    await pool.query(
+      'UPDATE users SET is_confirmed = true, confirmation_token = NULL WHERE id = $1',
+      [user.id]
+    );
+
+    console.log('✅ [CONFIRMAR] Usuario confirmado exitosamente:', user.email);
+
+    res.json({
+      success: true,
+      message: 'Cuenta confirmada exitosamente. Ya puedes iniciar sesión.',
+      user: {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        nombre: user.nombre,
+        apellido: user.apellido
+      }
+    });
+
+  } catch (error) {
+    console.error('❌ [CONFIRMAR] Error confirmando cuenta:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: 'Error interno del servidor' 
+    });
+  }
+});
+
 // Configuración temporal de multer - guardaremos en carpeta temporal primero
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {

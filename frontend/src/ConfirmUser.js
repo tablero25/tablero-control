@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import logoSDO from './logoo.png';
+import './ConfirmUser.css';
 
 function ConfirmUser() {
   const [message, setMessage] = useState('');
@@ -20,18 +21,21 @@ function ConfirmUser() {
 
     const confirmUser = async () => {
       try {
-        console.log('🚀 Confirmando usuario con URL:', `${API_URL}/api/auth/confirm`);
+        console.log('🚀 Confirmando usuario con URL:', `${API_URL}/api/auth/confirmar-usuario?token=${token}`);
         
-        const res = await fetch(`${API_URL}/api/auth/confirm`, {
-          method: 'POST',
+        const res = await fetch(`${API_URL}/api/auth/confirmar-usuario?token=${token}`, {
+          method: 'GET',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ token }),
         });
         
         const data = await res.json();
         
         if (data.success) {
           setMessage('¡Usuario confirmado exitosamente! Ya puede iniciar sesión.');
+          // Redirigir al login después de 3 segundos
+          setTimeout(() => {
+            window.location.href = '/';
+          }, 3000);
         } else {
           setMessage(data.error || 'Error al confirmar usuario');
         }
@@ -57,14 +61,26 @@ function ConfirmUser() {
           <div className="confirm-form">
             <h2>Confirmación de Usuario</h2>
             {loading ? (
-              <p>Confirmando usuario...</p>
+              <div className="loading-state">
+                <div className="spinner"></div>
+                <p>Confirmando tu cuenta...</p>
+              </div>
             ) : (
-              <>
-                <p>{message}</p>
-                <button onClick={() => window.location.href = '/'}>
+              <div className="result-state">
+                <div className={`status-icon ${message.includes('exitosamente') ? 'success' : 'error'}`}>
+                  {message.includes('exitosamente') ? '✅' : '❌'}
+                </div>
+                <p className="message">{message}</p>
+                {message.includes('exitosamente') && (
+                  <p className="redirect-info">Serás redirigido al login en 3 segundos...</p>
+                )}
+                <button 
+                  className="login-button"
+                  onClick={() => window.location.href = '/'}
+                >
                   Ir al Login
                 </button>
-              </>
+              </div>
             )}
           </div>
         </div>
