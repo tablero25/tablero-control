@@ -28,8 +28,12 @@ const validarAccesoEstablecimiento = async (req, res, next) => {
 
 // Configuración de la base de datos PostgreSQL
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+  user: 'tablero_user',
+  host: 'dpg-d1tfjure5dus73dhglp0-a.oregon-postgres.render.com',
+  database: 'tablero_user',
+  password: 'zdR9rbB8bhIke5DC7O6ANbxVnJ0PvJrM',
+  port: 5432,
+  ssl: { rejectUnauthorized: false }
 });
 
 // Probar conexión a la base de datos con reintentos
@@ -244,7 +248,7 @@ app.post('/api/auth/register', async (req, res) => {
     
     // Crear usuario en la base de datos
     const newUser = await pool.query(
-      `INSERT INTO users (username, email, dni, nombre, apellido, funcion, confirmation_token, is_confirmed, created_at) 
+      `INSERT INTO users (username, email, dni, nombre, apellido, funcion, confirmation_token, is_active, created_at) 
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW()) 
        RETURNING id, username, email, nombre, apellido`,
       [username, email, dni, nombre, apellido, funcion, confirmationToken, false]
