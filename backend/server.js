@@ -107,6 +107,29 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(buildPath, 'index.html'));
 });
 
+// Manejador para rutas POST que no sean de API
+app.post('*', (req, res) => {
+  // Solo manejar rutas que NO empiecen con /api
+  if (req.path.startsWith('/api/')) {
+    return res.status(404).json({ 
+      error: `Ruta de API no encontrada: ${req.method} ${req.path}`,
+      availableRoutes: [
+        'POST /api/auth/login',
+        'POST /api/auth/register',
+        'GET /api/auth/verify',
+        'POST /api/auth/reset-users'
+      ]
+    });
+  }
+  
+  // Para todas las demás rutas POST, devolver error 404
+  console.log(`❌ Ruta POST no encontrada: ${req.path}`);
+  res.status(404).json({ 
+    error: `Ruta no encontrada: ${req.method} ${req.path}`,
+    message: 'Esta ruta no está disponible'
+  });
+});
+
 
 
 // Puerto del servidor
