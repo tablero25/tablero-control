@@ -57,70 +57,14 @@ app.get('/confirm', (req, res) => {
   res.sendFile(path.join(buildPath, 'index.html'));
 });
 
-// CATCH-ALL PARA RUTAS DE REACT ROUTER
-// Esto debe ir después de todas las rutas de API pero antes del manejador de errores
-app.get('*', (req, res, next) => {
-  // Si la ruta comienza con /api, continuar al siguiente middleware (manejo de errores)
-  if (req.path.startsWith('/api/')) {
-    return next();
-  }
-  
-  // Para todas las demás rutas, servir el frontend React
-  console.log(`🌐 Sirviendo frontend React para ruta: ${req.path}`);
-  res.sendFile(path.join(buildPath, 'index.html'));
-});
+// Las rutas de API deben tener prioridad sobre el catch-all
 
 app.get('/dashboard', (req, res) => {
   console.log('📊 Sirviendo dashboard');
   res.sendFile(path.join(buildPath, 'index.html'));
 });
 
-// Rutas de autenticación directas
-app.post('/api/auth/login', async (req, res) => {
-  try {
-    const { username, password } = req.body;
-    
-    console.log('🔍 Login - Datos recibidos:', { username, password });
-    
-    if (!username || !password) {
-      return res.status(400).json({ error: 'Usuario y contraseña requeridos' });
-    }
-
-    // Respuesta de prueba con token
-    res.json({
-      success: true,
-      token: 'dummy-token',
-      message: 'Login funcionando correctamente',
-      timestamp: new Date().toISOString(),
-      user: {
-        username: username,
-        role: 'admin',
-        first_login: false
-      }
-    });
-
-  } catch (error) {
-    console.error('Error en login:', error);
-    res.status(500).json({ error: 'Error interno del servidor' });
-  }
-});
-
-// Endpoint para verificar token (dummy)
-app.get('/api/auth/verify', (req, res) => {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.startsWith('Bearer ') ? authHeader.split(' ')[1] : (req.query.token || null);
-  if (token) {
-    return res.json({ success: true, user: { username: 'admin', role: 'admin', first_login: false } });
-  }
-  return res.status(401).json({ success: false, error: 'Token inválido' });
-});
-
-app.get('/api/auth/test', (req, res) => {
-  res.json({ 
-    message: 'API de autenticación funcionando correctamente',
-    timestamp: new Date().toISOString()
-  });
-});
+// Las rutas de autenticación están manejadas por authRoutes.js
 
 // Ruta de prueba simple
 app.get('/api/test', (req, res) => {
