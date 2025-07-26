@@ -1926,8 +1926,11 @@ function RankingDiagnosticoCategoria() {
 // Componente principal de la aplicación
 // Componente para proteger rutas de administrador
 const ProtectedRoute = ({ user, children }) => {
-  if (!user || user.role !== 'ADMIN') {
+  if (!user) {
     return <Navigate to="/login" replace />;
+  }
+  if (user.role !== 'ADMIN') {
+    return <Navigate to="/sistema-tablero" replace />;
   }
   return children;
 };
@@ -2100,7 +2103,7 @@ function App() {
         } />
         
         <Route path="/sistema-tablero/configuracion/*" element={
-          user ? (
+          <ProtectedRoute user={user}>
             <div>
               <Header user={user} handleLogout={handleLogout} />
               <Routes>
@@ -2110,9 +2113,7 @@ function App() {
                 <Route path="/perfiles" element={<Configuracion onClose={() => window.location.href = '/sistema-tablero'} />} />
               </Routes>
             </div>
-          ) : (
-            <Login />
-          )
+          </ProtectedRoute>
         } />
         
         

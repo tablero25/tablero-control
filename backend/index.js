@@ -5,6 +5,8 @@ const path = require('path');
 const fs = require('fs');
 const XLSX = require('xlsx');
 const { Pool } = require('pg');
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
 
 // Importar rutas de autenticación (comentado temporalmente para pruebas)
 // const authRoutes = require('./authRoutes');
@@ -194,6 +196,11 @@ app.use('/static', express.static(path.join(__dirname, '../frontend/build/static
 app.use('/logo192.png', express.static(path.join(__dirname, '../frontend/build/logo192.png')));
 app.use('/favicon.ico', express.static(path.join(__dirname, '../frontend/build/favicon.ico')));
 app.use('/manifest.json', express.static(path.join(__dirname, '../frontend/build/manifest.json')));
+
+// Servir favicon.ico desde cualquier ruta
+app.get('*/favicon.ico', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/build/favicon.ico'));
+});
 
 // Rutas de autenticación (definidas directamente para pruebas)
 // app.use('/api/auth', authRoutes);
@@ -1882,6 +1889,168 @@ app.get('/guardia/descargar/:establecimiento/:anio/:mes', (req, res) => {
   const archivo = archivos[0];
   const ruta = path.join(dir, archivo);
   res.download(ruta, archivo);
+});
+
+// ===== ENDPOINTS DE GESTIÓN DE USUARIOS =====
+
+// Middleware para verificar si el usuario es admin
+const requireAdmin = async (req, res, next) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return res.status(401).json({ success: false, error: 'Token de autorización requerido' });
+    }
+
+    const token = authHeader.substring(7);
+    const decoded = jwt.verify(token, 'tu_secreto_jwt_super_seguro_2025');
+    
+    const userResult = await pool.query('SELECT * FROM users WHERE id = $1', [decoded.userId]);
+    if (userResult.rows.length === 0) {
+      return res.status(401).json({ success: false, error: 'Usuario no encontrado' });
+    }
+
+    const user = userResult.rows[0];
+    if (user.role !== 'ADMIN') {
+      return res.status(403).json({ success: false, error: 'Acceso denegado. Se requieren permisos de administrador' });
+    }
+
+    req.user = user;
+    next();
+  } catch (error) {
+    console.error('❌ Error en requireAdmin:', error);
+    return res.status(401).json({ success: false, error: 'Token inválido' });
+  }
+};
+
+// GET /api/users - Obtener todos los usuarios (solo admin)
+app.get('/api/users', requireAdmin, async (req, res) => {
+  try {
+    console.log('🔍 [USERS] Obteniendo lista de usuarios...');
+    
+    const result = await pool.query(`
+      SELECT id, username, email, dni, nombre, apellido, funcion, role, 
+             is_active, is_confirmed, created_at, confirmed_at
+      FROM users 
+      ORDER BY created_at DESC
+    `);
+    
+    console.log(`✅ [USERS] ${result.rows.length} usuarios encontrados`);
+    res.json(result.rows);
+  } catch (error) {
+    console.error('❌ [USERS] Error obteniendo usuarios:', error);
+    res.status(500).json({ success: false, error: 'Error interno del servidor' });
+  }
+});
+
+// POST /api/users/confirm/:userId - Confirmar usuario (solo admin)
+app.post('/api/users/confirm/:userId', requireAdmin, async (req, res) => {
+  try {
+    const { userId } = req.params;
+    console.log(`🔍 [CONFIRM] Confirmando usuario ID: ${userId}`);
+    
+    const result = await pool.query(
+      'UPDATE users SET is_confirmed = true, confirmed_at = NOW() WHERE id = $1 RETURNING *',
+      [userId]
+    );
+    
+    if (result.rows.length === 0) {
+      return res.status(404).json({ success: false, error: 'Usuario no encontrado' });
+    }
+    
+    console.log(`✅ [CONFIRM] Usuario ${userId} confirmado exitosamente`);
+    res.json({ 
+      success: true, 
+      message: 'Usuario confirmado exitosamente',
+      user: result.rows[0]
+    });
+  } catch (error) {
+    console.error('❌ [CONFIRM] Error confirmando usuario:', error);
+    res.status(500).json({ success: false, error: 'Error interno del servidor' });
+  }
+});
+
+// DELETE /api/users/:userId - Eliminar usuario (solo admin)
+app.delete('/api/users/:userId', requireAdmin, async (req, res) => {
+  try {
+    const { userId } = req.params;
+    console.log(`🗑️ [DELETE] Eliminando usuario ID: ${userId}`);
+    
+    const result = await pool.query('DELETE FROM users WHERE id = $1 RETURNING *', [userId]);
+    
+    if (result.rows.length === 0) {
+      return res.status(404).json({ success: false, error: 'Usuario no encontrado' });
+    }
+    
+    console.log(`✅ [DELETE] Usuario ${userId} eliminado exitosamente`);
+    res.json({ 
+      success: true, 
+      message: 'Usuario eliminado exitosamente',
+      user: result.rows[0]
+    });
+  } catch (error) {
+    console.error('❌ [DELETE] Error eliminando usuario:', error);
+    res.status(500).json({ success: false, error: 'Error interno del servidor' });
+  }
+});
+
+// POST /api/users/block/:userId - Bloquear/desbloquear usuario (solo admin)
+app.post('/api/users/block/:userId', requireAdmin, async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { is_blocked } = req.body;
+    console.log(`🔒 [BLOCK] ${is_blocked ? 'Bloqueando' : 'Desbloqueando'} usuario ID: ${userId}`);
+    
+    const result = await pool.query(
+      'UPDATE users SET is_active = $1 WHERE id = $2 RETURNING *',
+      [!is_blocked, userId]
+    );
+    
+    if (result.rows.length === 0) {
+      return res.status(404).json({ success: false, error: 'Usuario no encontrado' });
+    }
+    
+    console.log(`✅ [BLOCK] Usuario ${userId} ${is_blocked ? 'bloqueado' : 'desbloqueado'} exitosamente`);
+    res.json({ 
+      success: true, 
+      message: `Usuario ${is_blocked ? 'bloqueado' : 'desbloqueado'} exitosamente`,
+      user: result.rows[0]
+    });
+  } catch (error) {
+    console.error('❌ [BLOCK] Error bloqueando/desbloqueando usuario:', error);
+    res.status(500).json({ success: false, error: 'Error interno del servidor' });
+  }
+});
+
+// POST /api/users/reset-password/:userId - Resetear contraseña (solo admin)
+app.post('/api/users/reset-password/:userId', requireAdmin, async (req, res) => {
+  try {
+    const { userId } = req.params;
+    console.log(`🔑 [RESET] Reseteando contraseña para usuario ID: ${userId}`);
+    
+    // Generar nueva contraseña temporal
+    const tempPassword = Math.random().toString(36).slice(-8);
+    const hashedPassword = await bcrypt.hash(tempPassword, 10);
+    
+    const result = await pool.query(
+      'UPDATE users SET password_hash = $1, first_login = true WHERE id = $2 RETURNING *',
+      [hashedPassword, userId]
+    );
+    
+    if (result.rows.length === 0) {
+      return res.status(404).json({ success: false, error: 'Usuario no encontrado' });
+    }
+    
+    console.log(`✅ [RESET] Contraseña reseteada para usuario ${userId}`);
+    res.json({ 
+      success: true, 
+      message: 'Contraseña reseteada exitosamente',
+      tempPassword: tempPassword,
+      user: result.rows[0]
+    });
+  } catch (error) {
+    console.error('❌ [RESET] Error reseteando contraseña:', error);
+    res.status(500).json({ success: false, error: 'Error interno del servidor' });
+  }
 });
 
 // Catch-all handler: SOLO para rutas que NO son archivos estáticos

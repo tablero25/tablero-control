@@ -1,6 +1,6 @@
 {
   "name": "tablero-backend",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Backend para el sistema de tablero de indicadores hospitalarios",
   "main": "index.js",
   "scripts": {
