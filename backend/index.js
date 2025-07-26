@@ -9,6 +9,7 @@ const { Pool } = require('pg');
 // Importar rutas de autenticación (comentado temporalmente para pruebas)
 // const authRoutes = require('./authRoutes');
 const { authenticateToken, getUserEstablecimientos } = require('./auth');
+const { sendConfirmationEmail } = require('./emailConfig');
 const validarAccesoEstablecimiento = async (req, res, next) => {
   try {
     const user = req.user;
@@ -226,10 +227,42 @@ app.post('/api/auth/register', async (req, res) => {
       return res.status(400).json({ error: 'Todos los campos son requeridos' });
     }
 
+    // Verificar si el usuario ya existe
+    const userExists = await pool.query(
+      'SELECT id FROM users WHERE username = $1 OR email = $2',
+      [username, email]
+    );
+
+    if (userExists.rows.length > 0) {
+      return res.status(400).json({ 
+        error: 'El usuario o email ya existe en el sistema' 
+      });
+    }
+
+    // Generar token de confirmación
+    const confirmationToken = require('crypto').randomBytes(32).toString('hex');
+    
+    // Crear usuario en la base de datos
+    const newUser = await pool.query(
+      `INSERT INTO users (username, email, dni, nombre, apellido, funcion, confirmation_token, is_confirmed, created_at) 
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW()) 
+       RETURNING id, username, email, nombre, apellido`,
+      [username, email, dni, nombre, apellido, funcion, confirmationToken, false]
+    );
+
+    // Enviar email de confirmación
+    try {
+      await sendConfirmationEmail(email, username, confirmationToken);
+      console.log('✅ Email de confirmación enviado a:', email);
+    } catch (emailError) {
+      console.error('❌ Error enviando email:', emailError);
+      // No fallar el registro si el email falla
+    }
+
     res.json({
       success: true,
-      message: 'Registro funcionando directamente en index.js',
-      user: { username, email, nombre, apellido }
+      message: 'Usuario registrado exitosamente. Revisa tu email para confirmar tu cuenta.',
+      user: newUser.rows[0]
     });
 
   } catch (error) {
