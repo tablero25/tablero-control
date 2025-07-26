@@ -10,7 +10,7 @@ const bcrypt = require('bcryptjs');
 
 // Importar rutas de autenticación (comentado temporalmente para pruebas)
 // const authRoutes = require('./authRoutes');
-const { authenticateToken, getUserEstablecimientos } = require('./auth');
+const { authenticateToken, getUserEstablecimientos, hashPassword, verifyPassword } = require('./auth');
 const { sendConfirmationEmail } = require('./emailConfig');
 const validarAccesoEstablecimiento = async (req, res, next) => {
   try {
@@ -471,6 +471,60 @@ app.get('/api/auth/confirmar-usuario', async (req, res) => {
       success: false, 
       error: 'Error interno del servidor' 
     });
+  }
+});
+
+// Ruta para cambiar contraseña (SIN TOKEN - por username)
+app.post('/api/auth/change-password', async (req, res) => {
+  try {
+    const { username, oldPassword, newPassword } = req.body;
+    
+    if (!username || !oldPassword || !newPassword) {
+      return res.status(400).json({ error: 'Usuario, contraseña actual y nueva son requeridas' });
+    }
+
+    console.log('🔍 [CHANGE-PASSWORD] Intentando cambiar contraseña para:', username);
+
+    // Obtener usuario por username
+    const userResult = await pool.query(
+      'SELECT * FROM users WHERE username = $1',
+      [username]
+    );
+
+    if (userResult.rows.length === 0) {
+      console.log('❌ [CHANGE-PASSWORD] Usuario no encontrado:', username);
+      return res.status(404).json({ error: 'Usuario no encontrado' });
+    }
+
+    const user = userResult.rows[0];
+    console.log('✅ [CHANGE-PASSWORD] Usuario encontrado:', user.username);
+
+    // Verificar contraseña actual (case-insensitive)
+    const isValidPassword = await verifyPassword(oldPassword.toLowerCase(), user.password_hash);
+    if (!isValidPassword) {
+      console.log('❌ [CHANGE-PASSWORD] Contraseña actual incorrecta para:', username);
+      return res.status(400).json({ error: 'Contraseña actual incorrecta' });
+    }
+
+    // Hashear nueva contraseña
+    const hashedNewPassword = await hashPassword(newPassword);
+
+    // Actualizar contraseña y marcar que ya no es primer login
+    await pool.query(
+      'UPDATE users SET password_hash = $1, first_login = FALSE WHERE id = $2',
+      [hashedNewPassword, user.id]
+    );
+
+    console.log('✅ [CHANGE-PASSWORD] Contraseña cambiada exitosamente para:', username);
+
+    res.json({
+      success: true,
+      message: 'Contraseña cambiada exitosamente'
+    });
+
+  } catch (error) {
+    console.error('❌ [CHANGE-PASSWORD] Error cambiando contraseña:', error);
+    res.status(500).json({ error: 'Error interno del servidor' });
   }
 });
 
