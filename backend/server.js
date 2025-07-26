@@ -86,9 +86,9 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// Catch-all para todas las demás rutas del frontend (DEBE IR AL FINAL)
+// Catch-all para todas las demás rutas GET del frontend (DEBE IR AL FINAL)
 app.get('*', (req, res) => {
-  // Para todas las demás rutas, servir el frontend React
+  // Para todas las demás rutas GET, servir el frontend React
   console.log(`🌐 Sirviendo frontend React para ruta: ${req.path}`);
   res.sendFile(path.join(buildPath, 'index.html'));
 });
