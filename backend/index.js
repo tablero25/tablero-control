@@ -218,14 +218,76 @@ app.post('/api/auth/login', async (req, res) => {
       return res.status(400).json({ error: 'Usuario y contraseña requeridos' });
     }
 
+    console.log('🔍 [LOGIN] Intentando login para:', username);
+
+    // Buscar usuario en la base de datos
+    const userResult = await pool.query(
+      'SELECT * FROM users WHERE username = $1 OR email = $1',
+      [username]
+    );
+
+    if (userResult.rows.length === 0) {
+      console.log('❌ [LOGIN] Usuario no encontrado:', username);
+      return res.status(401).json({ error: 'Usuario o contraseña incorrectos' });
+    }
+
+    const user = userResult.rows[0];
+    console.log('✅ [LOGIN] Usuario encontrado:', user.username, 'Rol:', user.role);
+
+    // Verificar si el usuario está confirmado
+    if (!user.is_confirmed) {
+      console.log('❌ [LOGIN] Usuario no confirmado:', username);
+      return res.status(401).json({ error: 'Tu cuenta no ha sido confirmada. Revisa tu email.' });
+    }
+
+    // Verificar si el usuario está activo
+    if (!user.is_active) {
+      console.log('❌ [LOGIN] Usuario bloqueado:', username);
+      return res.status(401).json({ error: 'Tu cuenta ha sido bloqueada. Contacta al administrador.' });
+    }
+
+    // Verificar contraseña (si no es la temporal)
+    if (user.password_hash !== 'temp_password_hash') {
+      const isValidPassword = await bcrypt.compare(password, user.password_hash);
+      if (!isValidPassword) {
+        console.log('❌ [LOGIN] Contraseña incorrecta para:', username);
+        return res.status(401).json({ error: 'Usuario o contraseña incorrectos' });
+      }
+    } else {
+      // Si es contraseña temporal, permitir login con cualquier contraseña
+      console.log('⚠️ [LOGIN] Usando contraseña temporal para:', username);
+    }
+
+    // Generar JWT token
+    const token = jwt.sign(
+      { 
+        userId: user.id, 
+        username: user.username, 
+        role: user.role 
+      },
+      'tu_secreto_jwt_super_seguro_2025',
+      { expiresIn: '24h' }
+    );
+
+    console.log('✅ [LOGIN] Login exitoso para:', username, 'Rol:', user.role);
+
     res.json({
       success: true,
-      message: 'Login funcionando directamente en index.js',
-      user: { username, role: 'admin' }
+      message: 'Login exitoso',
+      token: token,
+      user: {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        nombre: user.nombre,
+        apellido: user.apellido,
+        role: user.role,
+        first_login: user.first_login
+      }
     });
 
   } catch (error) {
-    console.error('Error en login:', error);
+    console.error('❌ [LOGIN] Error en login:', error);
     res.status(500).json({ error: 'Error interno del servidor' });
   }
 });
@@ -282,12 +344,65 @@ app.post('/api/auth/register', async (req, res) => {
   }
 });
 
-app.get('/api/auth/verify', (req, res) => {
-  res.json({
-    success: true,
-    message: 'Verificación funcionando directamente en index.js',
-    user: { id: 1, username: 'test', role: 'admin' }
-  });
+app.get('/api/auth/verify', async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return res.status(401).json({ 
+        success: false, 
+        error: 'Token de autorización requerido' 
+      });
+    }
+
+    const token = authHeader.substring(7);
+    console.log('🔍 [VERIFY] Verificando token...');
+
+    const decoded = jwt.verify(token, 'tu_secreto_jwt_super_seguro_2025');
+    console.log('✅ [VERIFY] Token válido para usuario:', decoded.username);
+
+    // Obtener información actualizada del usuario
+    const userResult = await pool.query(
+      'SELECT id, username, email, nombre, apellido, role, is_active, is_confirmed, first_login FROM users WHERE id = $1',
+      [decoded.userId]
+    );
+
+    if (userResult.rows.length === 0) {
+      return res.status(401).json({ 
+        success: false, 
+        error: 'Usuario no encontrado' 
+      });
+    }
+
+    const user = userResult.rows[0];
+
+    // Verificar si el usuario sigue activo
+    if (!user.is_active) {
+      return res.status(401).json({ 
+        success: false, 
+        error: 'Usuario bloqueado' 
+      });
+    }
+
+    res.json({
+      success: true,
+      message: 'Token válido',
+      user: user
+    });
+
+  } catch (error) {
+    console.error('❌ [VERIFY] Error verificando token:', error);
+    if (error.name === 'TokenExpiredError') {
+      return res.status(401).json({ 
+        success: false, 
+        error: 'Token expirado',
+        code: 'TOKEN_EXPIRED'
+      });
+    }
+    res.status(401).json({ 
+      success: false, 
+      error: 'Token inválido' 
+    });
+  }
 });
 
 // Ruta para confirmar usuario con token

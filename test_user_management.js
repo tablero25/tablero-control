@@ -1,4 +1,4 @@
-const fetch = require('node-fetch');
+// Using built-in fetch (available in Node.js 18+)
 
 const API_URL = 'https://tablero-control-1.onrender.com';
 

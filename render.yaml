@@ -1,4 +1,4 @@
-# FORCE COMPLETE REDEPLOY: 2025-07-26T14:30:00.000Z - Added user management endpoints and fixed favicon
+# FORCE COMPLETE REDEPLOY: 2025-07-26T15:00:00.000Z - Fixed login authentication and added admin user
 services:
   - type: web
     name: tablero-control-1
