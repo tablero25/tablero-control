@@ -1,26 +1,13 @@
 # FORCE COMPLETE REDEPLOY: 2025-07-26T15:00:00.000Z - Fixed login authentication and added admin user
 services:
   - type: web
-    name: tablero-control-1
+    name: tablero-control
     env: node
-    buildCommand: |
-      cd frontend && npm install && npm run build
-      cd ../backend && npm install
-    startCommand: cd backend && node index.js
+    plan: free
+    buildCommand: chmod +x render-build.sh && ./render-build.sh
+    startCommand: cd backend && npm start
     envVars:
       - key: NODE_ENV
         value: production
       - key: PORT
-        value: 10000
-      - key: DB_USER
-        value: luxiot
-      - key: DB_HOST
-        value: localhost
-      - key: DB_NAME
-        value: sdo_tablero
-      - key: DB_PASSWORD
-        value: Sistema2025
-      - key: DB_PORT
-        value: 5432
-    healthCheckPath: /health
-    autoDeploy: true 
+        value: 10000 

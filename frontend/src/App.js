@@ -1938,6 +1938,7 @@ const ProtectedRoute = ({ user, children }) => {
 function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  // eslint-disable-next-line no-unused-vars
   const [showChangePassword, setShowChangePassword] = useState(false);
   const [authError, setAuthError] = useState("");
 

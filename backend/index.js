@@ -6,7 +6,7 @@ const fs = require('fs');
 const XLSX = require('xlsx');
 const { Pool } = require('pg');
 const jwt = require('jsonwebtoken');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 
 // Importar rutas de autenticación (comentado temporalmente para pruebas)
 // const authRoutes = require('./authRoutes');

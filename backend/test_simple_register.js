@@ -33,7 +33,7 @@ async function testSimpleRegister() {
     }
     
     // Crear usuario directamente en la base de datos
-    const bcrypt = require('bcrypt');
+    const bcrypt = require('bcryptjs');
     const hashedPassword = await bcrypt.hash(dni, 10);
     
     const crypto = require('crypto');

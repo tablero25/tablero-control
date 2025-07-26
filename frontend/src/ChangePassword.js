@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import logoSDO from './logoo.png';
 
 function ChangePassword({ onCancel, onSuccess }) {
+  // eslint-disable-next-line no-unused-vars
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     username: '',
