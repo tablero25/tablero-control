@@ -248,7 +248,7 @@ app.post('/api/auth/register', async (req, res) => {
     
     // Crear usuario en la base de datos
     const newUser = await pool.query(
-      `INSERT INTO users (username, email, dni, nombre, apellido, funcion, confirmation_token, is_active, created_at) 
+      `INSERT INTO users (username, email, dni, nombre, apellido, funcion, confirmation_token, is_confirmed, created_at) 
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW()) 
        RETURNING id, username, email, nombre, apellido`,
       [username, email, dni, nombre, apellido, funcion, confirmationToken, false]
