@@ -6,8 +6,8 @@ const fs = require('fs');
 const XLSX = require('xlsx');
 const { Pool } = require('pg');
 
-// Importar rutas de autenticación
-const authRoutes = require('./authRoutes');
+// Importar rutas de autenticación (comentado temporalmente para pruebas)
+// const authRoutes = require('./authRoutes');
 const { authenticateToken, getUserEstablecimientos } = require('./auth');
 const validarAccesoEstablecimiento = async (req, res, next) => {
   try {
@@ -190,8 +190,61 @@ app.use('/logo192.png', express.static(path.join(__dirname, 'build', 'logo192.pn
 app.use('/favicon.ico', express.static(path.join(__dirname, 'build', 'favicon.ico')));
 app.use('/manifest.json', express.static(path.join(__dirname, 'build', 'manifest.json')));
 
-// Rutas de autenticación
-app.use('/api/auth', authRoutes);
+// Rutas de autenticación (definidas directamente para pruebas)
+// app.use('/api/auth', authRoutes);
+
+// Definir rutas de autenticación directamente
+app.get('/api/auth/test', (req, res) => {
+  res.json({ message: 'Auth routes funcionando directamente en index.js' });
+});
+
+app.post('/api/auth/login', async (req, res) => {
+  try {
+    const { username, password } = req.body;
+    
+    if (!username || !password) {
+      return res.status(400).json({ error: 'Usuario y contraseña requeridos' });
+    }
+
+    res.json({
+      success: true,
+      message: 'Login funcionando directamente en index.js',
+      user: { username, role: 'admin' }
+    });
+
+  } catch (error) {
+    console.error('Error en login:', error);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
+});
+
+app.post('/api/auth/register', async (req, res) => {
+  try {
+    const { username, email, dni, nombre, apellido, funcion } = req.body;
+    
+    if (!username || !email || !dni || !nombre || !apellido || !funcion) {
+      return res.status(400).json({ error: 'Todos los campos son requeridos' });
+    }
+
+    res.json({
+      success: true,
+      message: 'Registro funcionando directamente en index.js',
+      user: { username, email, nombre, apellido }
+    });
+
+  } catch (error) {
+    console.error('Error en registro:', error);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
+});
+
+app.get('/api/auth/verify', (req, res) => {
+  res.json({
+    success: true,
+    message: 'Verificación funcionando directamente en index.js',
+    user: { id: 1, username: 'test', role: 'admin' }
+  });
+});
 
 // Configuración temporal de multer - guardaremos en carpeta temporal primero
 const storage = multer.diskStorage({
