@@ -19,8 +19,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Montar rutas de autenticación
-app.use('/api/auth', authRoutes);
+// Las rutas de autenticación se montan después del catch-all
 
 // Ruta absoluta a la carpeta de build del frontend
 const buildPath = path.join(__dirname, '../frontend/build');
@@ -89,6 +88,9 @@ app.get('/api/health', (req, res) => {
     version: '1.0.0'
   });
 });
+
+// MONTAR RUTAS DE AUTENTICACIÓN ANTES DEL CATCH-ALL
+app.use('/api/auth', authRoutes);
 
 // Catch-all para rutas GET del frontend (excluyendo /api)
 app.get('*', (req, res) => {
