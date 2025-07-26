@@ -479,7 +479,14 @@ app.post('/api/auth/change-password', async (req, res) => {
   try {
     const { username, oldPassword, newPassword } = req.body;
     
+    console.log('🔍 [CHANGE-PASSWORD] Datos recibidos:', { 
+      username: username ? 'presente' : 'faltante', 
+      oldPassword: oldPassword ? 'presente' : 'faltante', 
+      newPassword: newPassword ? 'presente' : 'faltante' 
+    });
+    
     if (!username || !oldPassword || !newPassword) {
+      console.log('❌ [CHANGE-PASSWORD] Datos faltantes:', { username, oldPassword: '***', newPassword: '***' });
       return res.status(400).json({ error: 'Usuario, contraseña actual y nueva son requeridas' });
     }
 
@@ -498,9 +505,13 @@ app.post('/api/auth/change-password', async (req, res) => {
 
     const user = userResult.rows[0];
     console.log('✅ [CHANGE-PASSWORD] Usuario encontrado:', user.username);
+    console.log('🔍 [CHANGE-PASSWORD] Hash actual del usuario:', user.password_hash ? 'presente' : 'faltante');
 
     // Verificar contraseña actual (case-insensitive)
+    console.log('🔍 [CHANGE-PASSWORD] Verificando contraseña...');
     const isValidPassword = await verifyPassword(oldPassword.toLowerCase(), user.password_hash);
+    console.log('🔍 [CHANGE-PASSWORD] Resultado de verificación:', isValidPassword);
+    
     if (!isValidPassword) {
       console.log('❌ [CHANGE-PASSWORD] Contraseña actual incorrecta para:', username);
       return res.status(400).json({ error: 'Contraseña actual incorrecta' });
