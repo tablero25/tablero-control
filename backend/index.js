@@ -197,6 +197,31 @@ app.use('/logo192.png', express.static(path.join(__dirname, 'build/logo192.png')
 app.use('/favicon.ico', express.static(path.join(__dirname, 'build/favicon.ico')));
 app.use('/manifest.json', express.static(path.join(__dirname, 'build/manifest.json')));
 
+// Ruta específica para manifest.json
+app.get('/manifest.json', (req, res) => {
+  const manifestPath = path.join(__dirname, 'build/manifest.json');
+  if (fs.existsSync(manifestPath)) {
+    res.sendFile(manifestPath);
+  } else {
+    // Si no existe, devolver un manifest.json básico
+    res.json({
+      "short_name": "Tablero Control",
+      "name": "Sistema de Tableros de Control",
+      "icons": [
+        {
+          "src": "favicon.ico",
+          "sizes": "64x64 32x32 24x24 16x16",
+          "type": "image/x-icon"
+        }
+      ],
+      "start_url": ".",
+      "display": "standalone",
+      "theme_color": "#000000",
+      "background_color": "#ffffff"
+    });
+  }
+});
+
 // Servir favicon.ico desde cualquier ruta
 app.get('*/favicon.ico', (req, res) => {
   res.sendFile(path.join(__dirname, 'build/favicon.ico'));
@@ -2249,7 +2274,8 @@ app.get('*', (req, res) => {
       req.url.endsWith('.ico') ||
       req.url.endsWith('.png') ||
       req.url.endsWith('.json')) {
-    return res.status(404).send('File not found');
+    // Para archivos estáticos que no existen, devolver 404 silenciosamente
+    return res.status(404).end();
   }
   
   // Solo para rutas de React
