@@ -2152,7 +2152,19 @@ app.get('/api/users', requireAdmin, async (req, res) => {
     `);
     
     console.log(`✅ [USERS] ${result.rows.length} usuarios encontrados`);
-    res.json(result.rows);
+    
+    // Separar usuarios confirmados y pendientes
+    const confirmedUsers = result.rows.filter(user => user.is_confirmed);
+    const pendingUsers = result.rows.filter(user => !user.is_confirmed);
+    
+    res.json({
+      success: true,
+      users: confirmedUsers,
+      pendingUsers: pendingUsers,
+      total: result.rows.length,
+      confirmed: confirmedUsers.length,
+      pending: pendingUsers.length
+    });
   } catch (error) {
     console.error('❌ [USERS] Error obteniendo usuarios:', error);
     res.status(500).json({ success: false, error: 'Error interno del servidor' });
