@@ -12,8 +12,8 @@ const XLSX = require('xlsx');
 // Importar inicialización automática de base de datos
 const { checkAndInitializeDatabase } = require('./autoInitDb');
 
-// Importar rutas de autenticación
-const authRoutes = require('./authRoutes');
+// Importar rutas de autenticación (versión simplificada para pruebas)
+const authRoutes = require('./authRoutes_simple');
 
 const app = express();
 app.use(cors());
