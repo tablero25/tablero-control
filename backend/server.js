@@ -12,8 +12,7 @@ const XLSX = require('xlsx');
 // Importar inicialización automática de base de datos
 const { checkAndInitializeDatabase } = require('./autoInitDb');
 
-// Importar rutas de autenticación (versión simplificada para pruebas)
-const authRoutes = require('./authRoutes_simple');
+// Las rutas de autenticación se definen directamente aquí
 
 const app = express();
 app.use(cors());
@@ -89,8 +88,60 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// MONTAR RUTAS DE AUTENTICACIÓN ANTES DEL CATCH-ALL
-app.use('/api/auth', authRoutes);
+// RUTAS DE AUTENTICACIÓN DEFINIDAS DIRECTAMENTE
+app.get('/api/auth/test', (req, res) => {
+  res.json({ message: 'Auth routes funcionando correctamente' });
+});
+
+app.post('/api/auth/login', async (req, res) => {
+  try {
+    const { username, password } = req.body;
+    
+    if (!username || !password) {
+      return res.status(400).json({ error: 'Usuario y contraseña requeridos' });
+    }
+
+    // Respuesta simple para probar
+    res.json({
+      success: true,
+      message: 'Login funcionando',
+      user: { username, role: 'admin' }
+    });
+
+  } catch (error) {
+    console.error('Error en login:', error);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
+});
+
+app.post('/api/auth/register', async (req, res) => {
+  try {
+    const { username, email, dni, nombre, apellido, funcion } = req.body;
+    
+    if (!username || !email || !dni || !nombre || !apellido || !funcion) {
+      return res.status(400).json({ error: 'Todos los campos son requeridos' });
+    }
+
+    // Respuesta simple para probar
+    res.json({
+      success: true,
+      message: 'Registro funcionando',
+      user: { username, email, nombre, apellido }
+    });
+
+  } catch (error) {
+    console.error('Error en registro:', error);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
+});
+
+app.get('/api/auth/verify', (req, res) => {
+  res.json({
+    success: true,
+    message: 'Verificación funcionando',
+    user: { id: 1, username: 'test', role: 'admin' }
+  });
+});
 
 // Catch-all para rutas GET del frontend (excluyendo /api)
 app.get('*', (req, res) => {
