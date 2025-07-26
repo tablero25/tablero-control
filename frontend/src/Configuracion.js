@@ -1,64 +1,48 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import './Configuracion.css'; // Asegúrate de crear este archivo para los estilos
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import './Configuracion.css';
 
-// Componente para los mensajes de feedback (éxito/error)
-const FeedbackMessage = ({ message, type, onDismiss }) => {
-  if (!message) return null;
-
-  return (
-    <div className={`feedback-message ${type}-msg`}>
-      <span>{message}</span>
-      <button onClick={onDismiss} className="dismiss-btn">×</button>
-    </div>
-  );
-};
-
-const Configuracion = ({ onClose }) => {
+const Configuracion = () => {
   const navigate = useNavigate();
-  const location = useLocation();
+  const [activeTab, setActiveTab] = useState('dashboard');
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState('');
+  const [messageType, setMessageType] = useState('');
 
-  const [view, setView] = useState('main'); // main, users, confirm, profiles
+  // Estados para diferentes secciones
   const [users, setUsers] = useState([]);
   const [pendingUsers, setPendingUsers] = useState([]);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
-  const [loading, setLoading] = useState(false);
 
-  const clearMessages = () => {
-    setError('');
-    setSuccess('');
+  const showMessage = (text, type = 'info') => {
+    setMessage(text);
+    setMessageType(type);
+    setTimeout(() => {
+      setMessage('');
+      setMessageType('');
+    }, 5000);
   };
 
-  const showSuccess = (message) => {
-    setSuccess(message);
-    setTimeout(() => setSuccess(''), 5000); // Auto-dismiss after 5 seconds
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    navigate('/login');
   };
 
-  const showError = (message) => {
-    setError(message);
-    setTimeout(() => setError(''), 5000); // Auto-dismiss after 5 seconds
-  };
-
-  const handleVolverTablero = () => {
+  const handleBackToDashboard = () => {
     navigate('/sistema-tablero');
   };
 
-  const fetchUsers = useCallback(async () => {
-    clearMessages();
+  // Cargar usuarios
+  const loadUsers = async () => {
     setLoading(true);
-    
     try {
       const token = localStorage.getItem('token');
       if (!token) {
-        showError('No estás autenticado. Por favor, inicia sesión.');
+        showMessage('No estás autenticado', 'error');
         navigate('/login');
         return;
       }
 
-      console.log('[CONFIG] Iniciando fetch de usuarios...');
-      console.log('[CONFIG] Token:', token.substring(0, 20) + '...');
-      
       const response = await fetch('https://tablero-control-1.onrender.com/api/users', {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -66,379 +50,298 @@ const Configuracion = ({ onClose }) => {
         }
       });
 
-      console.log('[CONFIG] Respuesta del servidor:', response.status, response.statusText);
-      console.log('[CONFIG] Headers de respuesta:', Object.fromEntries(response.headers.entries()));
-
-      if (response.status === 401 || response.status === 403) {
-        showError('Tu sesión ha expirado o no tienes permisos. Por favor, inicia sesión de nuevo.');
+      if (response.status === 401) {
+        showMessage('Sesión expirada', 'error');
         localStorage.removeItem('token');
         navigate('/login');
         return;
       }
 
       if (!response.ok) {
-        let errorMessage = 'Error al cargar los usuarios.';
-        try {
-          const errorData = await response.json();
-          errorMessage = errorData.message || errorMessage;
-        } catch (e) {
-          console.error('[CONFIG] Error al parsear respuesta de error:', e);
-        }
-        throw new Error(errorMessage);
-      }
-
-      const contentType = response.headers.get('content-type');
-      console.log('[CONFIG] Content-Type:', contentType);
-      
-      if (!contentType || !contentType.includes('application/json')) {
-        const textResponse = await response.text();
-        console.error('[CONFIG] Respuesta no-JSON recibida:', textResponse.substring(0, 200));
-        throw new Error('El servidor no devolvió JSON válido. Verifica tu conexión.');
+        throw new Error('Error al cargar usuarios');
       }
 
       const data = await response.json();
-      console.log('[CONFIG] Datos recibidos:', data);
-      console.log('[CONFIG] Tipo de datos:', typeof data);
-      console.log('[CONFIG] Es array:', Array.isArray(data));
-
-      if (Array.isArray(data)) {
-        const confirmedUsers = data.filter(u => u.is_confirmed);
-        const pendingUsers = data.filter(u => !u.is_confirmed);
-        
-        console.log('[CONFIG] Usuarios confirmados:', confirmedUsers.length);
-        console.log('[CONFIG] Usuarios pendientes:', pendingUsers.length);
-        
-        setUsers(confirmedUsers);
-        setPendingUsers(pendingUsers);
+      if (data.success) {
+        setUsers(data.users || []);
+        setPendingUsers(data.pendingUsers || []);
       } else {
-        console.error('[CONFIG] Datos no son un array:', data);
-        setUsers([]);
-        setPendingUsers([]);
+        showMessage(data.error || 'Error al cargar usuarios', 'error');
       }
-
-    } catch (err) {
-      console.error('[CONFIG] Error en fetchUsers:', err);
-      showError(err.message || 'Error al cargar los usuarios.');
-      setUsers([]);
-      setPendingUsers([]);
+    } catch (error) {
+      showMessage('Error de conexión', 'error');
     } finally {
       setLoading(false);
     }
-  }, [navigate]);
-
-  useEffect(() => {
-    const currentPath = location.pathname;
-    console.log('[CONFIG] Ruta actual:', currentPath);
-    console.log('[CONFIG] fetchUsers disponible:', typeof fetchUsers);
-    
-    if (currentPath.includes('/sistema-tablero/configuracion/usuarios')) {
-      console.log('[CONFIG] Entrando a sección usuarios - llamando fetchUsers()');
-      setView('users');
-      fetchUsers();
-    } else if (currentPath.includes('/sistema-tablero/configuracion/confirmar')) {
-      console.log('[CONFIG] Entrando a sección confirmar - llamando fetchUsers()');
-      setView('confirm');
-      fetchUsers();
-    } else if (currentPath.includes('/sistema-tablero/configuracion/perfiles')) {
-      setView('profiles');
-    } else {
-      setView('main');
-    }
-  }, [location, fetchUsers]);
-
-  const handleNavigate = (path) => {
-    clearMessages();
-    navigate(`/sistema-tablero/configuracion/${path}`);
   };
 
-  const handleAction = async (actionFn, successMessage) => {
-    clearMessages();
-    setLoading(true);
-    
+  // Confirmar usuario
+  const confirmUser = async (userId) => {
     try {
-      const result = await actionFn();
-      if (result.success) {
-        showSuccess(successMessage);
-        fetchUsers(); // Recargar la lista de usuarios
+      const token = localStorage.getItem('token');
+      const response = await fetch(`https://tablero-control-1.onrender.com/api/users/confirm/${userId}`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        showMessage('Usuario confirmado exitosamente', 'success');
+        loadUsers(); // Recargar lista
       } else {
-        showError(result.message || 'Ocurrió un error.');
+        showMessage('Error al confirmar usuario', 'error');
       }
-    } catch (err) {
-      console.error('[CONFIG] Error en acción:', err);
-      showError(err.message || 'Error en la operación.');
-    } finally {
-      setLoading(false);
+    } catch (error) {
+      showMessage('Error de conexión', 'error');
     }
   };
 
-  const handleConfirmUser = (userId) => {
-    if (window.confirm('¿Estás seguro de que deseas confirmar a este usuario?')) {
-      handleAction(async () => {
-        const token = localStorage.getItem('token');
-        const response = await fetch(`https://tablero-control-1.onrender.com/api/users/confirm/${userId}`, {
-          method: 'PUT',
-          headers: { 
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        });
-        
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.message || 'Error al confirmar usuario');
+  // Bloquear/desbloquear usuario
+  const toggleUserBlock = async (userId, isBlocked) => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`https://tablero-control-1.onrender.com/api/users/block/${userId}`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ is_blocked: isBlocked })
+      });
+
+      if (response.ok) {
+        showMessage(`Usuario ${isBlocked ? 'bloqueado' : 'desbloqueado'} exitosamente`, 'success');
+        loadUsers(); // Recargar lista
+      } else {
+        showMessage('Error al cambiar estado del usuario', 'error');
+      }
+    } catch (error) {
+      showMessage('Error de conexión', 'error');
+    }
+  };
+
+  // Resetear contraseña
+  const resetPassword = async (userId) => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`https://tablero-control-1.onrender.com/api/users/reset-password/${userId}`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
         }
-        
-        return response.json();
-      }, 'Usuario confirmado exitosamente.');
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        showMessage(`Contraseña reseteada. Nueva contraseña: ${data.tempPassword}`, 'success');
+        loadUsers(); // Recargar lista
+      } else {
+        showMessage('Error al resetear contraseña', 'error');
+      }
+    } catch (error) {
+      showMessage('Error de conexión', 'error');
     }
   };
 
-  const handleDeleteUser = (userId) => {
-    if (window.confirm('¿Estás seguro de que deseas eliminar a este usuario? Esta acción es irreversible.')) {
-      handleAction(async () => {
-        const token = localStorage.getItem('token');
-        const response = await fetch(`https://tablero-control-1.onrender.com/api/users/${userId}`, {
-          method: 'DELETE',
-          headers: { 
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        });
-        
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.message || 'Error al eliminar usuario');
-        }
-        
-        return response.json();
-      }, 'Usuario eliminado exitosamente.');
-    }
-  };
-
-  const handleToggleBlockUser = (userId, isBlocked) => {
-    const action = isBlocked ? 'desbloquear' : 'bloquear';
-    if (window.confirm(`¿Estás seguro de que deseas ${action} a este usuario?`)) {
-      handleAction(async () => {
-        const token = localStorage.getItem('token');
-        const response = await fetch(`https://tablero-control-1.onrender.com/api/users/block/${userId}`, {
-          method: 'PUT',
-          headers: { 
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        });
-        
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.message || `Error al ${action} usuario`);
-        }
-        
-        return response.json();
-      }, `Usuario ${action} con éxito.`);
-    }
-  };
-
-  const handleResetPassword = (userId) => {
-    if (window.confirm('¿Estás seguro de que deseas blanquear la contraseña de este usuario? Se enviará una nueva contraseña a su correo.')) {
-      handleAction(async () => {
-        const token = localStorage.getItem('token');
-        const response = await fetch(`https://tablero-control-1.onrender.com/api/users/reset-password/${userId}`, {
-          method: 'POST',
-          headers: { 
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        });
-        
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.message || 'Error al blanquear contraseña');
-        }
-        
-        return response.json();
-      }, 'Contraseña blanqueada exitosamente. El usuario recibirá un correo con la nueva clave.');
-    }
-  };
-
-  const handleResetAllUsers = () => {
-    if (!window.confirm('¿Estás seguro de que quieres eliminar TODOS los usuarios y crear uno nuevo con usuario "123" y contraseña "123"? Esta acción no se puede deshacer.')) {
+  // Eliminar usuario
+  const deleteUser = async (userId) => {
+    if (!window.confirm('¿Estás seguro de que quieres eliminar este usuario?')) {
       return;
     }
 
-    handleAction(
-      async () => {
-        const response = await fetch('https://tablero-control-1.onrender.com/api/reset-users', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        });
-
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.error || 'Error al resetear usuarios');
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`https://tablero-control-1.onrender.com/api/users/${userId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
         }
+      });
 
-        return await response.json();
-      },
-      'Usuarios reseteados. Nuevo usuario creado: 123/123'
-    ).then(() => {
-      // Recargar la lista de usuarios después del reset
-      setTimeout(() => {
-        fetchUsers();
-      }, 1000);
-    });
+      if (response.ok) {
+        showMessage('Usuario eliminado exitosamente', 'success');
+        loadUsers(); // Recargar lista
+      } else {
+        showMessage('Error al eliminar usuario', 'error');
+      }
+    } catch (error) {
+      showMessage('Error de conexión', 'error');
+    }
   };
 
-  const renderUserTable = (userList, isPending) => (
-    <div className="user-table-container">
-      {loading && (
-        <div className="loading-message">
-          <p>Cargando usuarios...</p>
+  useEffect(() => {
+    if (activeTab === 'users') {
+      loadUsers();
+    }
+  }, [activeTab]);
+
+  const renderDashboard = () => (
+    <div className="config-dashboard">
+      <h2>🎛️ Panel de Configuración</h2>
+      <div className="dashboard-grid">
+        <div className="dashboard-card" onClick={() => setActiveTab('users')}>
+          <h3>👥 Gestión de Usuarios</h3>
+          <p>Administrar usuarios del sistema</p>
         </div>
-      )}
+        <div className="dashboard-card">
+          <h3>⚙️ Configuración del Sistema</h3>
+          <p>Configuraciones generales</p>
+        </div>
+        <div className="dashboard-card">
+          <h3>📊 Reportes</h3>
+          <p>Generar reportes del sistema</p>
+        </div>
+        <div className="dashboard-card">
+          <h3>🔒 Seguridad</h3>
+          <p>Configuraciones de seguridad</p>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderUsers = () => (
+    <div className="config-users">
+      <h2>👥 Gestión de Usuarios</h2>
       
-      {!loading && userList.length === 0 ? (
-        <div className="no-users-message">
-          {isPending ? 'No hay usuarios pendientes de confirmación.' : 'No hay usuarios registrados.'}
+      {loading && <div className="loading">Cargando usuarios...</div>}
+      
+      {message && (
+        <div className={`message ${messageType}`}>
+          {message}
         </div>
-      ) : (
-        <table className="user-table">
-          <thead>
-            <tr>
-              <th>Nombre y Apellido</th>
-              <th>Email</th>
-              <th>Establecimiento</th>
-              <th>Rol</th>
-              <th>Estado</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {userList.map(user => (
-              <tr key={user.id} className={user.is_blocked ? 'blocked-user' : ''}>
-                <td>{user.nombre} {user.apellido}</td>
-                <td>{user.email}</td>
-                <td>{user.establecimiento || 'No especificado'}</td>
-                <td>
-                  <span className={`role-badge ${user.role.toLowerCase()}`}>
-                    {user.role}
-                  </span>
-                </td>
-                <td>
-                  {user.is_blocked ? (
-                    <span className="status-badge blocked">Bloqueado</span>
-                  ) : (
-                    <span className="status-badge active">Activo</span>
-                  )}
-                </td>
-                <td className="actions-cell">
-                  <div className="action-buttons">
-                    {isPending ? (
-                      <button 
-                        className="action-btn confirm" 
-                        onClick={() => handleConfirmUser(user.id)}
-                        title="Confirmar usuario"
-                        disabled={loading}
-                      >
-                        <i className="fas fa-check"></i> Confirmar
-                      </button>
-                    ) : (
-                      <>
-                        <button 
-                          className={`action-btn ${user.is_blocked ? 'unblock' : 'block'}`} 
-                          onClick={() => handleToggleBlockUser(user.id, user.is_blocked)}
-                          title={user.is_blocked ? 'Desbloquear usuario' : 'Bloquear usuario'}
-                          disabled={loading}
-                        >
-                          <i className={`fas ${user.is_blocked ? 'fa-unlock' : 'fa-lock'}`}></i>
-                        </button>
-                        <button 
-                          className="action-btn reset" 
-                          onClick={() => handleResetPassword(user.id)}
-                          title="Restablecer contraseña"
-                          disabled={loading}
-                        >
-                          <i className="fas fa-key"></i>
-                        </button>
-                      </>
-                    )}
-                    <button 
-                      className="action-btn delete" 
-                      onClick={() => handleDeleteUser(user.id)}
-                      title="Eliminar usuario"
-                      disabled={loading}
-                    >
-                      <i className="fas fa-trash"></i>
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
       )}
+
+      {/* Usuarios pendientes */}
+      {pendingUsers.length > 0 && (
+        <div className="users-section">
+          <h3>⏳ Usuarios Pendientes de Confirmación</h3>
+          <div className="users-table">
+            <table>
+              <thead>
+                <tr>
+                  <th>Usuario</th>
+                  <th>Email</th>
+                  <th>Nombre</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                {pendingUsers.map(user => (
+                  <tr key={user.id}>
+                    <td>{user.username}</td>
+                    <td>{user.email}</td>
+                    <td>{user.nombre} {user.apellido}</td>
+                    <td>
+                      <button 
+                        onClick={() => confirmUser(user.id)}
+                        className="btn-confirm"
+                      >
+                        ✅ Confirmar
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* Usuarios activos */}
+      <div className="users-section">
+        <h3>✅ Usuarios Activos</h3>
+        <div className="users-table">
+          <table>
+            <thead>
+              <tr>
+                <th>Usuario</th>
+                <th>Email</th>
+                <th>Nombre</th>
+                <th>Rol</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {users.map(user => (
+                <tr key={user.id}>
+                  <td>{user.username}</td>
+                  <td>{user.email}</td>
+                  <td>{user.nombre} {user.apellido}</td>
+                  <td>{user.role || 'USER'}</td>
+                  <td>
+                    <span className={`status ${user.is_active ? 'active' : 'blocked'}`}>
+                      {user.is_active ? 'Activo' : 'Bloqueado'}
+                    </span>
+                  </td>
+                  <td>
+                    <div className="action-buttons">
+                      <button 
+                        onClick={() => toggleUserBlock(user.id, !user.is_active)}
+                        className={user.is_active ? 'btn-block' : 'btn-unblock'}
+                      >
+                        {user.is_active ? '🚫 Bloquear' : '✅ Desbloquear'}
+                      </button>
+                      <button 
+                        onClick={() => resetPassword(user.id)}
+                        className="btn-reset"
+                      >
+                        🔑 Reset
+                      </button>
+                      <button 
+                        onClick={() => deleteUser(user.id)}
+                        className="btn-delete"
+                      >
+                        🗑️ Eliminar
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   );
 
   return (
-    <div className="config-container">
+    <div className="configuracion-container">
       <div className="config-header">
-        <h1>Panel de Configuración</h1>
-        <div className="config-header-buttons">
-          <button className="tablero-btn" onClick={handleVolverTablero}>
-            📊 Tablero
+        <h1>⚙️ Configuración del Sistema</h1>
+        <div className="header-actions">
+          <button onClick={handleBackToDashboard} className="btn-secondary">
+            🏠 Volver al Tablero
           </button>
-          {view !== 'main' && (
-            <button className="back-btn" onClick={() => handleNavigate('')}>← Volver</button>
-          )}
+          <button onClick={handleLogout} className="btn-logout">
+            🚪 Cerrar Sesión
+          </button>
         </div>
       </div>
 
-      <FeedbackMessage message={error} type="error" onDismiss={() => setError('')} />
-      <FeedbackMessage message={success} type="success" onDismiss={() => setSuccess('')} />
+      <div className="config-nav">
+        <button 
+          className={`nav-btn ${activeTab === 'dashboard' ? 'active' : ''}`}
+          onClick={() => setActiveTab('dashboard')}
+        >
+          🎛️ Dashboard
+        </button>
+        <button 
+          className={`nav-btn ${activeTab === 'users' ? 'active' : ''}`}
+          onClick={() => setActiveTab('users')}
+        >
+          👥 Usuarios
+        </button>
+      </div>
 
-      {view === 'main' && (
-        <div className="config-main-menu">
-          <div className="config-option" onClick={() => handleNavigate('usuarios')}>
-            <h2>Gestión de Usuarios</h2>
-            <p>Administra usuarios existentes, confirma nuevos registros y gestiona permisos.</p>
-          </div>
-          <div className="config-option" onClick={() => handleNavigate('perfiles')}>
-            <h2>Gestión de Perfiles</h2>
-            <p>Define los roles y permisos para los diferentes tipos de usuario en el sistema.</p>
-          </div>
-        </div>
-      )}
-
-      {view === 'users' && (
-        <div className="user-management-section">
-          <div className="user-management-header">
-            <h2>Usuarios Registrados</h2>
-            <button 
-              className="reset-all-btn" 
-              onClick={handleResetAllUsers}
-              disabled={loading}
-              title="Eliminar todos los usuarios y crear usuario 123"
-            >
-              🔄 Resetear Todos los Usuarios
-            </button>
-          </div>
-          {users.length > 0 ? renderUserTable(users, false) : <p>No hay usuarios registrados o confirmados.</p>}
-          
-          <hr style={{margin: '40px 0'}} />
-
-          <h2>Usuarios Pendientes de Confirmación</h2>
-          {pendingUsers.length > 0 ? renderUserTable(pendingUsers, true) : <p>No hay usuarios pendientes de confirmación.</p>}
-        </div>
-      )}
-
-      {view === 'profiles' && (
-        <div className="profiles-section">
-          <h2>Gestión de Perfiles</h2>
-          <p>Esta sección está en desarrollo. Aquí podrás configurar los roles y permisos del sistema.</p>
-        </div>
-      )}
+      <div className="config-content">
+        {activeTab === 'dashboard' && renderDashboard()}
+        {activeTab === 'users' && renderUsers()}
+      </div>
     </div>
   );
 };
