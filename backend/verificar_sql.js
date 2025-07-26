@@ -2,7 +2,7 @@ const { Pool } = require('pg');
 
 // Configuración para la base de datos de Render
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL || 'postgresql://tablero_user:zdR9rbB8bhIke5DC706ANbxVnJ0PvJrM@dpg-d1tfjure5dus73dhg1p0-a.oregon.render.com/tablero_user',
+  connectionString: process.env.DATABASE_URL || 'postgresql://tablero_user:zdR9rbB8bhIke5DC706ANbxVnJ0PvJrM@dpg-d1tfjure5dus73dhglp0-a.oregon-postgres.render.com/tablero_user',
   ssl: process.env.NODE_ENV === 'production' ? {
     rejectUnauthorized: false
   } : false
