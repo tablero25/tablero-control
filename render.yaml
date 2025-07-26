@@ -1,4 +1,4 @@
-# FORCE REDEPLOY: 2025-07-26T13:25:00.000Z
+# FORCE COMPLETE REDEPLOY: 2025-07-26T13:30:00.000Z
 services:
   - type: web
     name: tablero-control-1
