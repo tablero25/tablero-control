@@ -86,25 +86,27 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// Catch-all para todas las demás rutas GET del frontend (DEBE IR AL FINAL)
+// Catch-all para rutas GET del frontend (excluyendo /api)
 app.get('*', (req, res) => {
+  // Solo manejar rutas que NO empiecen con /api
+  if (req.path.startsWith('/api/')) {
+    return res.status(404).json({ 
+      error: `Ruta de API no encontrada: ${req.method} ${req.path}`,
+      availableRoutes: [
+        'POST /api/auth/login',
+        'POST /api/auth/register',
+        'GET /api/auth/verify',
+        'POST /api/auth/reset-users'
+      ]
+    });
+  }
+  
   // Para todas las demás rutas GET, servir el frontend React
   console.log(`🌐 Sirviendo frontend React para ruta: ${req.path}`);
   res.sendFile(path.join(buildPath, 'index.html'));
 });
 
-// Manejador de errores para rutas de API que no existen (DEBE IR AL FINAL)
-app.use('/api/*', (req, res) => {
-  res.status(404).json({ 
-    error: `Ruta de API no encontrada: ${req.method} ${req.path}`,
-    availableRoutes: [
-      'POST /api/auth/login',
-      'POST /api/auth/register',
-      'GET /api/auth/verify',
-      'POST /api/auth/reset-users'
-    ]
-  });
-});
+
 
 // Puerto del servidor
 const PORT = process.env.PORT || 5001;
