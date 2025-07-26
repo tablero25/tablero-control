@@ -10,8 +10,21 @@ function ChangePassword({ onCancel, onSuccess }) {
   const getCurrentUser = () => {
     try {
       const userStr = localStorage.getItem('user');
-      return userStr ? JSON.parse(userStr) : null;
+      const user = userStr ? JSON.parse(userStr) : null;
+      
+      // Si el usuario no tiene rol, limpiar localStorage y pedir relogin
+      if (user && !user.role) {
+        console.log('[CHANGE-PASSWORD] Usuario sin rol detectado, limpiando localStorage');
+        localStorage.removeItem('user');
+        localStorage.removeItem('token');
+        return null;
+      }
+      
+      return user;
     } catch (e) {
+      console.log('[CHANGE-PASSWORD] Error parseando usuario del localStorage:', e);
+      localStorage.removeItem('user');
+      localStorage.removeItem('token');
       return null;
     }
   };
@@ -40,6 +53,11 @@ function ChangePassword({ onCancel, onSuccess }) {
     setSuccess('');
 
     // Validaciones
+    if (!formData.username) {
+      setError('El nombre de usuario es requerido');
+      return;
+    }
+
     if (formData.newPassword !== formData.confirmPassword) {
       setError('Las contraseñas nuevas no coinciden');
       return;
@@ -49,6 +67,8 @@ function ChangePassword({ onCancel, onSuccess }) {
       setError('La nueva contraseña debe tener al menos 6 caracteres');
       return;
     }
+
+    console.log('[CHANGE-PASSWORD] Intentando cambiar contraseña para:', formData.username);
 
     try {
       const res = await fetch('https://tablero-control-1.onrender.com/api/auth/change-password', {
@@ -96,6 +116,24 @@ function ChangePassword({ onCancel, onSuccess }) {
               fontSize: '14px'
             }}>
               Cambiando contraseña para: <strong>{currentUser.username}</strong>
+              {!currentUser.role && (
+                <div style={{ marginTop: '5px', color: '#d32f2f' }}>
+                  ⚠️ Información de usuario incompleta. 
+                  <button 
+                    onClick={() => window.location.reload()} 
+                    style={{ 
+                      background: 'none', 
+                      border: 'none', 
+                      color: '#1976d2', 
+                      textDecoration: 'underline', 
+                      cursor: 'pointer',
+                      marginLeft: '5px'
+                    }}
+                  >
+                    Recargar página
+                  </button>
+                </div>
+              )}
             </div>
           )}
           
