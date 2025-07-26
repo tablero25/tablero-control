@@ -20,15 +20,44 @@ if (process.env.NODE_ENV === 'development') {
   };
 }
 
-// Utilidad para fetch con token
-function fetchWithAuth(url, options = {}) {
+// Utilidad para fetch con manejo de token y renovación automática
+const fetchWithAuth = async (url, options = {}) => {
   const token = localStorage.getItem('token');
-  const headers = options.headers || {};
-  if (token) {
-    headers['Authorization'] = 'Bearer ' + token;
+  
+  // Configurar headers iniciales
+  const headers = {
+    'Content-Type': 'application/json',
+    ...options.headers,
+    ...(token && { 'Authorization': `Bearer ${token}` })
+  };
+
+  try {
+    // Realizar la petición
+    const response = await fetch(url, { ...options, headers });
+    
+    // Verificar si el token está a punto de expirar
+    const newToken = response.headers.get('X-New-Token');
+    if (newToken) {
+      console.log('Renovando token automáticamente');
+      localStorage.setItem('token', newToken);
+    }
+    
+    // Si el token expiró, forzar cierre de sesión
+    if (response.status === 401) {
+      const errorData = await response.json().catch(() => ({}));
+      if (errorData.code === 'TOKEN_EXPIRED') {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.href = '/sistema-tablero/login';
+      }
+    }
+    
+    return response;
+  } catch (error) {
+    console.error('Error en la petición:', error);
+    throw error;
   }
-  return fetch(url, { ...options, headers });
-}
+};
 
 // Componente GaugeChart mejorado para evitar errores de ResizeObserver
 const SafeGaugeChart = ({ percent, ...props }) => {

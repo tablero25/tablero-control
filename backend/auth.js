@@ -28,7 +28,7 @@ const generateToken = (user) => {
   );
 };
 
-// Middleware para verificar JWT
+// Middleware para verificar JWT con renovación automática
 const authenticateToken = (req, res, next) => {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
@@ -37,13 +37,30 @@ const authenticateToken = (req, res, next) => {
     return res.status(401).json({ error: 'Token requerido' });
   }
 
-  jwt.verify(token, JWT_SECRET, (err, user) => {
-    if (err) {
-      return res.status(403).json({ error: 'Token inválido' });
+  try {
+    // Verificar el token
+    const user = jwt.verify(token, JWT_SECRET);
+    
+    // Verificar si el token está a punto de expirar (menos de 30 minutos)
+    const now = Math.floor(Date.now() / 1000);
+    const expiresIn = user.exp - now;
+    
+    // Si el token está a punto de expirar, emitir uno nuevo
+    if (expiresIn < 1800) { // 30 minutos en segundos
+      console.log('Token a punto de expirar, renovando...');
+      const newToken = generateToken(user);
+      res.set('X-Token-Expired-Soon', 'true');
+      res.set('X-New-Token', newToken);
     }
+    
     req.user = user;
     next();
-  });
+  } catch (err) {
+    if (err.name === 'TokenExpiredError') {
+      return res.status(401).json({ error: 'Token expirado', code: 'TOKEN_EXPIRED' });
+    }
+    return res.status(403).json({ error: 'Token inválido', details: err.message });
+  }
 };
 
 // Middleware para verificar roles
