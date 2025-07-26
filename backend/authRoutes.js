@@ -603,4 +603,38 @@ router.get('/establecimientos', async (req, res) => {
   }
 });
 
+// ENDPOINT TEMPORAL PARA RESETEAR USUARIOS Y CREAR UNO NUEVO
+router.post('/reset-users', async (req, res) => {
+  try {
+    // Eliminar todos los usuarios excepto el admin principal (opcional)
+    await pool.query('DELETE FROM users');
+
+    // Crear usuario nuevo
+    const username = '123';
+    const password = '123';
+    const email = '123@correo.com';
+    const role = 'admin';
+    const dni = '123';
+    const nombre = 'Usuario';
+    const apellido = 'Demo';
+    const funcion = 'admin';
+    const hashedPassword = await hashPassword(password);
+
+    const result = await pool.query(
+      `INSERT INTO users (username, password_hash, email, role, dni, nombre, apellido, funcion, is_active, is_confirmed, is_blocked, first_login)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, TRUE, TRUE, FALSE, FALSE) RETURNING id, username, email, role` ,
+      [username, hashedPassword, email, role, dni, nombre, apellido, funcion]
+    );
+
+    res.json({
+      success: true,
+      message: 'Usuarios eliminados y usuario 123 creado',
+      user: result.rows[0]
+    });
+  } catch (error) {
+    console.error('Error reseteando usuarios:', error);
+    res.status(500).json({ error: 'Error reseteando usuarios' });
+  }
+});
+
 module.exports = router; 

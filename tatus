@@ -1,0 +1,5 @@
+[33m5a2cae3[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m Fix: Remove role restrictions and add logging for user management
+[33mdd393b5[m Agregar botón Tablero y corregir extracción de usuarios - Agregado botón Tablero al Header - Corregido endpoint /api/users para devolver array directamente - Agregado script SQL para campos is_confirmed e is_blocked - Mejorado manejo de campos faltantes en base de datos
+[33m0af8e60[m Remover restricciones de rol para endpoints de gestión de usuarios
+[33m8068253[m Quitar restricciones de permisos de administrador para acceso a configuración
+[33m800b1a4[m Agregar dependencias faltantes para autenticación (bcryptjs, jsonwebtoken, express-session)

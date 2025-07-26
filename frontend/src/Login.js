@@ -29,16 +29,29 @@ function Login({ onLogin, onShowRegister }) {
         body: JSON.stringify({ username, password }),
       });
       const data = await res.json();
+      console.log('[LOGIN] Respuesta del servidor:', data);
+      
       if (data.success) {
+        console.log('[LOGIN] Login exitoso, token recibido:', data.token ? 'Sí' : 'No');
+        
         // Asegurar que solo se guarde el token real del backend
-        localStorage.setItem('token', data.token);
+        if (data.token) {
+          localStorage.setItem('token', data.token);
+          console.log('[LOGIN] Token guardado en localStorage');
+        } else {
+          console.error('[LOGIN] ERROR: No se recibió token del servidor');
+        }
+        
         // Guardar también el usuario en localStorage para acceso inmediato
         if (data.user) {
           localStorage.setItem('user', JSON.stringify(data.user));
+          console.log('[LOGIN] Usuario guardado en localStorage');
         }
+        
         // Verificar que el token se guardó correctamente
         const savedToken = localStorage.getItem('token');
-        console.log('Token guardado:', savedToken ? 'Sí (JWT válido)' : 'No');
+        console.log('[LOGIN] Verificación - Token guardado:', savedToken ? 'Sí (JWT válido)' : 'No');
+        console.log('[LOGIN] Token completo:', savedToken);
         
         if (data.user.first_login) {
           window.location.href = '/change-password';
