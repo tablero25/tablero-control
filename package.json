@@ -1,6 +1,6 @@
 {
   "name": "tablero-root",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Sistema de Tableros de Control - Full Stack",
   "main": "backend/server.js",
   "scripts": {
