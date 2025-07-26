@@ -191,15 +191,15 @@ app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
-// Servir archivos estáticos del build de React (desde frontend/build)
-app.use('/static', express.static(path.join(__dirname, '../frontend/build/static')));
-app.use('/logo192.png', express.static(path.join(__dirname, '../frontend/build/logo192.png')));
-app.use('/favicon.ico', express.static(path.join(__dirname, '../frontend/build/favicon.ico')));
-app.use('/manifest.json', express.static(path.join(__dirname, '../frontend/build/manifest.json')));
+// Servir archivos estáticos del build de React (desde build/ en producción)
+app.use('/static', express.static(path.join(__dirname, 'build/static')));
+app.use('/logo192.png', express.static(path.join(__dirname, 'build/logo192.png')));
+app.use('/favicon.ico', express.static(path.join(__dirname, 'build/favicon.ico')));
+app.use('/manifest.json', express.static(path.join(__dirname, 'build/manifest.json')));
 
 // Servir favicon.ico desde cualquier ruta
 app.get('*/favicon.ico', (req, res) => {
-  res.sendFile(path.join(__dirname, '../frontend/build/favicon.ico'));
+  res.sendFile(path.join(__dirname, 'build/favicon.ico'));
 });
 
 // Rutas de autenticación (definidas directamente para pruebas)
@@ -2253,7 +2253,7 @@ app.get('*', (req, res) => {
   }
   
   // Solo para rutas de React
-  res.sendFile(path.join(__dirname, '../frontend/build/index.html'));
+  res.sendFile(path.join(__dirname, 'build/index.html'));
 });
 
 app.listen(5001, () => {
