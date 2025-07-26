@@ -86,7 +86,14 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// Manejador de errores para rutas de API que no existen
+// Catch-all para todas las demás rutas del frontend (DEBE IR AL FINAL)
+app.get('*', (req, res) => {
+  // Para todas las demás rutas, servir el frontend React
+  console.log(`🌐 Sirviendo frontend React para ruta: ${req.path}`);
+  res.sendFile(path.join(buildPath, 'index.html'));
+});
+
+// Manejador de errores para rutas de API que no existen (DEBE IR AL FINAL)
 app.use('/api/*', (req, res) => {
   res.status(404).json({ 
     error: `Ruta de API no encontrada: ${req.method} ${req.path}`,
@@ -97,13 +104,6 @@ app.use('/api/*', (req, res) => {
       'POST /api/auth/reset-users'
     ]
   });
-});
-
-// Catch-all para todas las demás rutas del frontend (DEBE IR AL FINAL)
-app.get('*', (req, res) => {
-  // Para todas las demás rutas, servir el frontend React
-  console.log(`🌐 Sirviendo frontend React para ruta: ${req.path}`);
-  res.sendFile(path.join(buildPath, 'index.html'));
 });
 
 // Puerto del servidor
